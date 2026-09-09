@@ -402,14 +402,19 @@
             budgets: { ...DEFAULT_BUDGETS }
         };
 
-        // 初始化
+                // 初始化
         window.addEventListener('DOMContentLoaded', () => {
             loadStoredConfig();
             loadStoredData();
             initSortableLayout();
             renderCalendar();
             renderFinancialSummary();
+
+            // 自動將首頁輸入框預設為今天
+            const homeDate = document.getElementById('homeEventDate');
+            if (homeDate) homeDate.value = new Date().toISOString().split('T')[0];
         });
+
 
         // 模組拖曳排序初始化
         function initSortableLayout() {
@@ -862,6 +867,35 @@
             saveStoredData();
             renderModalEvents();
             renderCalendar();
+        }
+        // 首頁直接快速加入日程
+        function handleHomeQuickAddEvent(e) {
+            e.preventDefault();
+            const date = document.getElementById('homeEventDate').value;
+            const time = document.getElementById('homeEventTime').value;
+            const location = document.getElementById('homeEventLocation').value.trim();
+            const title = document.getElementById('homeEventTitle').value.trim();
+
+            if (!title || !date) return;
+
+            // 加入系統現有的 eventsData 陣列
+            eventsData.push({
+                id: 'evt_' + Date.now(),
+                date: date,
+                time: time,
+                location: location,
+                title: title
+            });
+
+            // 存入 LocalStorage 並即時更新日曆
+            saveStoredData();
+            renderCalendar();
+
+            // 清空輸入框（保留日期方便連打）
+            document.getElementById('homeEventTitle').value = '';
+            document.getElementById('homeEventLocation').value = '';
+            
+            alert(`✅ 已成功排入日程：${title} (${date})`);
         }
 
         // 待辦清單 (Todos) 邏輯
