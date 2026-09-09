@@ -81,6 +81,44 @@
 
         <!-- 可拖曳模組容器 -->
         <div id="sortableContainer" class="space-y-6">
+<!-- 模組：首頁快速日程輸入 (Quick Add Event Module) -->
+<div id="module-quick-event" data-id="module-quick-event" class="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-700 transition">
+  <div class="flex items-center justify-between mb-3">
+    <div class="flex items-center gap-2">
+      <span class="drag-handle cursor-grab text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+        <i class="fa-solid fa-grip-vertical"></i>
+      </span>
+      <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100 flex items-center gap-2">
+        <i class="fa-regular fa-calendar-plus text-blue-500"></i> 快速建立日程
+      </h3>
+    </div>
+    <span class="text-xs text-gray-400">按 Enter 即刻儲存</span>
+  </div>
+
+  <!-- 首頁直接輸入表單 -->
+  <form id="homeQuickEventForm" onsubmit="handleHomeQuickAddEvent(event)" class="flex flex-wrap md:flex-nowrap items-center gap-2">
+    <!-- 選擇日期 (預設今天) -->
+    <input type="date" id="homeEventDate" required
+      class="px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-200 outline-none focus:ring-2 focus:ring-blue-500">
+
+    <!-- 選擇時間 (選填) -->
+    <input type="time" id="homeEventTime"
+      class="px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-200 outline-none focus:ring-2 focus:ring-blue-500">
+
+    <!-- 輸入日程內容 -->
+    <input type="text" id="homeEventTitle" placeholder="想安排甚麼？(例: 與客戶開會 / 睇醫生)..." required
+      class="flex-1 min-w-[200px] px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-200 outline-none focus:ring-2 focus:ring-blue-500">
+
+    <!-- 地點 (選填) -->
+    <input type="text" id="homeEventLocation" placeholder="地點 (選填)"
+      class="w-28 md:w-36 px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-200 outline-none focus:ring-2 focus:ring-blue-500">
+
+    <!-- 新增按鈕 -->
+    <button type="submit" class="w-full md:w-auto px-5 py-2 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white text-sm font-medium rounded-xl flex items-center justify-center gap-1.5 shadow-sm transition">
+      <i class="fa-solid fa-plus"></i> 新增
+    </button>
+  </form>
+</div>
 
             <!-- 模組 1: 當月財務指標卡片 -->
             <section data-id="module-metrics" class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-sm relative group">
