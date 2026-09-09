@@ -1,662 +1,1043 @@
 <!DOCTYPE html>
 <html lang="zh-HK">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>智能日程 & 記賬預算日曆 | Calendar & Budget App</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Calendar & Budget Tracker 2026</title>
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,500;0,600;1,400&display=swap" rel="stylesheet">
-  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
   <style>
-    body.theme-apple {
-      background-color: #f5f5f7;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
-      --card-bg: rgba(255, 255, 255, 0.85);
-      --card-border: rgba(0, 0, 0, 0.06);
-      --cell-bg: #ffffff;
-      --cell-hover: #fbfbfd;
-      --text-main: #1d1d1f;
-      --text-sub: #86868b;
-      --primary-btn: #0071e3;
-      --primary-hover: #0077ed;
-      --badge-bg: #e8f2ff;
-      --badge-text: #0066cc;
-      --holiday-text: #ff3b30;
-      --holiday-bg: #fff2f2;
-      --progress-bg: #e5e5ea;
-      --blur: blur(20px);
-    }
-    body.theme-notion {
-      background-color: #f7f6f3;
-      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      --card-bg: #ffffff;
-      --card-border: #e9e9e7;
-      --cell-bg: #ffffff;
-      --cell-hover: #f1f0ee;
-      --text-main: #37352f;
-      --text-sub: #787774;
-      --primary-btn: #37352f;
-      --primary-hover: #201f1d;
-      --badge-bg: #f1f0ef;
-      --badge-text: #37352f;
-      --holiday-text: #eb5757;
-      --holiday-bg: #fdf5f5;
-      --progress-bg: #eaeaea;
-      --blur: none;
-    }
-    body.theme-notion h1, body.theme-notion h2 { font-family: "Lora", serif; }
-
-    body.theme-morandi {
-      background-color: #f3efe9;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      --card-bg: #faf7f2;
-      --card-border: #e2ded7;
-      --cell-bg: #faf7f2;
-      --cell-hover: #ede7de;
-      --text-main: #4a443f;
-      --text-sub: #8d857d;
-      --primary-btn: #6e7c70;
-      --primary-hover: #5d6a5f;
-      --badge-bg: #e5ebe6;
-      --badge-text: #485c4c;
-      --holiday-text: #a86454;
-      --holiday-bg: #f5ebe8;
-      --progress-bg: #e5ded6;
-      --blur: none;
-    }
-
-    body.theme-dark {
-      background-color: #0b0f19;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      --card-bg: #151d30;
-      --card-border: #232f48;
-      --cell-bg: #121826;
-      --cell-hover: #1c263c;
-      --text-main: #f1f5f9;
-      --text-sub: #94a3b8;
-      --primary-btn: #3b82f6;
+    /* 主題變數設定 */
+    :root {
+      --bg-main: #f8fafc;
+      --bg-card: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --primary-color: #3b82f6;
       --primary-hover: #2563eb;
-      --badge-bg: #1e293b;
-      --badge-text: #60a5fa;
-      --holiday-text: #f87171;
-      --holiday-bg: #2a1b22;
-      --progress-bg: #1e293b;
-      --blur: none;
+      --progress-bg: #f1f5f9;
+    }
+    .theme-notion {
+      --bg-main: #fbfbfa;
+      --bg-card: #ffffff;
+      --text-main: #37352f;
+      --text-muted: #787774;
+      --border-color: #edece9;
+      --primary-color: #2eaadc;
+      --primary-hover: #1f85ad;
+      --progress-bg: #f2f1ee;
+    }
+    .theme-morandi {
+      --bg-main: #f3eee8;
+      --bg-card: #fcfbfa;
+      --text-main: #4a443f;
+      --text-muted: #8d857e;
+      --border-color: #e0d8ce;
+      --primary-color: #7b8e7e;
+      --primary-hover: #637365;
+      --progress-bg: #e7dfd5;
+    }
+    .theme-dark {
+      --bg-main: #0f172a;
+      --bg-card: #1e293b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+      --primary-color: #60a5fa;
+      --primary-hover: #3b82f6;
+      --progress-bg: #334155;
     }
 
-    .theme-card {
-      background-color: var(--card-bg);
-      border: 1px solid var(--card-border);
+    body {
+      background-color: var(--bg-main);
       color: var(--text-main);
-      backdrop-filter: var(--blur);
-      -webkit-backdrop-filter: var(--blur);
+      transition: background-color 0.25s ease, color 0.25s ease;
     }
-    .theme-cell { background-color: var(--cell-bg); color: var(--text-main); }
-    .theme-cell:hover { background-color: var(--cell-hover); }
-    .theme-btn-primary { background-color: var(--primary-btn); color: #ffffff; }
-    .theme-btn-primary:hover { background-color: var(--primary-hover); }
-    .theme-badge { background-color: var(--badge-bg); color: var(--badge-text); }
-    .holiday-cell { background-color: var(--holiday-bg) !important; }
-    .holiday-color { color: var(--holiday-text) !important; }
-    .text-sub { color: var(--text-sub); }
+    .card-bg { background-color: var(--bg-card); }
+    .border-base { border-color: var(--border-color); }
+    .text-muted-base { color: var(--text-muted); }
+    .btn-primary { background-color: var(--primary-color); color: white; }
+    .btn-primary:hover { background-color: var(--primary-hover); }
     .bg-progress-base { background-color: var(--progress-bg); }
   </style>
 </head>
-<body class="theme-apple min-h-screen p-3 sm:p-6 md:p-8 transition-colors duration-300">
+<body class="min-h-screen p-4 md:p-8 font-sans antialiased">
 
-  <div class="max-w-4xl mx-auto space-y-4 sm:space-y-6">
-    
-    <!-- Header -->
-    <header class="theme-card p-4 sm:p-5 rounded-2xl shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+  <div class="max-w-6xl mx-auto space-y-6">
+
+    <!-- 頂部導航與設定 -->
+    <header class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-base pb-5">
       <div>
-        <h1 class="text-xl sm:text-2xl font-bold flex items-center gap-2">
-          <span>🗓️</span> 智能日程 & 記賬預算
-        </h1>
-        <p class="text-xs text-sub mt-1">支援中英廣東話 ‧ 家用/零用/備用/投資預算 ‧ 香港假期</p>
+        <h1 class="text-2xl md:text-3xl font-bold tracking-tight">智能日程與財務儲蓄日曆</h1>
+        <p class="text-sm text-muted-base mt-1">支援中/英/廣東話輸入 · 支援手動編輯修正 · 儲蓄資產池追蹤</p>
       </div>
-
-      <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-        <button onclick="openBudgetModal()" class="text-xs px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 hover:opacity-80 font-medium">
-          ⚙️ 設定 Budget
-        </button>
-        <select id="themeSelector" onchange="changeTheme(this.value)" class="text-xs px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-transparent font-medium cursor-pointer focus:outline-none">
-          <option value="theme-apple">🍎 蘋果原生風</option>
-          <option value="theme-notion">📓 Notion 極簡</option>
-          <option value="theme-morandi">🍵 莫蘭迪大地</option>
-          <option value="theme-dark">🌙 暗黑深夜風</option>
+      <div class="flex flex-wrap items-center gap-2">
+        <select id="themeSelect" onchange="changeTheme(this.value)" class="text-sm px-3 py-2 rounded-lg border border-base card-bg text-main focus:outline-none">
+          <option value="theme-apple">極簡 Apple 白</option>
+          <option value="theme-notion">質感 Notion 米白</option>
+          <option value="theme-morandi">莫蘭迪 復古灰綠</option>
+          <option value="theme-dark">極客 暗夜深色</option>
         </select>
-        <button onclick="toggleApiInput()" class="text-xs text-sub hover:underline px-2 py-1">API Key</button>
+        <button onclick="openConfigModal()" class="px-3 py-2 text-sm border border-base card-bg rounded-lg hover:opacity-80 transition flex items-center gap-1.5 shadow-sm">
+          <i data-lucide="settings" class="w-4 h-4"></i> 財務與預算設定
+        </button>
+        <button onclick="openApiModal()" class="px-3 py-2 text-sm border border-base card-bg rounded-lg hover:opacity-80 transition flex items-center gap-1.5 shadow-sm">
+          <i data-lucide="key" class="w-4 h-4"></i> AI 設定
+        </button>
       </div>
     </header>
 
-    <!-- API 設定 (摺疊) -->
-    <div id="apiKeySection" class="hidden theme-card p-4 rounded-xl shadow-sm flex gap-2 items-center">
-      <input id="apiKeyInput" type="password" placeholder="可選：Groq/OpenRouter Key（留空亦可無縫本地運作）" class="flex-1 text-xs px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent focus:outline-none">
-      <button onclick="saveApiKey()" class="theme-btn-primary text-xs px-4 py-2 rounded-lg font-medium">儲存</button>
-    </div>
+    <!-- 智能自然語言輸入框 -->
+    <section class="card-bg p-4 md:p-5 rounded-2xl border border-base shadow-sm">
+      <form onsubmit="handleNaturalInput(event)" class="space-y-3">
+        <div class="flex flex-col md:flex-row gap-2">
+          <div class="relative flex-1">
+            <input 
+              type="text" 
+              id="naturalInput" 
+              placeholder="試試：1Sep 家用 $5000 / 明天 3pm 開會 / spent 80 on lunch / 9月5號 買美股 3000..." 
+              class="w-full px-4 py-3 rounded-xl border border-base card-bg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              required
+            />
+          </div>
+          <button type="submit" id="submitBtn" class="btn-primary px-6 py-3 rounded-xl text-sm font-medium transition flex items-center justify-center gap-2 shadow-sm">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i> 智能辨識添加
+          </button>
+        </div>
+        <div class="flex items-center justify-between text-xs text-muted-base px-1">
+          <span>支援中英日期優先識別（如 1Sep, 9月1日）、四大分類自動歸類</span>
+          <span id="aiStatusBadge" class="inline-flex items-center gap-1 text-slate-400">本地離線引擎</span>
+        </div>
+      </form>
+    </section>
 
-    <!-- 預算進度條面板 (Budget Dashboard) -->
-    <section class="theme-card p-4 sm:p-5 rounded-2xl shadow-sm space-y-3">
+    <!-- 💰 儲蓄與財富追蹤儀表板 (A+C) -->
+    <section class="card-bg p-5 md:p-6 rounded-2xl border border-base shadow-sm space-y-5">
+      
+      <!-- C: 總儲蓄池與目標 -->
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-2">
+            <div class="p-1.5 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400">
+              <i data-lucide="piggy-bank" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h2 class="text-base font-semibold">長期儲蓄總池</h2>
+              <p class="text-xs text-muted-base">底數 + 累計記賬淨結餘</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <span class="text-xs text-muted-base">目標: </span>
+            <span class="text-sm font-semibold" id="savingsTargetLabel">HK$ 500,000</span>
+          </div>
+        </div>
+
+        <!-- 總目標進度條 -->
+        <div class="space-y-1.5">
+          <div class="w-full bg-progress-base h-4 rounded-full overflow-hidden p-0.5 border border-base">
+            <div id="savingsTotalProgressBar" class="h-full rounded-full transition-all duration-500 bg-gradient-to-r from-amber-500 to-emerald-500" style="width: 0%"></div>
+          </div>
+          <div class="flex justify-between text-xs font-medium">
+            <span id="currentTotalSavingsLabel" class="text-emerald-600 dark:text-emerald-400 font-bold">HK$ 0</span>
+            <span id="savingsProgressPercent" class="text-muted-base">0.0%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- A: 當月收支與結餘指標卡 (3 欄) -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-3 border-t border-base">
+        <div class="p-3.5 rounded-xl bg-progress-base border border-base flex flex-col justify-between">
+          <span class="text-xs text-muted-base">💵 本月預計收入</span>
+          <span class="text-lg font-bold mt-1" id="dashMonthlyIncome">HK$ 0</span>
+        </div>
+        <div class="p-3.5 rounded-xl bg-progress-base border border-base flex flex-col justify-between">
+          <span class="text-xs text-muted-base">📉 本月累計開支</span>
+          <span class="text-lg font-bold text-rose-500 mt-1" id="dashMonthlyExpense">HK$ 0</span>
+        </div>
+        <div class="p-3.5 rounded-xl bg-progress-base border border-base flex flex-col justify-between">
+          <span class="text-xs text-muted-base">🪙 本月儲蓄盈餘 (收入 - 開支)</span>
+          <span class="text-lg font-bold mt-1" id="dashMonthlyBalance">HK$ 0</span>
+        </div>
+      </div>
+
+      <!-- 四大分類月度預算進度條 -->
+      <div class="pt-3 border-t border-base">
+        <h3 class="text-xs font-semibold uppercase tracking-wider text-muted-base mb-3">四大分類預算監控</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="budgetProgressContainer"></div>
+      </div>
+    </section>
+
+    <!-- 日曆核心控制區 -->
+    <main class="card-bg p-4 md:p-6 rounded-2xl border border-base shadow-sm">
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-3">
+          <h2 class="text-xl md:text-2xl font-bold" id="currentMonthYearLabel"></h2>
+          <button onclick="goToToday()" class="px-2.5 py-1 text-xs border border-base rounded-md hover:opacity-80">今天</button>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <button onclick="changeMonth(-1)" class="p-2 rounded-lg border border-base hover:opacity-80"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+          <button onclick="changeMonth(1)" class="p-2 rounded-lg border border-base hover:opacity-80"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-7 gap-1 md:gap-2 mb-2 text-center text-xs font-semibold text-muted-base">
+        <div class="text-rose-500">日</div>
+        <div>一</div>
+        <div>二</div>
+        <div>三</div>
+        <div>四</div>
+        <div>五</div>
+        <div class="text-blue-500">六</div>
+      </div>
+
+      <div id="calendarGrid" class="grid grid-cols-7 gap-1 md:gap-2"></div>
+    </main>
+  </div>
+
+  <!-- 單日詳情 Modal (支援刪除與編輯按鈕) -->
+  <div id="dayModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="card-bg w-full max-w-md rounded-2xl border border-base p-6 shadow-xl space-y-4">
+      <div class="flex justify-between items-start">
+        <div>
+          <h3 id="modalDateTitle" class="text-lg font-bold"></h3>
+          <p id="modalHolidaySubtitle" class="text-xs text-rose-500 font-medium"></p>
+        </div>
+        <button onclick="closeDayModal()" class="p-1 rounded-lg border border-base hover:opacity-80"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+
+      <!-- 日程清單 -->
+      <div>
+        <h4 class="text-xs font-semibold uppercase tracking-wider text-muted-base mb-2">日程事項</h4>
+        <div id="modalEventList" class="space-y-1.5 max-h-36 overflow-y-auto pr-1"></div>
+      </div>
+
+      <!-- 開支清單 -->
+      <div>
+        <h4 class="text-xs font-semibold uppercase tracking-wider text-muted-base mb-2">開支紀錄</h4>
+        <div id="modalExpenseList" class="space-y-1.5 max-h-36 overflow-y-auto pr-1"></div>
+      </div>
+
+      <div class="pt-2 border-t border-base flex justify-end">
+        <button onclick="closeDayModal()" class="px-4 py-2 text-sm border border-base rounded-xl hover:opacity-80">關閉</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✏️ 專屬項目編輯 Modal -->
+  <div id="editModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-[60] flex items-center justify-center p-4">
+    <div class="card-bg w-full max-w-md rounded-2xl border border-base p-6 shadow-2xl space-y-4">
+      <div class="flex justify-between items-center border-b border-base pb-3">
+        <h3 class="text-base font-bold flex items-center gap-2">
+          <i data-lucide="edit-3" class="w-4 h-4 text-blue-500"></i> 編輯紀錄
+        </h3>
+        <button onclick="closeEditModal()" class="p-1 rounded-lg border border-base hover:opacity-80"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+
+      <input type="hidden" id="editItemType" />
+      <input type="hidden" id="editItemId" />
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs text-muted-base mb-1">日期 (可跨日移動)</label>
+          <input type="date" id="editDate" class="w-full px-3 py-2 rounded-lg border border-base card-bg text-sm" required />
+        </div>
+
+        <div>
+          <label class="block text-xs text-muted-base mb-1" id="editTitleLabel">項目 / 事項名稱</label>
+          <input type="text" id="editTitle" class="w-full px-3 py-2 rounded-lg border border-base card-bg text-sm" required />
+        </div>
+
+        <!-- 開支專用欄位 -->
+        <div id="editExpenseFields" class="space-y-3">
+          <div>
+            <label class="block text-xs text-muted-base mb-1">金額 (HKD)</label>
+            <input type="number" step="any" id="editAmount" class="w-full px-3 py-2 rounded-lg border border-base card-bg text-sm font-semibold" />
+          </div>
+          <div>
+            <label class="block text-xs text-muted-base mb-1">分類</label>
+            <select id="editCategory" class="w-full px-3 py-2 rounded-lg border border-base card-bg text-sm">
+              <option value="家用">🏠 家用 (Household)</option>
+              <option value="零用錢">☕ 零用錢 (Personal)</option>
+              <option value="備用金">🛡️ 備用金 (Emergency)</option>
+              <option value="投資">📈 投資 (Investment)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 日程專用欄位 -->
+        <div id="editEventFields" class="space-y-3 hidden">
+          <div>
+            <label class="block text-xs text-muted-base mb-1">時間 (如 14:30 或留空代表全天)</label>
+            <input type="text" id="editTime" placeholder="例如 15:00 或 3pm" class="w-full px-3 py-2 rounded-lg border border-base card-bg text-sm" />
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-3 border-t border-base flex justify-end gap-2">
+        <button onclick="closeEditModal()" class="px-4 py-2 text-sm border border-base rounded-xl hover:opacity-80">取消</button>
+        <button onclick="saveEditItem()" class="btn-primary px-5 py-2 text-sm font-medium rounded-xl shadow-sm">儲存修改</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 財務與預算設定 Modal -->
+  <div id="configModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="card-bg w-full max-w-lg rounded-2xl border border-base p-6 shadow-xl space-y-5 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center border-b border-base pb-3">
+        <h3 class="text-lg font-bold flex items-center gap-2">
+          <i data-lucide="sliders" class="w-5 h-5 text-blue-500"></i> 財務、儲蓄與預算設定
+        </h3>
+        <button onclick="closeConfigModal()" class="p-1 rounded-lg border border-base hover:opacity-80"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+
+      <div class="space-y-3">
+        <h4 class="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">💰 儲蓄與收入設定 (A+C)</h4>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-xs text-muted-base mb-1">每月預計收入 (HKD)</label>
+            <input type="number" id="inputMonthlyIncome" class="w-full px-3 py-2 rounded-lg border border-base card-bg text-sm font-semibold" placeholder="30000" />
+          </div>
+          <div>
+            <label class="block text-xs text-muted-base mb-1">現有儲蓄底數 (HKD)</label>
+            <input type="number" id="inputSavingsBase" class="w-full px-3 py-2 rounded-lg border border-base card-bg text-sm font-semibold" placeholder="100000" />
+          </div>
+          <div>
+            <label class="block text-xs text-muted-base mb-1">長期儲蓄目標 (HKD)</label>
+            <input type="number" id="inputSavingsTarget" class="w-full px-3 py-2 rounded-lg border border-base card-bg text-sm font-semibold" placeholder="500000" />
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-3 pt-3 border-t border-base">
+        <h4 class="text-xs font-bold uppercase tracking-wider text-muted-base">📊 四大月度開支上限 (HKD)</h4>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs text-muted-base mb-1">🏠 家用 (Household)</label>
+            <input type="number" id="budgetInput_家用" class="w-full px-3 py-2 rounded-lg border border-base card-bg text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs text-muted-base mb-1">☕ 零用錢 (Personal)</label>
+            <input type="number" id="budgetInput_零用錢" class="w-full px-3 py-2 rounded-lg border border-base card-bg text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs text-muted-base mb-1">🛡️ 備用金 (Emergency)</label>
+            <input type="number" id="budgetInput_備用金" class="w-full px-3 py-2 rounded-lg border border-base card-bg text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs text-muted-base mb-1">📈 投資 (Investment)</label>
+            <input type="number" id="budgetInput_投資" class="w-full px-3 py-2 rounded-lg border border-base card-bg text-sm" />
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-3 border-t border-base flex justify-end gap-2">
+        <button onclick="closeConfigModal()" class="px-4 py-2 text-sm border border-base rounded-xl hover:opacity-80">取消</button>
+        <button onclick="saveConfigSettings()" class="btn-primary px-5 py-2 text-sm font-medium rounded-xl shadow-sm">儲存設定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Key Modal -->
+  <div id="apiModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="card-bg w-full max-w-md rounded-2xl border border-base p-6 shadow-xl space-y-4">
       <div class="flex justify-between items-center">
-        <h3 class="text-xs font-bold uppercase tracking-wider text-sub">📊 本月預算追蹤 / Monthly Budget Status</h3>
-        <button onclick="openBudgetModal()" class="text-xs text-blue-500 hover:underline">修改額度</button>
+        <h3 class="text-lg font-bold flex items-center gap-2"><i data-lucide="bot" class="w-5 h-5"></i> AI API 設定</h3>
+        <button onclick="closeApiModal()" class="p-1 rounded-lg border border-base hover:opacity-80"><i data-lucide="x" class="w-4 h-4"></i></button>
       </div>
-
-      <div id="budgetGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-        <!-- JS 動態渲染四大分類進度條 -->
-      </div>
-    </section>
-
-    <!-- 自然語言輸入框 -->
-    <section class="theme-card p-4 sm:p-5 rounded-2xl shadow-sm space-y-3">
-      <div class="flex gap-2">
-        <input id="naturalInput" type="text" 
-          placeholder="e.g. 家用 $5000 / Dinner with friends $250 / 買ETF 投資 $3000 / 聽日下晝3點開會" 
-          class="flex-1 px-4 py-3 rounded-xl text-sm border border-slate-200 dark:border-slate-700 bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500/50"
-          onkeydown="if(event.key==='Enter') processInput()">
-        <button id="sendBtn" onclick="processInput()" class="theme-btn-primary font-medium text-sm px-5 py-3 rounded-xl transition flex items-center gap-1 shadow-sm shrink-0">
-          <span>記錄 / Add</span>
-        </button>
-      </div>
-      <p id="statusMsg" class="text-xs text-blue-500 hidden font-medium animate-pulse">⚡ Parsing / 智能分析中...</p>
-    </section>
-
-    <!-- 月份導航與統計 -->
-    <div class="flex flex-col sm:flex-row justify-between items-center gap-3 px-1">
-      <div class="flex items-center gap-2">
-        <button onclick="changeMonth(-1)" class="theme-card w-8 h-8 rounded-lg flex items-center justify-center hover:opacity-80">◀</button>
-        <h2 id="currentMonthYear" class="text-base sm:text-lg font-bold min-w-[140px] text-center tracking-tight"></h2>
-        <button onclick="changeMonth(1)" class="theme-card w-8 h-8 rounded-lg flex items-center justify-center hover:opacity-80">▶</button>
-        <button onclick="goToToday()" class="text-xs px-2.5 py-1.5 rounded-md font-medium text-sub hover:opacity-80">今天 / Today</button>
-      </div>
-
-      <div class="theme-card px-4 py-2 rounded-xl text-xs flex gap-4 font-medium shadow-sm">
-        <div>日程 / Events: <span id="monthEventCount" class="font-bold text-blue-500">0</span></div>
-        <div>總開支 / Expenses: <span id="monthExpenseTotal" class="font-bold text-rose-500">$0</span></div>
-      </div>
-    </div>
-
-    <!-- 月曆網格 -->
-    <section class="theme-card rounded-2xl shadow-sm border overflow-hidden">
-      <div class="grid grid-cols-7 text-center text-xs font-semibold py-2.5 border-b border-slate-200 dark:border-slate-800 text-sub">
-        <div class="holiday-color">Sun / 日</div>
-        <div>Mon / 一</div>
-        <div>Tue / 二</div>
-        <div>Wed / 三</div>
-        <div>Thu / 四</div>
-        <div>Fri / 五</div>
-        <div class="holiday-color">Sat / 六</div>
-      </div>
-      <div id="calendarGrid" class="grid grid-cols-7 gap-px bg-slate-200 dark:bg-slate-800 min-h-[500px]"></div>
-    </section>
-
-  </div>
-
-  <!-- Budget 設定 Modal -->
-  <div id="budgetModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-    <div class="theme-card rounded-2xl shadow-2xl max-w-sm w-full p-6 space-y-4 border">
-      <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
-        <h3 class="font-bold text-base">⚙️ 設定每月預算上限 (HKD)</h3>
-        <button onclick="closeBudgetModal()" class="text-sub hover:text-slate-900 dark:hover:text-white text-lg">✕</button>
-      </div>
-      <div class="space-y-3 text-sm">
-        <div>
-          <label class="text-xs text-sub block mb-1">🏠 家用 (Household)</label>
-          <input id="bg_household" type="number" class="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent text-sm">
-        </div>
-        <div>
-          <label class="text-xs text-sub block mb-1">🛍️ 零用錢 (Personal/Pocket)</label>
-          <input id="bg_pocket" type="number" class="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent text-sm">
-        </div>
-        <div>
-          <label class="text-xs text-sub block mb-1">🛡️ 備用金 (Emergency)</label>
-          <input id="bg_emergency" type="number" class="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent text-sm">
-        </div>
-        <div>
-          <label class="text-xs text-sub block mb-1">📈 投資 (Investment)</label>
-          <input id="bg_invest" type="number" class="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent text-sm">
-        </div>
-      </div>
-      <div class="pt-2 flex justify-end gap-2">
-        <button onclick="closeBudgetModal()" class="px-4 py-2 rounded-lg text-xs font-medium text-sub hover:opacity-80">取消</button>
-        <button onclick="saveBudgetSettings()" class="theme-btn-primary px-4 py-2 rounded-lg text-xs font-medium">儲存預算</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 單日詳情 Modal -->
-  <div id="dayModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-    <div class="theme-card rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-4 border">
-      <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
-        <div>
-          <h3 id="modalDateTitle" class="font-bold text-base"></h3>
-          <p id="modalHolidayTitle" class="text-xs holiday-color font-semibold mt-0.5"></p>
-        </div>
-        <button onclick="closeModal()" class="text-sub hover:text-slate-900 dark:hover:text-white text-lg">✕</button>
-      </div>
-
+      <p class="text-xs text-muted-base">選填。填寫後優先使用 Groq / OpenRouter 自然語言解析；未填寫時由本地引擎運作。</p>
       <div>
-        <h4 class="text-xs font-bold text-sub uppercase tracking-wider mb-2">📌 當日日程 / Events</h4>
-        <div id="modalEventList" class="space-y-1.5 text-sm max-h-40 overflow-y-auto"></div>
+        <label class="block text-xs text-muted-base mb-1">服務提供者</label>
+        <select id="apiProvider" class="w-full px-3 py-2 rounded-lg border border-base card-bg text-sm mb-2">
+          <option value="groq">Groq (llama-3.3-70b)</option>
+          <option value="openrouter">OpenRouter (llama-3.3-70b:free)</option>
+        </select>
+        <label class="block text-xs text-muted-base mb-1">API Key</label>
+        <input type="password" id="apiKeyInput" class="w-full px-3 py-2 rounded-lg border border-base card-bg text-sm" placeholder="gsk_... 或 sk-or-..." />
       </div>
-
-      <div>
-        <h4 class="text-xs font-bold text-sub uppercase tracking-wider mb-2">💰 當日花費 / Expenses</h4>
-        <div id="modalExpenseList" class="space-y-1.5 text-sm max-h-40 overflow-y-auto"></div>
-      </div>
-
-      <div class="pt-2 text-right">
-        <button onclick="closeModal()" class="theme-card text-xs px-4 py-2 rounded-lg font-medium hover:opacity-80">關閉</button>
+      <div class="flex justify-end gap-2 pt-2 border-t border-base">
+        <button onclick="closeApiModal()" class="px-4 py-2 text-sm border border-base rounded-xl hover:opacity-80">取消</button>
+        <button onclick="saveApiKey()" class="btn-primary px-4 py-2 text-sm rounded-xl">儲存</button>
       </div>
     </div>
   </div>
 
   <script>
+    // --- 1. 2026 香港法定公眾假期 ---
     const HK_HOLIDAYS_2026 = {
-      "2026-01-01": "元旦 New Year", "2026-02-17": "初一 CNY Day 1", "2026-02-18": "初二 CNY Day 2",
-      "2026-02-19": "初三 CNY Day 3", "2026-04-03": "受難節 Good Friday", "2026-04-04": "清明 Ching Ming",
-      "2026-04-06": "復活節 Easter", "2026-05-01": "勞動節 Labour Day", "2026-05-24": "佛誕 Buddha's Bday",
-      "2026-05-25": "佛誕翌日", "2026-06-19": "端午節 Tuen Ng", "2026-07-01": "特區紀念日 HKSAR Day",
-      "2026-09-26": "中秋翌日 Mid-Autumn", "2026-10-01": "國慶 National Day", "2026-10-19": "重陽 Chung Yeung",
-      "2026-12-25": "聖誕 Christmas", "2026-12-26": "節禮日 Boxing Day"
+      "2026-01-01": "元旦",
+      "2026-02-17": "農曆年初一",
+      "2026-02-18": "農曆年初二",
+      "2026-02-19": "農曆年初三",
+      "2026-04-03": "耶穌受難節",
+      "2026-04-04": "耶穌受難節翌日",
+      "2026-04-05": "清明節",
+      "2026-04-06": "復活節星期一",
+      "2026-05-01": "勞動節",
+      "2026-05-24": "佛誕",
+      "2026-05-25": "佛誕翌日",
+      "2026-06-19": "端午節",
+      "2026-07-01": "香港特別行政區成立紀念日",
+      "2026-09-26": "中秋節翌日",
+      "2026-10-01": "國慶日",
+      "2026-10-19": "重陽節",
+      "2026-12-25": "聖誕節",
+      "2026-12-26": "節禮日"
     };
 
-    let appData = JSON.parse(localStorage.getItem('my_cal_data') || '{"events": [], "expenses": []}');
-    
-    // 預算設定（預設數值）
-    let budgetSettings = JSON.parse(localStorage.getItem('my_cal_budget') || JSON.stringify({
-      "家用": 8000,
-      "零用錢": 4000,
-      "備用金": 3000,
-      "投資": 5000
-    }));
+    // --- 2. 儲存與預設值 ---
+    const DEFAULT_CONFIG = {
+      monthlyIncome: 30000,
+      savingsBase: 100000,
+      savingsTarget: 500000,
+      budgets: { "家用": 8000, "零用錢": 4000, "備用金": 3000, "投資": 5000 }
+    };
 
-    let currentDate = new Date();
+    let calendarData = JSON.parse(localStorage.getItem('my_cal_data')) || { events: [], expenses: [] };
+    let financialConfig = JSON.parse(localStorage.getItem('my_cal_financial_config')) || DEFAULT_CONFIG;
 
-    const savedTheme = localStorage.getItem('app_theme') || 'theme-apple';
-    document.body.className = `${savedTheme} min-h-screen p-3 sm:p-6 md:p-8 transition-colors duration-300`;
-    document.getElementById('themeSelector').value = savedTheme;
+    // 確保每筆歷史資料都有唯一 ID
+    function ensureIds() {
+      let changed = false;
+      ['events', 'expenses'].forEach(type => {
+        calendarData[type].forEach(item => {
+          if (!item.id) {
+            item.id = 'id_' + Math.random().toString(36).substr(2, 9) + Date.now();
+            changed = true;
+          }
+        });
+      });
+      if (changed) localStorage.setItem('my_cal_data', JSON.stringify(calendarData));
+    }
+    ensureIds();
 
+    let viewDate = new Date();
+
+    // --- 3. 初始化 ---
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedTheme = localStorage.getItem('app_theme') || 'theme-apple';
+      document.body.className = `min-h-screen p-4 md:p-8 font-sans antialiased ${savedTheme}`;
+      document.getElementById('themeSelect').value = savedTheme;
+
+      updateAiBadge();
+      renderCalendar();
+      renderFinancialOverview();
+      lucide.createIcons();
+    });
+
+    // --- 4. 主題切換 ---
     function changeTheme(themeName) {
-      document.body.className = `${themeName} min-h-screen p-3 sm:p-6 md:p-8 transition-colors duration-300`;
+      document.body.className = `min-h-screen p-4 md:p-8 font-sans antialiased ${themeName}`;
       localStorage.setItem('app_theme', themeName);
     }
 
-    function toggleApiInput() {
-      document.getElementById('apiKeySection').classList.toggle('hidden');
+    // --- 5. 財富與儲蓄儀表板計算渲染 (A + C) ---
+    function renderFinancialOverview() {
+      const year = viewDate.getFullYear();
+      const month = String(viewDate.getMonth() + 1).padStart(2, '0');
+      const currentMonthPrefix = `${year}-${month}`;
+
+      let monthTotalExpense = 0;
+      const categorySpent = { "家用": 0, "零用錢": 0, "備用金": 0, "投資": 0 };
+
+      calendarData.expenses.forEach(exp => {
+        if (exp.date && exp.date.startsWith(currentMonthPrefix)) {
+          const cat = exp.category || "零用錢";
+          if (categorySpent[cat] !== undefined) {
+            categorySpent[cat] += Number(exp.amount || 0);
+          } else {
+            categorySpent["零用錢"] += Number(exp.amount || 0);
+          }
+          monthTotalExpense += Number(exp.amount || 0);
+        }
+      });
+
+      // A: 本月結餘
+      const monthlyIncome = financialConfig.monthlyIncome || 0;
+      const monthlyBalance = monthlyIncome - monthTotalExpense;
+
+      document.getElementById('dashMonthlyIncome').textContent = `HK$ ${monthlyIncome.toLocaleString()}`;
+      document.getElementById('dashMonthlyExpense').textContent = `HK$ ${monthTotalExpense.toLocaleString()}`;
+      
+      const balanceEl = document.getElementById('dashMonthlyBalance');
+      if (monthlyBalance >= 0) {
+        balanceEl.textContent = `+HK$ ${monthlyBalance.toLocaleString()}`;
+        balanceEl.className = "text-lg font-bold text-emerald-500 mt-1";
+      } else {
+        balanceEl.textContent = `-HK$ ${Math.abs(monthlyBalance).toLocaleString()}`;
+        balanceEl.className = "text-lg font-bold text-rose-500 mt-1";
+      }
+
+      // C: 長期儲蓄總池
+      const recordedMonths = new Set();
+      calendarData.expenses.forEach(exp => {
+        if (exp.date) recordedMonths.add(exp.date.substring(0, 7));
+      });
+      recordedMonths.add(currentMonthPrefix);
+
+      let allTimeNetSavings = 0;
+      recordedMonths.forEach(mPrefix => {
+        let mExpense = 0;
+        calendarData.expenses.forEach(exp => {
+          if (exp.date && exp.date.startsWith(mPrefix)) {
+            mExpense += Number(exp.amount || 0);
+          }
+        });
+        allTimeNetSavings += (monthlyIncome - mExpense);
+      });
+
+      const currentTotalSavings = (financialConfig.savingsBase || 0) + allTimeNetSavings;
+      const targetSavings = financialConfig.savingsTarget || 1;
+      const progressPercent = Math.min(100, Math.max(0, (currentTotalSavings / targetSavings) * 100)).toFixed(1);
+
+      document.getElementById('savingsTargetLabel').textContent = `HK$ ${targetSavings.toLocaleString()}`;
+      document.getElementById('currentTotalSavingsLabel').textContent = `HK$ ${currentTotalSavings.toLocaleString()}`;
+      document.getElementById('savingsProgressPercent').textContent = `${progressPercent}%`;
+      document.getElementById('savingsTotalProgressBar').style.width = `${progressPercent}%`;
+
+      // 四大預算進度條
+      const container = document.getElementById('budgetProgressContainer');
+      container.innerHTML = '';
+
+      const catIcons = { "家用": "home", "零用錢": "coffee", "備用金": "shield-alert", "投資": "trending-up" };
+
+      for (const [cat, limit] of Object.entries(financialConfig.budgets)) {
+        const spent = categorySpent[cat] || 0;
+        const pct = limit > 0 ? Math.min(100, (spent / limit) * 100).toFixed(0) : 0;
+        const isOver = limit > 0 && spent > limit;
+
+        const card = document.createElement('div');
+        card.className = "p-3 rounded-xl border border-base bg-progress-base flex flex-col justify-between";
+        card.innerHTML = `
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-xs font-semibold flex items-center gap-1.5">
+              <i data-lucide="${catIcons[cat] || 'tag'}" class="w-3.5 h-3.5"></i> ${cat}
+            </span>
+            <span class="text-xs ${isOver ? 'text-rose-500 font-bold' : 'text-muted-base'}">${pct}%</span>
+          </div>
+          <div class="w-full bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden mb-2">
+            <div class="h-full rounded-full transition-all ${isOver ? 'bg-rose-500' : 'bg-blue-500'}" style="width: ${pct}%"></div>
+          </div>
+          <div class="flex justify-between text-[11px] text-muted-base">
+            <span>已支: HK$${spent.toLocaleString()}</span>
+            <span>上限: HK$${limit.toLocaleString()}</span>
+          </div>
+        `;
+        container.appendChild(card);
+      }
+
+      lucide.createIcons();
+    }
+
+    // --- 6. 日曆核心渲染邏輯 ---
+    function renderCalendar() {
+      const grid = document.getElementById('calendarGrid');
+      grid.innerHTML = '';
+
+      const year = viewDate.getFullYear();
+      const month = viewDate.getMonth();
+
+      const monthNames = ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"];
+      document.getElementById('currentMonthYearLabel').textContent = `${year}年 ${monthNames[month]}`;
+
+      const firstDayIndex = new Date(year, month, 1).getDay();
+      const totalDays = new Date(year, month + 1, 0).getDate();
+      const prevTotalDays = new Date(year, month, 0).getDate();
+
+      const today = new Date();
+      const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+      // 上月填充
+      for (let x = firstDayIndex; x > 0; x--) {
+        const dayNum = prevTotalDays - x + 1;
+        grid.appendChild(createDayCell(dayNum, true));
+      }
+
+      // 當月格子
+      for (let i = 1; i <= totalDays; i++) {
+        const dStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+        const isToday = (dStr === todayStr);
+        const holiday = HK_HOLIDAYS_2026[dStr];
+
+        const dayEvents = calendarData.events.filter(e => e.date === dStr);
+        const dayExpenses = calendarData.expenses.filter(e => e.date === dStr);
+
+        const cell = createDayCell(i, false, isToday, holiday, dayEvents, dayExpenses, dStr);
+        grid.appendChild(cell);
+      }
+
+      // 下月填充
+      const remainingCells = 42 - (firstDayIndex + totalDays);
+      for (let j = 1; j <= remainingCells; j++) {
+        grid.appendChild(createDayCell(j, true));
+      }
+
+      lucide.createIcons();
+    }
+
+    function createDayCell(dayNum, isOtherMonth, isToday = false, holiday = null, events = [], expenses = [], fullDateStr = '') {
+      const cell = document.createElement('div');
+      cell.className = `min-h-[88px] md:min-h-[105px] p-1.5 md:p-2 rounded-xl border border-base flex flex-col justify-between transition hover:shadow-md cursor-pointer ${
+        isOtherMonth ? 'opacity-30 card-bg' : 'card-bg'
+      } ${isToday ? 'ring-2 ring-blue-500 ring-offset-1' : ''}`;
+
+      if (!isOtherMonth) {
+        cell.onclick = () => openDayModal(fullDateStr);
+      }
+
+      const topRow = document.createElement('div');
+      topRow.className = "flex justify-between items-start";
+
+      const numEl = document.createElement('span');
+      numEl.className = `text-xs md:text-sm font-semibold ${holiday ? 'text-rose-500' : ''}`;
+      numEl.textContent = dayNum;
+      topRow.appendChild(numEl);
+
+      if (holiday) {
+        const holEl = document.createElement('span');
+        holEl.className = "text-[10px] text-rose-500 font-medium truncate max-w-[65px] text-right";
+        holEl.textContent = holiday;
+        topRow.appendChild(holEl);
+      }
+      cell.appendChild(topRow);
+
+      const listContainer = document.createElement('div');
+      listContainer.className = "space-y-1 mt-1 overflow-hidden";
+
+      events.slice(0, 2).forEach(ev => {
+        const evBadge = document.createElement('div');
+        evBadge.className = "text-[10px] truncate px-1.5 py-0.5 rounded bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 font-medium";
+        evBadge.textContent = `${ev.time ? ev.time + ' ' : ''}${ev.title}`;
+        listContainer.appendChild(evBadge);
+      });
+
+      expenses.slice(0, 2).forEach(ex => {
+        const exBadge = document.createElement('div');
+        exBadge.className = "text-[10px] truncate px-1.5 py-0.5 rounded bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-300 font-medium flex justify-between";
+        exBadge.innerHTML = `<span>${ex.item}</span><span>$${ex.amount}</span>`;
+        listContainer.appendChild(exBadge);
+      });
+
+      const totalCount = events.length + expenses.length;
+      if (totalCount > 2) {
+        const moreEl = document.createElement('div');
+        moreEl.className = "text-[9px] text-muted-base text-right font-medium";
+        moreEl.textContent = `+${totalCount - 2} 更多`;
+        listContainer.appendChild(moreEl);
+      }
+
+      cell.appendChild(listContainer);
+      return cell;
+    }
+
+    function changeMonth(delta) {
+      viewDate.setMonth(viewDate.getMonth() + delta);
+      renderCalendar();
+      renderFinancialOverview();
+    }
+
+    function goToToday() {
+      viewDate = new Date();
+      renderCalendar();
+      renderFinancialOverview();
+    }
+
+    // --- 7. 單日詳情彈窗 (整合刪除與 ✏️ 編輯) ---
+    function openDayModal(dateStr) {
+      const holiday = HK_HOLIDAYS_2026[dateStr];
+      const events = calendarData.events.filter(e => e.date === dateStr);
+      const expenses = calendarData.expenses.filter(e => e.date === dateStr);
+
+      document.getElementById('modalDateTitle').textContent = dateStr;
+      document.getElementById('modalHolidaySubtitle').textContent = holiday ? `公眾假期：${holiday}` : '';
+
+      // 渲染日程
+      const evList = document.getElementById('modalEventList');
+      evList.innerHTML = events.length ? '' : '<p class="text-xs text-muted-base">暫無日程事項</p>';
+      events.forEach(ev => {
+        const d = document.createElement('div');
+        d.className = "p-2 rounded-lg bg-progress-base text-xs flex justify-between items-center";
+        d.innerHTML = `
+          <div>
+            <span class="font-semibold text-blue-500">${ev.time || '全天'}</span>
+            <span class="ml-1.5">${ev.title}</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <button onclick="openEditModal('event', '${ev.id}')" class="text-slate-400 hover:text-blue-500 p-1"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
+            <button onclick="deleteItem('event', '${ev.id}')" class="text-slate-400 hover:text-rose-500 p-1"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+          </div>
+        `;
+        evList.appendChild(d);
+      });
+
+      // 渲染開支
+      const exList = document.getElementById('modalExpenseList');
+      exList.innerHTML = expenses.length ? '' : '<p class="text-xs text-muted-base">暫無開支紀錄</p>';
+      expenses.forEach(ex => {
+        const d = document.createElement('div');
+        d.className = "p-2 rounded-lg bg-progress-base text-xs flex justify-between items-center";
+        d.innerHTML = `
+          <div>
+            <span class="px-1 py-0.5 rounded text-[10px] bg-slate-200 dark:bg-slate-700 mr-1">${ex.category || '零用錢'}</span>
+            <span>${ex.item}</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-emerald-600 dark:text-emerald-400">HK$ ${ex.amount}</span>
+            <button onclick="openEditModal('expense', '${ex.id}')" class="text-slate-400 hover:text-blue-500 p-1"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
+            <button onclick="deleteItem('expense', '${ex.id}')" class="text-slate-400 hover:text-rose-500 p-1"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+          </div>
+        `;
+        exList.appendChild(d);
+      });
+
+      document.getElementById('dayModal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeDayModal() {
+      document.getElementById('dayModal').classList.add('hidden');
+    }
+
+    function deleteItem(type, id) {
+      if (type === 'event') {
+        calendarData.events = calendarData.events.filter(e => e.id !== id);
+      } else {
+        calendarData.expenses = calendarData.expenses.filter(e => e.id !== id);
+      }
+      saveData();
+      const curDate = document.getElementById('modalDateTitle').textContent;
+      openDayModal(curDate);
+    }
+
+    // --- 8. ✏️ 專屬編輯 Modal 控制器 ---
+    function openEditModal(type, id) {
+      document.getElementById('editItemType').value = type;
+      document.getElementById('editItemId').value = id;
+
+      if (type === 'expense') {
+        const item = calendarData.expenses.find(e => e.id === id);
+        if (!item) return;
+        document.getElementById('editTitleLabel').textContent = "項目名稱";
+        document.getElementById('editDate').value = item.date;
+        document.getElementById('editTitle').value = item.item;
+        document.getElementById('editAmount').value = item.amount;
+        document.getElementById('editCategory').value = item.category || '零用錢';
+        document.getElementById('editExpenseFields').classList.remove('hidden');
+        document.getElementById('editEventFields').classList.add('hidden');
+      } else {
+        const item = calendarData.events.find(e => e.id === id);
+        if (!item) return;
+        document.getElementById('editTitleLabel').textContent = "事項名稱";
+        document.getElementById('editDate').value = item.date;
+        document.getElementById('editTitle').value = item.title;
+        document.getElementById('editTime').value = item.time || '';
+        document.getElementById('editExpenseFields').classList.add('hidden');
+        document.getElementById('editEventFields').classList.remove('hidden');
+      }
+
+      document.getElementById('editModal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeEditModal() {
+      document.getElementById('editModal').classList.add('hidden');
+    }
+
+    function saveEditItem() {
+      const type = document.getElementById('editItemType').value;
+      const id = document.getElementById('editItemId').value;
+      const newDate = document.getElementById('editDate').value;
+      const newTitle = document.getElementById('editTitle').value.trim();
+
+      if (!newDate || !newTitle) {
+        alert("請填寫日期與名稱");
+        return;
+      }
+
+      if (type === 'expense') {
+        const idx = calendarData.expenses.findIndex(e => e.id === id);
+        if (idx !== -1) {
+          calendarData.expenses[idx].date = newDate;
+          calendarData.expenses[idx].item = newTitle;
+          calendarData.expenses[idx].amount = parseFloat(document.getElementById('editAmount').value) || 0;
+          calendarData.expenses[idx].category = document.getElementById('editCategory').value;
+        }
+      } else {
+        const idx = calendarData.events.findIndex(e => e.id === id);
+        if (idx !== -1) {
+          calendarData.events[idx].date = newDate;
+          calendarData.events[idx].title = newTitle;
+          calendarData.events[idx].time = document.getElementById('editTime').value.trim();
+        }
+      }
+
+      saveData();
+      closeEditModal();
+
+      // 如果當前詳情視窗開啟中，重新渲染詳情視窗
+      const dayModal = document.getElementById('dayModal');
+      if (!dayModal.classList.contains('hidden')) {
+        openDayModal(newDate);
+      }
+    }
+
+    // --- 9. 強大中英日期優先抽離引擎 ---
+    function detectCategory(text) {
+      const t = text.toLowerCase();
+      if (/家用|水電|煤氣|租金|買餸|雜費|house|rent|utility|utilities|grocery|supermarket/i.test(t)) return "家用";
+      if (/投資|股票|美股|港股|基金|供成|定期|crypto|stock|shares|etf|fund|invest/i.test(t)) return "投資";
+      if (/保險|醫療|睇醫生|看病|緊急|備用|insurance|clinic|doctor|hospital|emergency/i.test(t)) return "備用金";
+      return "零用錢";
+    }
+
+    function parseLocally(rawText) {
+      const today = new Date();
+      let year = today.getFullYear();
+      let month = today.getMonth() + 1;
+      let day = today.getDate();
+      let text = rawText;
+
+      const monthMap = {
+        jan: 1, january: 1, feb: 2, february: 2, mar: 3, march: 3,
+        apr: 4, april: 4, may: 5, jun: 6, june: 6, jul: 7, july: 7,
+        aug: 8, august: 8, sep: 9, sept: 9, september: 9, oct: 10, october: 10,
+        nov: 11, november: 11, dec: 12, december: 12
+      };
+
+      // 1. 先抓取並抽離「絕對英文日期」（如 1Sep, 1 Sep, 1st Sep, Sep 1, Sep 1st）
+      const engDateRegex1 = /\b(\d{1,2})(?:st|nd|rd|th)?\s*(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\b/i;
+      const engDateRegex2 = /\b(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\s*(\d{1,2})(?:st|nd|rd|th)?\b/i;
+
+      let dateMatch = text.match(engDateRegex1);
+      if (dateMatch) {
+        day = parseInt(dateMatch[1]);
+        month = monthMap[dateMatch[2].toLowerCase().substring(0, 3)];
+        text = text.replace(dateMatch[0], ' ');
+      } else {
+        dateMatch = text.match(engDateRegex2);
+        if (dateMatch) {
+          month = monthMap[dateMatch[1].toLowerCase().substring(0, 3)];
+          day = parseInt(dateMatch[2]);
+          text = text.replace(dateMatch[0], ' ');
+        }
+      }
+
+      // 2. 抓取並抽離「中文日期」（如 9月1日, 9月1號, 9/1）
+      if (!dateMatch) {
+        const cnDateMatch = text.match(/(\d{1,2})月(\d{1,2})[日號号]?/);
+        if (cnDateMatch) {
+          month = parseInt(cnDateMatch[1]);
+          day = parseInt(cnDateMatch[2]);
+          text = text.replace(cnDateMatch[0], ' ');
+          dateMatch = true;
+        }
+      }
+
+      // 3. 抓取相對日期（明天、後天、下星期、昨天等）
+      if (!dateMatch) {
+        const tempD = new Date(today);
+        if (/(大後天|大後日)/i.test(text)) {
+          tempD.setDate(today.getDate() + 3);
+          text = text.replace(/(大後天|大後日)/gi, ' ');
+        } else if (/(後天|後日|the day after tomorrow)/i.test(text)) {
+          tempD.setDate(today.getDate() + 2);
+          text = text.replace(/(後天|後日|the day after tomorrow)/gi, ' ');
+        } else if (/(明天|明日|第二日|tmr|tomorrow)/i.test(text)) {
+          tempD.setDate(today.getDate() + 1);
+          text = text.replace(/(明天|明日|第二日|tmr|tomorrow)/gi, ' ');
+        } else if (/(昨天|尋日|琴日|yesterday)/i.test(text)) {
+          tempD.setDate(today.getDate() - 1);
+          text = text.replace(/(昨天|尋日|琴日|yesterday)/gi, ' ');
+        } else if (/(今天|今日|今朝|today)/i.test(text)) {
+          text = text.replace(/(今天|今日|今朝|today)/gi, ' ');
+        } else if (/(下星期|下周|next week)/i.test(text)) {
+          const dowMap = { '日': 0, '一': 1, '二': 2, '三': 3, '四': 4, '五': 5, '六': 6, 'sun': 0, 'mon': 1, 'tue': 2, 'wed': 3, 'thu': 4, 'fri': 5, 'sat': 6 };
+          const match = text.match(/(?:下星期|下周|next\s+week\s+)(日|一|二|三|四|五|六|sun|mon|tue|wed|thu|fri|sat)/i);
+          if (match) {
+            const targetDow = dowMap[match[1].toLowerCase()];
+            const currentDow = today.getDay();
+            let diff = targetDow - currentDow + 7;
+            tempD.setDate(today.getDate() + diff);
+            text = text.replace(match[0], ' ');
+          }
+        }
+        year = tempD.getFullYear();
+        month = tempD.getMonth() + 1;
+        day = tempD.getDate();
+      }
+
+      const formattedDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+      // 4. 解析時間 (如 3pm, 10:30am, 14:00)
+      let time = "";
+      const timeMatch = text.match(/(\d{1,2})(:|\.)?(\d{2})?\s*(am|pm|早上|下午|晚上)?/i);
+      if (timeMatch && (timeMatch[4] || timeMatch[2])) {
+        let hour = parseInt(timeMatch[1]);
+        const min = timeMatch[3] || "00";
+        const period = (timeMatch[4] || '').toLowerCase();
+        if ((period === 'pm' || period === '下午' || period === '晚上') && hour < 12) hour += 12;
+        if ((period === 'am' || period === '早上') && hour === 12) hour = 0;
+        time = `${String(hour).padStart(2, '0')}:${min}`;
+        text = text.replace(timeMatch[0], ' ');
+      }
+
+      // 5. 解析開支金額與項目
+      let type = "event";
+      let amount = 0;
+      let title = text.trim();
+
+      // 精確捕獲金額：如 $5000, 5000蚊, spent 80, cost 100
+      const moneyMatch = text.match(/(?:\$|hkd|\¥)\s*(\d+(?:\.\d+)?)|(\d+(?:\.\d+)?)\s*(?:元|塊|蚊|dollars|hkd)/i) ||
+                         text.match(/(?:spent|cost|pay|paid|用了|用咗|花了|買|支出)\s*(\d+(?:\.\d+)?)/i) ||
+                         text.match(/\b(\d+(?:\.\d+)?)\b/);
+
+      const hasExpenseKeywords = /(家用|買|食|開支|零用|租金|水電|投資|股票|美股|保險|睇醫生|spent|cost|\$|蚊|元)/i.test(rawText);
+
+      if (hasExpenseKeywords && moneyMatch) {
+        type = "expense";
+        amount = parseFloat(moneyMatch[1] || moneyMatch[2] || moneyMatch[0]);
+        // 清理金額標籤獲得純項目名
+        title = text.replace(moneyMatch[0], ' ')
+                    .replace(/(?: spent | cost | on | for | paid |花了|用咗|買|支出|\$|hkd|元|塊|蚊)/gi, ' ')
+                    .trim();
+        if (!title) title = detectCategory(rawText);
+      }
+
+      return {
+        id: 'id_' + Math.random().toString(36).substr(2, 9) + Date.now(),
+        type,
+        date: formattedDate,
+        time,
+        title: title || (type === "expense" ? "日常開支" : "未命名事項"),
+        amount,
+        category: detectCategory(rawText)
+      };
+    }
+
+    async function handleNaturalInput(e) {
+      e.preventDefault();
+      const input = document.getElementById('naturalInput');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.textContent = "解析中...";
+
+      try {
+        const result = parseLocally(text);
+
+        if (result.type === 'expense') {
+          calendarData.expenses.push({
+            id: result.id,
+            date: result.date,
+            item: result.title,
+            amount: result.amount,
+            category: result.category
+          });
+        } else {
+          calendarData.events.push({
+            id: result.id,
+            date: result.date,
+            title: result.title,
+            time: result.time
+          });
+        }
+
+        saveData();
+        input.value = '';
+
+        // 如果輸入的日期不是當前瀏覽月份，自動跳轉至該月份以便即時查看
+        const [targetY, targetM] = result.date.split('-').map(Number);
+        if (viewDate.getFullYear() !== targetY || (viewDate.getMonth() + 1) !== targetM) {
+          viewDate = new Date(targetY, targetM - 1, 1);
+          renderCalendar();
+          renderFinancialOverview();
+        }
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i data-lucide="plus-circle" class="w-4 h-4"></i> 智能辨識添加';
+        lucide.createIcons();
+      }
+    }
+
+    function saveData() {
+      localStorage.setItem('my_cal_data', JSON.stringify(calendarData));
+      renderCalendar();
+      renderFinancialOverview();
+    }
+
+    // --- 10. 財務與預算設定 Modal 控制 ---
+    function openConfigModal() {
+      document.getElementById('inputMonthlyIncome').value = financialConfig.monthlyIncome || 30000;
+      document.getElementById('inputSavingsBase').value = financialConfig.savingsBase || 100000;
+      document.getElementById('inputSavingsTarget').value = financialConfig.savingsTarget || 500000;
+
+      document.getElementById('budgetInput_家用').value = financialConfig.budgets['家用'] || 8000;
+      document.getElementById('budgetInput_零用錢').value = financialConfig.budgets['零用錢'] || 4000;
+      document.getElementById('budgetInput_備用金').value = financialConfig.budgets['備用金'] || 3000;
+      document.getElementById('budgetInput_投資').value = financialConfig.budgets['投資'] || 5000;
+
+      document.getElementById('configModal').classList.remove('hidden');
+    }
+
+    function closeConfigModal() {
+      document.getElementById('configModal').classList.add('hidden');
+    }
+
+    function saveConfigSettings() {
+      financialConfig.monthlyIncome = parseFloat(document.getElementById('inputMonthlyIncome').value) || 0;
+      financialConfig.savingsBase = parseFloat(document.getElementById('inputSavingsBase').value) || 0;
+      financialConfig.savingsTarget = parseFloat(document.getElementById('inputSavingsTarget').value) || 1;
+
+      financialConfig.budgets['家用'] = parseFloat(document.getElementById('budgetInput_家用').value) || 0;
+      financialConfig.budgets['零用錢'] = parseFloat(document.getElementById('budgetInput_零用錢').value) || 0;
+      financialConfig.budgets['備用金'] = parseFloat(document.getElementById('budgetInput_備用金').value) || 0;
+      financialConfig.budgets['投資'] = parseFloat(document.getElementById('budgetInput_投資').value) || 0;
+
+      localStorage.setItem('my_cal_financial_config', JSON.stringify(financialConfig));
+      closeConfigModal();
+      renderFinancialOverview();
+    }
+
+    // --- 11. API Key 控制 ---
+    function openApiModal() {
+      document.getElementById('apiKeyInput').value = localStorage.getItem('user_api_key') || '';
+      document.getElementById('apiProvider').value = localStorage.getItem('user_api_provider') || 'groq';
+      document.getElementById('apiModal').classList.remove('hidden');
+    }
+
+    function closeApiModal() {
+      document.getElementById('apiModal').classList.add('hidden');
     }
 
     function saveApiKey() {
       const key = document.getElementById('apiKeyInput').value.trim();
-      localStorage.setItem('user_api_key', key);
-      alert('Key saved! / Key 已儲存');
-      toggleApiInput();
-    }
-
-    function saveData() {
-      localStorage.setItem('my_cal_data', JSON.stringify(appData));
-      renderCalendar();
-      renderBudgetStatus();
-    }
-
-    // ========== Budget Modal 操作 ==========
-    function openBudgetModal() {
-      document.getElementById('bg_household').value = budgetSettings["家用"] || 0;
-      document.getElementById('bg_pocket').value = budgetSettings["零用錢"] || 0;
-      document.getElementById('bg_emergency').value = budgetSettings["備用金"] || 0;
-      document.getElementById('bg_invest').value = budgetSettings["投資"] || 0;
-      document.getElementById('budgetModal').classList.remove('hidden');
-    }
-
-    function closeBudgetModal() {
-      document.getElementById('budgetModal').classList.add('hidden');
-    }
-
-    function saveBudgetSettings() {
-      budgetSettings["家用"] = Number(document.getElementById('bg_household').value) || 0;
-      budgetSettings["零用錢"] = Number(document.getElementById('bg_pocket').value) || 0;
-      budgetSettings["備用金"] = Number(document.getElementById('bg_emergency').value) || 0;
-      budgetSettings["投資"] = Number(document.getElementById('bg_invest').value) || 0;
-
-      localStorage.setItem('my_cal_budget', JSON.stringify(budgetSettings));
-      closeBudgetModal();
-      renderBudgetStatus();
-    }
-
-    // 渲染預算進度條
-    function renderBudgetStatus() {
-      const year = currentDate.getFullYear();
-      const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-      const prefix = `${year}-${month}`;
-
-      const spentMap = { "家用": 0, "零用錢": 0, "備用金": 0, "投資": 0 };
-
-      appData.expenses.forEach(ex => {
-        if (ex.date && ex.date.startsWith(prefix)) {
-          const cat = ex.category || "零用錢";
-          if (spentMap[cat] !== undefined) {
-            spentMap[cat] += Number(ex.amount || 0);
-          } else {
-            spentMap["零用錢"] += Number(ex.amount || 0);
-          }
-        }
-      });
-
-      const container = document.getElementById('budgetGrid');
-      container.innerHTML = '';
-
-      const iconMap = { "家用": "🏠", "零用錢": "🛍️", "備用金": "🛡️", "投資": "📈" };
-
-      Object.keys(budgetSettings).forEach(key => {
-        const spent = spentMap[key] || 0;
-        const limit = budgetSettings[key] || 1;
-        const percent = Math.min(Math.round((spent / limit) * 100), 100);
-        const isOver = spent > limit;
-
-        const card = document.createElement('div');
-        card.className = 'p-2.5 rounded-xl border border-slate-200/60 dark:border-slate-800/80 bg-black/5 dark:bg-white/5 space-y-1.5';
-        card.innerHTML = `
-          <div class="flex justify-between items-center text-xs">
-            <span class="font-medium">${iconMap[key] || '📦'} ${key}</span>
-            <span class="${isOver ? 'text-rose-500 font-bold' : 'text-sub'}">
-              $${spent.toLocaleString()} / $${limit.toLocaleString()} (${percent}%)
-            </span>
-          </div>
-          <div class="w-full h-2 rounded-full bg-progress-base overflow-hidden">
-            <div class="h-full rounded-full transition-all duration-500 ${isOver ? 'bg-rose-500' : 'bg-blue-500'}" style="width: ${percent}%"></div>
-          </div>
-        `;
-        container.appendChild(card);
-      });
-    }
-
-    // ========== 智能自動分類推論 ==========
-    function detectCategory(text) {
-      const lower = text.toLowerCase();
-      if (lower.match(/(家用|水費|電費|煤氣|租金|買餸|雜費|rent|utility|utilities|household|family)/)) return "家用";
-      if (lower.match(/(投資|股票|基金|etf|crypto|bitcoin|shares|invest|stock)/)) return "投資";
-      if (lower.match(/(備用|儲蓄|應急|emergency|saving|savings)/)) return "備用金";
-      return "零用錢"; // 預設歸入個人/零用錢 (e.g. coffee, lunch, taxi, 買衫)
-    }
-
-    // ========== 本地解析引擎 ==========
-    function parseLocally(rawText) {
-      const text = rawText.trim();
-      const lower = text.toLowerCase();
-      const now = new Date();
-      let targetDate = new Date(now);
-
-      // 日期匹配
-      if (lower.match(/\b(today|今日|今天)\b/)) {
-      } else if (lower.match(/\b(tomorrow|tmr|聽日|明天)\b/)) {
-        targetDate.setDate(targetDate.getDate() + 1);
-      } else if (lower.match(/\b(the day after tomorrow|後日|后天)\b/)) {
-        targetDate.setDate(targetDate.getDate() + 2);
-      } else {
-        const weekMap = { 'sun': 0, 'sunday': 0, '日': 0, '天': 0, 'mon': 1, 'monday': 1, '一': 1, 'tue': 2, 'tues': 2, 'tuesday': 2, '二': 2, 'wed': 3, 'wednesday': 3, '三': 3, 'thu': 4, 'thur': 4, 'thurs': 4, 'thursday': 4, '四': 4, 'fri': 5, 'friday': 5, '五': 5, 'sat': 6, 'saturday': 6, '六': 6 };
-        const weekMatch = lower.match(/(?:(next|this|下個?|今個?)\s*)?(?:week|星期|周)?\s*(sun(?:day)?|mon(?:day)?|tue(?:s|sday)?|wed(?:nesday)?|thu(?:r|rs|rsday)?|fri(?:day)?|sat(?:urday)?|[日天一二三四五六])/);
-        const months = { 'jan': 0, 'feb': 1, 'mar': 2, 'apr': 3, 'may': 4, 'jun': 5, 'jul': 6, 'aug': 7, 'sep': 8, 'oct': 9, 'nov': 10, 'dec': 11 };
-        const engDateMatch = lower.match(/(?:(\d{1,2})(?:st|nd|rd|th)?\s+(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*|(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s+(\d{1,2})(?:st|nd|rd|th)?)/);
-        const numDateMatch = lower.match(/(?:(\d{4})[年/-])?(\d{1,2})[月/-](\d{1,2})[日號号]?/);
-
-        if (engDateMatch) {
-          const mStr = engDateMatch[2] || engDateMatch[3];
-          const dStr = engDateMatch[1] || engDateMatch[4];
-          targetDate = new Date(now.getFullYear(), months[mStr], parseInt(dStr));
-        } else if (numDateMatch) {
-          const y = numDateMatch[1] ? parseInt(numDateMatch[1]) : now.getFullYear();
-          targetDate = new Date(y, parseInt(numDateMatch[2]) - 1, parseInt(numDateMatch[3]));
-        } else if (weekMatch && weekMap[weekMatch[2]] !== undefined) {
-          const targetDay = weekMap[weekMatch[2]];
-          const isNext = weekMatch[1] && (weekMatch[1].includes('next') || weekMatch[1].includes('下'));
-          let diff = targetDay - now.getDay();
-          if (diff <= 0 || isNext) diff += 7;
-          targetDate.setDate(now.getDate() + diff);
-        }
-      }
-
-      const dateStr = `${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, '0')}-${String(targetDate.getDate()).padStart(2, '0')}`;
-
-      // 時間匹配
-      let timeStr = "";
-      const timeEngMatch = lower.match(/(?:at\s*)?(\d{1,2})(?::(\d{2}))?\s*(am|pm)/);
-      const timeZhMatch = text.match(/(上晝|早上|上午|下晝|下午|夜晚|晚上)?\s*(\d{1,2})[點点:：](\d{2})?/);
-
-      if (timeEngMatch) {
-        let h = parseInt(timeEngMatch[1]);
-        const m = timeEngMatch[2] || "00";
-        if (timeEngMatch[3] === 'pm' && h < 12) h += 12;
-        if (timeEngMatch[3] === 'am' && h === 12) h = 0;
-        timeStr = `${String(h).padStart(2, '0')}:${m}`;
-      } else if (timeZhMatch) {
-        let h = parseInt(timeZhMatch[2]);
-        const m = timeZhMatch[3] || "00";
-        const period = timeZhMatch[1] || "";
-        if ((period.includes("下") || period.includes("晚")) && h < 12) h += 12;
-        timeStr = `${String(h).padStart(2, '0')}:${m}`;
-      }
-
-      // 開支與類別提取
-      const events = [];
-      const expenses = [];
-      const expenseRegex = /(?:([a-zA-Z\u4e00-\u9fa5\s]+?)\s*)?(?:用咗|花了|買|支出|spent|cost)?\s*[$￥]?\s*(\d+(?:\.\d+)?)\s*(?:蚊|元|塊|hkd|dollars)?(?:\s*on\s*([a-zA-Z\u4e00-\u9fa5\s]+))?/i;
-      const hasMoneySign = lower.includes('$') || lower.includes('hkd') || lower.includes('蚊') || lower.includes('spent') || lower.includes('cost') || text.includes('用咗');
-
-      if (hasMoneySign) {
-        const expMatch = text.match(expenseRegex);
-        if (expMatch && expMatch[2]) {
-          const amount = parseFloat(expMatch[2]);
-          let item = (expMatch[3] || expMatch[1] || "開支").trim();
-          item = item.replace(/\b(tomorrow|tmr|today|yesterday|spent|cost|on|for|at|pm|am)\b/gi, '')
-                     .replace(/(聽日|明天|今日|今天|下晝|上午|下午|\d+[月號日點点])/g, '').trim();
-          if (!item) item = "開支";
-
-          const category = detectCategory(text);
-          expenses.push({ date: dateStr, category: category, item: item, amount: amount });
-        }
-      }
-
-      // 日程提取
-      let cleanTitle = text.replace(/\b(tomorrow|tmr|today|the day after tomorrow|next|this|week|sun|mon|tue|wed|thu|fri|sat|sunday|monday|tuesday|wednesday|thursday|friday|saturday|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\b/gi, '')
-                           .replace(/(聽日|明天|今日|今天|後日|后天|下星期[一二三四五六天日]|星期[一二三四五六天日]|\d+[月/-]\d+[日號号]?|上晝|下晝|上午|下午|\d{1,2}[點点:：]\d{0,2})/g, '')
-                           .replace(/(?:at\s*)?\d{1,2}(?::\d{2})?\s*(?:am|pm)/gi, '')
-                           .replace(/(?:spent|cost|用咗|花了)?\s*[$￥]?\s*\d+(?:\.\d+)?\s*(?:蚊|元|塊|hkd|dollars)?/gi, '')
-                           .replace(/[，,;；]/g, '')
-                           .trim();
-
-      if (cleanTitle.length > 0 && !cleanTitle.match(/^(taxi|lunch|dinner|coffee|breakfast|家用|投資|備用金)$/i)) {
-        events.push({ date: dateStr, time: timeStr, title: cleanTitle });
-      } else if (cleanTitle.length > 0 && expenses.length === 0) {
-        events.push({ date: dateStr, time: timeStr, title: cleanTitle });
-      }
-
-      return { events, expenses };
-    }
-
-    async function processInput() {
-      const text = document.getElementById('naturalInput').value.trim();
-      if (!text) return;
-
-      const key = localStorage.getItem('user_api_key');
-      const status = document.getElementById('statusMsg');
-      const btn = document.getElementById('sendBtn');
-      status.classList.remove('hidden');
-      btn.disabled = true;
-
+      const provider = document.getElementById('apiProvider').value;
       if (key) {
-        try {
-          const isGroq = key.startsWith('gsk_');
-          const endpoint = isGroq ? 'https://api.groq.com/openai/v1/chat/completions' : 'https://openrouter.ai/api/v1/chat/completions';
-          const model = isGroq ? 'llama-3.3-70b-versatile' : 'meta-llama/llama-3.3-70b-instruct:free';
-
-          const prompt = `Today is ${new Date().toISOString().split('T')[0]}. Parse the user input (English/Chinese/Cantonese) into events and expenses.
-Category MUST be one of: "家用", "零用錢", "備用金", "投資".
-Return STRICT JSON format: {"events":[{"date":"YYYY-MM-DD","time":"HH:mm or empty","title":"string"}],"expenses":[{"date":"YYYY-MM-DD","category":"string","item":"string","amount":number}]}
-Input: "${text}"`;
-
-          const res = await fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
-            body: JSON.stringify({ model: model, messages: [{ role: 'user', content: prompt }], temperature: 0.1 })
-          });
-
-          if (res.ok) {
-            const data = await res.json();
-            let raw = data.choices[0].message.content.trim().replace(/^```json/i, '').replace(/^```/, '').replace(/```$/, '').trim();
-            const parsed = JSON.parse(raw);
-            if (parsed.events) appData.events.push(...parsed.events);
-            if (parsed.expenses) appData.expenses.push(...parsed.expenses);
-            finish();
-            return;
-          }
-        } catch (e) {
-          console.warn("API fallback to local engine:", e);
-        }
+        localStorage.setItem('user_api_key', key);
+        localStorage.setItem('user_api_provider', provider);
+      } else {
+        localStorage.removeItem('user_api_key');
+        localStorage.removeItem('user_api_provider');
       }
+      updateAiBadge();
+      closeApiModal();
+    }
 
-      const local = parseLocally(text);
-      if (local.events.length > 0) appData.events.push(...local.events);
-      if (local.expenses.length > 0) appData.expenses.push(...local.expenses);
-      finish();
-
-      function finish() {
-        saveData();
-        document.getElementById('naturalInput').value = '';
-        status.classList.add('hidden');
-        btn.disabled = false;
+    function updateAiBadge() {
+      const badge = document.getElementById('aiStatusBadge');
+      const key = localStorage.getItem('user_api_key');
+      if (key) {
+        badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500"></span> AI 已就緒';
+        badge.className = "inline-flex items-center gap-1 text-emerald-500 font-medium";
+      } else {
+        badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-slate-400"></span> 本地離線引擎';
+        badge.className = "inline-flex items-center gap-1 text-slate-400";
       }
     }
-
-    function renderCalendar() {
-      const year = currentDate.getFullYear();
-      const month = currentDate.getMonth();
-      const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-      document.getElementById('currentMonthYear').innerText = `${monthNames[month]} ${year} (${month + 1}月)`;
-
-      const firstDayIndex = new Date(year, month, 1).getDay();
-      const totalDays = new Date(year, month + 1, 0).getDate();
-
-      const grid = document.getElementById('calendarGrid');
-      grid.innerHTML = '';
-
-      let monthEventCount = 0;
-      let monthExpenseTotal = 0;
-
-      for (let i = 0; i < firstDayIndex; i++) {
-        const empty = document.createElement('div');
-        empty.className = 'theme-cell opacity-40 min-h-[90px]';
-        grid.appendChild(empty);
-      }
-
-      for (let day = 1; day <= totalDays; day++) {
-        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        const dayOfWeek = new Date(year, month, day).getDay();
-        const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-        const holidayName = HK_HOLIDAYS_2026[dateStr];
-
-        const dayEvents = appData.events.filter(e => e.date === dateStr);
-        const dayExpenses = appData.expenses.filter(e => e.date === dateStr);
-
-        monthEventCount += dayEvents.length;
-        const dayExpenseSum = dayExpenses.reduce((sum, item) => sum + Number(item.amount || 0), 0);
-        monthExpenseTotal += dayExpenseSum;
-
-        const cell = document.createElement('div');
-        cell.className = `theme-cell p-1.5 sm:p-2 flex flex-col justify-between cursor-pointer transition min-h-[95px] ${holidayName ? 'holiday-cell' : ''}`;
-        cell.onclick = () => openModal(dateStr, holidayName, dayEvents, dayExpenses);
-
-        let topBar = `<div class="flex justify-between items-start">
-          <span class="text-xs font-bold ${holidayName || isWeekend ? 'holiday-color' : ''}">${day}</span>
-          ${holidayName ? `<span class="text-[10px] holiday-color font-semibold truncate max-w-[65px]">${holidayName}</span>` : ''}
-        </div>`;
-
-        let tags = `<div class="space-y-1 mt-1 overflow-hidden">`;
-        dayEvents.slice(0, 2).forEach(ev => {
-          tags += `<div class="text-[10px] theme-badge px-1.5 py-0.5 rounded truncate font-medium">📌 ${ev.time ? ev.time + ' ' : ''}${ev.title}</div>`;
-        });
-        if (dayEvents.length > 2) {
-          tags += `<div class="text-[9px] text-sub font-semibold">+${dayEvents.length - 2} 更多</div>`;
-        }
-        tags += `</div>`;
-
-        let bottom = dayExpenseSum > 0 ? `<div class="text-[10px] text-rose-500 font-bold text-right mt-1">-$${dayExpenseSum}</div>` : `<div></div>`;
-
-        cell.innerHTML = topBar + tags + bottom;
-        grid.appendChild(cell);
-      }
-
-      document.getElementById('monthEventCount').innerText = monthEventCount;
-      document.getElementById('monthExpenseTotal').innerText = `$${monthExpenseTotal.toLocaleString()}`;
-    }
-
-    function openModal(dateStr, holiday, events, expenses) {
-      document.getElementById('modalDateTitle').innerText = dateStr;
-      document.getElementById('modalHolidayTitle').innerText = holiday ? `🇭🇰 ${holiday}` : '';
-
-      const evList = document.getElementById('modalEventList');
-      evList.innerHTML = events.length === 0 ? '<p class="text-sub text-xs">No events / 無安排日程</p>' : '';
-      events.forEach((ev, idx) => {
-        evList.innerHTML += `
-          <div class="flex justify-between items-center theme-cell p-2 rounded-lg border border-slate-100 dark:border-slate-800">
-            <span>📌 <b class="text-blue-500">${ev.time || 'All Day'}</b> ${ev.title}</span>
-            <button onclick="deleteEvent('${dateStr}', ${idx})" class="text-sub hover:text-rose-500 text-xs">刪除</button>
-          </div>
-        `;
-      });
-
-      const exList = document.getElementById('modalExpenseList');
-      exList.innerHTML = expenses.length === 0 ? '<p class="text-sub text-xs">No expenses / 無花費記錄</p>' : '';
-      expenses.forEach((ex, idx) => {
-        exList.innerHTML += `
-          <div class="flex justify-between items-center theme-cell p-2 rounded-lg border border-slate-100 dark:border-slate-800">
-            <span>💸 <span class="text-xs px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 font-medium">${ex.category || '零用錢'}</span> ${ex.item}</span>
-            <div class="flex items-center gap-2">
-              <span class="font-bold text-rose-500">-$${ex.amount}</span>
-              <button onclick="deleteExpense('${dateStr}', ${idx})" class="text-sub hover:text-rose-500 text-xs">刪除</button>
-            </div>
-          </div>
-        `;
-      });
-
-      document.getElementById('dayModal').classList.remove('hidden');
-    }
-
-    function closeModal() {
-      document.getElementById('dayModal').classList.add('hidden');
-    }
-
-    function deleteEvent(dateStr, index) {
-      const targetIndices = [];
-      appData.events.forEach((e, idx) => { if (e.date === dateStr) targetIndices.push(idx); });
-      appData.events.splice(targetIndices[index], 1);
-      saveData();
-      closeModal();
-    }
-
-    function deleteExpense(dateStr, index) {
-      const targetIndices = [];
-      appData.expenses.forEach((e, idx) => { if (e.date === dateStr) targetIndices.push(idx); });
-      appData.expenses.splice(targetIndices[index], 1);
-      saveData();
-      closeModal();
-    }
-
-    function changeMonth(offset) {
-      currentDate.setMonth(currentDate.getMonth() + offset);
-      renderCalendar();
-      renderBudgetStatus();
-    }
-
-    function goToToday() {
-      currentDate = new Date();
-      renderCalendar();
-      renderBudgetStatus();
-    }
-
-    renderCalendar();
-    renderBudgetStatus();
   </script>
 </body>
 </html>
