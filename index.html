@@ -1281,37 +1281,33 @@
         }
 
         // 待辦清單 (Todos) 邏輯
-        function renderTodos() {
-            const container = document.getElementById('todoListContainer');
-            container.innerHTML = '';
-            const activeCount = todosData.filter(t => !t.completed).length;
-            document.getElementById('todoStatsBadge').textContent = `${activeCount} 項進行中`;
+                function renderTodos() {
+            const container = document.getElementById('todoList');
+            if (!container) return;
 
-            if (todosData.length === 0) {
-                container.innerHTML = `<p class="text-xs text-slate-400 text-center py-3">暫無待辦事項</p>`;
-                return;
-            }
-
-            todosData.forEach(item => {
-                const row = document.createElement('div');
-                row.className = `flex items-center justify-between p-2.5 rounded-xl border transition ${
-                    item.completed 
-                        ? 'bg-slate-50 dark:bg-slate-900/30 border-slate-200/50 dark:border-slate-800 opacity-60' 
-                        : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-sm hover:border-indigo-300 dark:hover:border-indigo-600'
-                }" data-id="${item.id}">
-                    <div class="flex items-center gap-3 flex-1 min-w-0">
-                        <span class="todo-drag-handle cursor-grab active:cursor-grabbing text-slate-300 dark:text-slate-600 hover:text-slate-500">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"></path></svg>
-                        </span>
-                        <input type="checkbox" ${item.completed ? 'checked' : ''} onchange="toggleTodo('${item.id}')" 
-                            class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300 dark:border-slate-600 dark:bg-slate-700">
-                        <span class="text-sm truncate ${item.completed ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-700 dark:text-slate-200'}">${escapeHtml(item.text)}</span>
+            if (todos.length === 0) {
+                container.innerHTML = '<div class="text-center py-6 text-slate-400 dark:text-slate-500 text-sm">目前沒有待辦事項</div>';
+            } else {
+                container.innerHTML = todos.map(item => `
+                    <div class="flex items-center justify-between p-2.5 rounded-xl border transition ${
+                        item.completed 
+                            ? 'bg-slate-50 dark:bg-slate-900/30 border-slate-200/50 dark:border-slate-800 opacity-60' 
+                            : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-sm hover:border-indigo-300 dark:hover:border-indigo-600'
+                    }" data-id="${item.id}">
+                        <div class="flex items-center gap-3 flex-1 min-w-0">
+                            <span class="todo-drag-handle cursor-grab active:cursor-grabbing text-slate-300 dark:text-slate-600 hover:text-slate-500">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"></path></svg>
+                            </span>
+                            <input type="checkbox" ${item.completed ? 'checked' : ''} onchange="toggleTodo('${item.id}')" 
+                                class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300 dark:border-slate-600 dark:bg-slate-700">
+                            <span class="text-sm truncate ${item.completed ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-700 dark:text-slate-200'}">${escapeHtml(item.text)}</span>
+                        </div>
+                        <button onclick="deleteTodo('${item.id}')" class="text-slate-400 hover:text-rose-500 transition-colors p-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
                     </div>
-                    <button onclick="deleteTodo('${item.id}')" class="text-slate-400 hover:text-rose-500 transition-colors p-1">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                    </button>
-                </div>
-            ).join('');
+                `).join('');
+            }
 
             const countEl = document.getElementById('todoCount');
             if (countEl) {
@@ -1319,7 +1315,6 @@
                 countEl.innerText = `${activeCount} 項待處理`;
             }
         }
-
         function handleQuickAddTodo(e) {
             if (e.key === 'Enter') {
                 const input = e.target;
