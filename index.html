@@ -410,7 +410,9 @@
 
     <!-- ==================== JavaScript 核心邏輯 ==================== -->
     <script>
+               // ==========================================
         // 系統常數與儲存鍵
+        // ==========================================
         const STORAGE_KEY_EVENTS = 'my_cal_events';
         const STORAGE_KEY_FINANCE = 'my_cal_finance';
         const STORAGE_KEY_TODOS = 'my_cal_todos';
@@ -421,7 +423,7 @@
         const STORAGE_KEY_CHIPS = 'my_cal_presets_chips';
         const STORAGE_KEY_APP_NAME = 'my_cal_app_name';
 
-        // 預設快捷膠囊 (100% 完整保留 💋赤口)
+        // 預設快捷膠囊 (保留 💋赤口)
         const DEFAULT_PRESET_CHIPS = [
             { title: '開會', time: '10:00', icon: '💼' },
             { title: '健身 / 運動', time: '19:00', icon: '🏃' },
@@ -431,26 +433,51 @@
             { title: '赤口', time: '09:00', icon: '💋', isSpecial: true }
         ];
 
-        // 預設收支分類
-        const DEFAULT_EXPENSE_CATEGORIES = ['餐飲社交', '交通出行', '購物開支', '飛行里程', '日常開支', '娛樂休閒', '醫療健康', '其他支出'];
-        const DEFAULT_INCOME_CATEGORIES = ['薪金收入', '轉賬存入', '投資收益', '獎金回贈', '兼職副業', '其他收入'];
+        // 1. 指定 6 大開支預算分類 (Budget Categories)
+        const DEFAULT_EXPENSE_CATEGORIES = [
+            '日常開支',
+            '交通',
+            '家用',
+            '餐飲',
+            '閒暇娛樂',
+            '零用錢'
+        ];
 
-        // 預設財務設定
+        // 預設收入分類
+        const DEFAULT_INCOME_CATEGORIES = [
+            '薪金收入',
+            '轉賬存入',
+            '投資收益',
+            '獎金回贈',
+            '兼職副業',
+            '其他收入'
+        ];
+
+        // 2. 指定 11 大賬戶 / 卡片清單 (Accounts)
+        const DEFAULT_ACCOUNTS = [
+            { name: 'MMpower', limit: 5000 },
+            { name: '國泰Mastercard', limit: 10000 },
+            { name: 'EveryMile', limit: 8000 },
+            { name: 'PayMe', limit: 3000 },
+            { name: 'Alipay', limit: 3000 },
+            { name: 'Cash', limit: 2000 },
+            { name: '八達通', limit: 1000 },
+            { name: 'BOCHK', limit: 0 },
+            { name: 'HSBC', limit: 0 },
+            { name: 'Standard Chartered', limit: 0 },
+            { name: '投資', limit: 0 }
+        ];
+
+        // 預設總體配置
         const DEFAULT_CONFIG = {
             monthlyBudget: 15000,
-            accounts: [
-                { name: '現金', limit: 0 },
-                { name: 'PayMe', limit: 3000 },
-                { name: 'MMpower', limit: 5000 },
-                { name: 'EveryMile', limit: 8000 },
-                { name: '國泰Mastercard', limit: 10000 }
-            ]
+            accounts: DEFAULT_ACCOUNTS
         };
 
         // 核心狀態變數
         let currentDate = new Date();
         let activeModalDateStr = '';
-        let currentEntryType = 'expense'; // 'expense' 或 'income'
+        let currentEntryType = 'expense';
 
         let eventsData = [];
         let financialData = [];
@@ -462,7 +489,7 @@
         const HK_HOLIDAYS_FIXED = {
             '01-01': '元旦',
             '05-01': '勞動節',
-            '07-01': '特區特區成立紀念日',
+            '07-01': '特區成立紀念日',
             '10-01': '國慶日',
             '12-25': '聖誕節',
             '12-26': '節禮日'
@@ -489,10 +516,15 @@
             renderTodos();
             
             // 預設填入首頁快速排程日期為今天
-            document.getElementById('homeEventDate').value = getLocalDateStr(new Date());
+            const homeDateInput = document.getElementById('homeEventDate');
+            if (homeDateInput) {
+                homeDateInput.value = getLocalDateStr(new Date());
+            }
         });
 
-        // 讀取 LocalStorage 數據
+        // ==========================================
+        // 讀取 LocalStorage 與 自動升級平滑遷移機制
+        // ==========================================
         function loadAllData() {
             try {
                 eventsData = JSON.parse(localStorage.getItem(STORAGE_KEY_EVENTS)) || [];
@@ -500,7 +532,22 @@
                 todosData = JSON.parse(localStorage.getItem(STORAGE_KEY_TODOS)) || [];
                 
                 const savedConfig = localStorage.getItem(STORAGE_KEY_CONFIG);
-                financialConfig = savedConfig ? JSON.parse(savedConfig) : DEFAULT_CONFIG;
+                if (savedConfig) {
+                    financialConfig = JSON.parse(savedConfig);
+                    
+                    // 🛡️ 自動平滑升級：若舊快取缺少新賬戶，自動升級為最新 11 個賬戶
+                    const currentNames = (financialConfig.accounts || []).map(a => a.name);
+                    const hasAll = ['MMpower', '國泰Mastercard', 'EveryMile', 'PayMe', 'Alipay', 'Cash', '八達通', 'BOCHK', 'HSBC', 'Standard Chartered', '投資']
+                        .every(name => currentNames.includes(name));
+
+                    if (!hasAll) {
+                        financialConfig.accounts = DEFAULT_ACCOUNTS;
+                        localStorage.setItem(STORAGE_KEY_CONFIG, JSON.stringify(financialConfig));
+                        console.log('✅ 已自動升級並補齊 11 大指定卡片/賬戶清單');
+                    }
+                } else {
+                    financialConfig = DEFAULT_CONFIG;
+                }
 
                 const savedChips = localStorage.getItem(STORAGE_KEY_CHIPS);
                 presetChips = savedChips ? JSON.parse(savedChips) : DEFAULT_PRESET_CHIPS;
@@ -508,6 +555,7 @@
                 console.error('LocalStorage 讀取異常:', e);
             }
         }
+
 
         function saveStoredData() {
             localStorage.setItem(STORAGE_KEY_EVENTS, JSON.stringify(eventsData));
