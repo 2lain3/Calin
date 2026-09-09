@@ -216,14 +216,26 @@
                     </div>
                 </div>
 
-                <!-- 分類支出小膠囊 -->
-                <div>
-                    <h4 class="text-xs font-semibold text-slate-400 dark:text-slate-400 mb-2">分類支出比例</h4>
-                    <div id="categorySpendingBadges" class="flex flex-wrap gap-1.5">
-                        <!-- 動態渲染分類支出標籤 -->
+                                <!-- 6 大指定開支分類預算使用量看板 -->
+                <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-700/60">
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="text-xs font-semibold text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
+                            <i class="fa-solid fa-chart-pie text-indigo-500"></i> 6 大開支分類預算使用量
+                        </h4>
+                        <span class="text-[11px] text-slate-400">當月開支進度與佔比</span>
+                    </div>
+
+                    <!-- 綜合彩色佔比分佈條 -->
+                    <div id="categoryStackedBar" class="w-full h-2.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden flex mb-3 shadow-inner">
+                        <!-- 動態渲染彩色比例分佈 -->
+                    </div>
+
+                    <!-- 6 大分類獨立進度卡片 -->
+                    <div id="categoryBudgetContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                        <!-- 動態渲染 6 大分類卡片 -->
                     </div>
                 </div>
-            </section>
+
 
             <!-- 模組 4: 待辦與日常清單 (Todo Module) -->
             <section data-id="module-todos" class="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-200/80 dark:border-slate-700 transition-colors">
@@ -893,15 +905,89 @@
                 accountsContainer.appendChild(cardDiv);
             });
 
-            // 分類膠囊標籤
-            const catBadgesContainer = document.getElementById('categorySpendingBadges');
-            catBadgesContainer.innerHTML = '';
-            Object.entries(categorySums).forEach(([cat, amt]) => {
-                const span = document.createElement('span');
-                span.className = 'text-xs px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-medium';
-                span.textContent = `${cat}: $${amt.toLocaleString()}`;
-                catBadgesContainer.appendChild(span);
-            });
+                       // ==========================================
+            // 6 大開支分類預算使用量與圖表渲染
+            // ==========================================
+            const CATEGORY_META = {
+                '日常開支': { icon: 'fa-basket-shopping', color: '#3B82F6', barColor: 'bg-blue-500', defaultBudget: 3000 },
+                '交通':     { icon: 'fa-bus',             color: '#10B981', barColor: 'bg-emerald-500', defaultBudget: 1500 },
+                '家用':     { icon: 'fa-house',           color: '#F59E0B', barColor: 'bg-amber-500', defaultBudget: 4500 },
+                '餐飲':     { icon: 'fa-utensils',        color: '#EC4899', barColor: 'bg-pink-500', defaultBudget: 3500 },
+                '閒暇娛樂': { icon: 'fa-gamepad',         color: '#8B5CF6', barColor: 'bg-purple-500', defaultBudget: 1500 },
+                '零用錢':   { icon: 'fa-coins',           color: '#06B6D4', barColor: 'bg-cyan-500', defaultBudget: 1000 }
+            };
+
+            const catBudgets = financialConfig.categoryBudgets || {
+                '日常開支': 3000, '交通': 1500, '家用': 4500, '餐飲': 3500, '閒暇娛樂': 1500, '零用錢': 1000
+            };
+
+            // 1. 渲染綜合彩色佔比條 (Stacked Bar)
+            const stackedBar = document.getElementById('categoryStackedBar');
+            if (stackedBar) {
+                stackedBar.innerHTML = '';
+                if (totalExpense > 0) {
+                    DEFAULT_EXPENSE_CATEGORIES.forEach(cat => {
+                        const spent = categorySums[cat] || 0;
+                        if (spent > 0) {
+                            const ratio = (spent / totalExpense) * 100;
+                            const segment = document.createElement('div');
+                            segment.className = `${CATEGORY_META[cat]?.barColor || 'bg-slate-400'} h-full transition-all duration-300`;
+                            segment.style.width = `${ratio}%`;
+                            segment.title = `${cat}: $${spent.toLocaleString()} (${ratio.toFixed(1)}%)`;
+                            stackedBar.appendChild(segment);
+                        }
+                    });
+                }
+            }
+
+            // 2. 渲染 6 大開支獨立進度卡片
+            const catBudgetContainer = document.getElementById('categoryBudgetContainer');
+            if (catBudgetContainer) {
+                catBudgetContainer.innerHTML = '';
+                DEFAULT_EXPENSE_CATEGORIES.forEach(cat => {
+                    const meta = CATEGORY_META[cat] || { icon: 'fa-tag', color: '#64748B', barColor: 'bg-slate-500', defaultBudget: 2000 };
+                    const spent = categorySums[cat] || 0;
+                    const catLimit = catBudgets[cat] || meta.defaultBudget;
+                    const catPercent = catLimit > 0 ? Math.round((spent / catLimit) * 100) : 0;
+                    const isOver = spent > catLimit;
+                    const remaining = catLimit - spent;
+
+                    // 顏色警示狀態
+                    let progressClass = meta.barColor;
+                    let badgeClass = 'text-slate-500 dark:text-slate-400';
+                    let statusText = `剩餘 $${remaining.toLocaleString()}`;
+
+                    if (isOver) {
+                        progressClass = 'bg-rose-500';
+                        badgeClass = 'text-rose-600 dark:text-rose-400 font-bold';
+                        statusText = `超支 $${Math.abs(remaining).toLocaleString()}`;
+                    } else if (catPercent >= 80) {
+                        progressClass = 'bg-amber-500';
+                        badgeClass = 'text-amber-600 dark:text-amber-400 font-medium';
+                    }
+
+                    const card = document.createElement('div');
+                    card.className = 'p-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-700/60 flex flex-col justify-between';
+                    card.innerHTML = `
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="text-xs font-semibold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+                                <i class="fa-solid ${meta.icon}" style="color: ${meta.color}"></i>
+                                ${cat}
+                            </span>
+                            <span class="text-[11px] ${badgeClass}">${statusText}</span>
+                        </div>
+                        <div class="flex justify-between items-baseline text-[11px] mb-1">
+                            <span class="font-semibold text-slate-800 dark:text-slate-100">$${spent.toLocaleString()}</span>
+                            <span class="text-slate-400">/ $${catLimit.toLocaleString()} (${catPercent}%)</span>
+                        </div>
+                        <div class="w-full bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+                            <div class="h-full rounded-full ${progressClass} transition-all duration-300" style="width: ${Math.min(catPercent, 100)}%"></div>
+                        </div>
+                    `;
+                    catBudgetContainer.appendChild(card);
+                });
+            }
+
         }
 
         // ==================== 日期彈窗交互邏輯 ====================
