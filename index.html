@@ -9,7 +9,7 @@
     <!-- 內建高品質漸層 App 圖標 (SVG Data URI) -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%233B82F6'/%3E%3Cstop offset='50%25' stop-color='%236366F1'/%3E%3Cstop offset='100%25' stop-color='%238B5CF6'/%3E%3Cstop offset='100%25' stop-color='%238B5CF6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='512' height='512' rx='115' fill='url(%23g)'/%3E%3Cpath fill='%23ffffff' d='M256 80c-97.2 0-176 78.8-176 176s78.8 176 176 176 176-78.8 176-176S353.2 80 256 80zm70 110l-42.3 98.6c-2.4 5.6-6.8 10-12.4 12.4L172.7 343.3c-7.6 3.3-15.6-4.7-12.3-12.3l42.3-98.6c2.4-5.6 6.8-10 12.4-12.4l98.6-42.3c7.6-3.3 15.6 4.7 12.3 12.3z'/%3E%3C/svg%3E">
 
-    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%233B82F6'/%3E%3Cstop offset='50%25' stop-color='%236366F1'/%3E%3Cstop offset='100%25' stop-color='%238B5CF6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='512' height='512' rx='115' fill='url(%23g)'/%3E%3Cpath fill='%23ffffff' d='M256 80c-97.2 0-176 78.8-176 176s78.8 176 176 176 176-78.8 176-176S353.2 80 256 80zm70 110l-42.3 98.6c-2.4 5.6-6.8 10-12.4 12.4L172.7 343.3c-7.6 3.3-15.6-4.7-12.3-12.3l42.3-98.6c2.4-5.6 6.8-10 12.4-12.4l98.6-42.3c7.6-3.3 15.6 4.7 12.3 12.3z'/%3E%3C/svg%3E">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%233B82F6'/%3E%3Cstop offset='50%25' stop-color='%236366F1'/%3E%3Cstop offset='100%25' stop-color='%238B5CF6'/%3E%3Cstop offset='100%25' stop-color='%238B5CF6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='512' height='512' rx='115' fill='url(%23g)'/%3E%3Cpath fill='%23ffffff' d='M256 80c-97.2 0-176 78.8-176 176s78.8 176 176 176 176-78.8 176-176S353.2 80 256 80zm70 110l-42.3 98.6c-2.4 5.6-6.8 10-12.4 12.4L172.7 343.3c-7.6 3.3-15.6-4.7-12.3-12.3l42.3-98.6c2.4-5.6 6.8-10 12.4-12.4l98.6-42.3c7.6-3.3 15.6 4.7 12.3 12.3z'/%3E%3C/svg%3E">
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -200,7 +200,7 @@
                 <!-- 總預算進度條 -->
                 <div class="mb-4 bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-100 dark:border-slate-700/60">
                     <div class="flex justify-between items-center text-xs mb-1.5 font-medium">
-                        <span class="text-slate-500 dark:text-slate-400">月預算消耗 (<span id="spentAmountText">$0</span> / <span id="totalBudgetText">$0</span>)</span>
+                        <span class="text-slate-500 dark:text-slate-400">月預算消耗 (<span id=\"spentAmountText\">$0</span> / <span id="totalBudgetText">$0</span>)</span>
                         <span id="budgetPercentText" class="font-bold text-slate-700 dark:text-slate-200">0%</span>
                     </div>
                     <div class="w-full bg-slate-200 dark:bg-slate-700 h-2.5 rounded-full overflow-hidden">
@@ -216,26 +216,22 @@
                     </div>
                 </div>
 
-                                <!-- 6 大指定開支分類預算使用量看板 -->
+                <!-- 開支分類預算使用量看板 -->
                 <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-700/60">
                     <div class="flex items-center justify-between mb-2">
                         <h4 class="text-xs font-semibold text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
-                            <i class="fa-solid fa-chart-pie text-indigo-500"></i> 6 大開支分類預算使用量
+                            <i class="fa-solid fa-chart-pie text-indigo-500"></i> 開支分類預算使用量
                         </h4>
                         <span class="text-[11px] text-slate-400">當月開支進度與佔比</span>
                     </div>
 
                     <!-- 綜合彩色佔比分佈條 -->
-                    <div id="categoryStackedBar" class="w-full h-2.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden flex mb-3 shadow-inner">
-                        <!-- 動態渲染彩色比例分佈 -->
-                    </div>
+                    <div id="categoryStackedBar" class="w-full h-2.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden flex mb-3 shadow-inner"></div>
 
-                    <!-- 6 大分類獨立進度卡片 -->
-                    <div id="categoryBudgetContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
-                        <!-- 動態渲染 6 大分類卡片 -->
-                    </div>
+                    <!-- 各分類獨立卡片與進度條 -->
+                    <div id="categoryBudgetContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5"></div>
                 </div>
-
+            </section>
 
             <!-- 模組 4: 待辦與日常清單 (Todo Module) -->
             <section data-id="module-todos" class="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-200/80 dark:border-slate-700 transition-colors">
@@ -375,6 +371,19 @@
                         <!-- 動態生成卡片/賬戶設定列 -->
                     </div>
                 </div>
+
+                <!-- 開支分類與個別預算上限管理 (+/- 分類與自訂限額) -->
+                <div class="pt-2 border-t border-slate-100 dark:border-slate-700/60">
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="text-xs font-semibold text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
+                            <i class="fa-solid fa-tags text-indigo-500"></i> 開支分類與預算上限 (HKD)
+                        </label>
+                        <button type="button" onclick="addCategorySettingRow()" class="text-[11px] text-blue-600 dark:text-blue-400 hover:underline font-medium">+ 新增分類</button>
+                    </div>
+                    <div id="categoriesSettingList" class="space-y-2">
+                        <!-- 動態生成開支分類與限額列 -->
+                    </div>
+                </div>
             </div>
 
             <div class="px-5 py-3 border-t border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800 flex justify-end">
@@ -422,7 +431,7 @@
 
     <!-- ==================== JavaScript 核心邏輯 ==================== -->
     <script>
-               // ==========================================
+        // ==========================================
         // 系統常數與儲存鍵
         // ==========================================
         const STORAGE_KEY_EVENTS = 'my_cal_events';
@@ -455,6 +464,16 @@
             '零用錢'
         ];
 
+        // 預設開支分類及限額物件清單 (修復 DEFAULT_EXPENSE_ITEMS 缺失)
+        const DEFAULT_EXPENSE_ITEMS = [
+            { name: '日常開支', limit: 3000 },
+            { name: '交通', limit: 1500 },
+            { name: '家用', limit: 4500 },
+            { name: '餐飲', limit: 3500 },
+            { name: '閒暇娛樂', limit: 1500 },
+            { name: '零用錢', limit: 1000 }
+        ];
+
         // 預設收入分類
         const DEFAULT_INCOME_CATEGORIES = [
             '薪金收入',
@@ -483,7 +502,8 @@
         // 預設總體配置
         const DEFAULT_CONFIG = {
             monthlyBudget: 15000,
-            accounts: DEFAULT_ACCOUNTS
+            accounts: DEFAULT_ACCOUNTS,
+            expenseCategories: DEFAULT_EXPENSE_ITEMS
         };
 
         // 核心狀態變數
@@ -557,6 +577,10 @@
                         localStorage.setItem(STORAGE_KEY_CONFIG, JSON.stringify(financialConfig));
                         console.log('✅ 已自動升級並補齊 11 大指定卡片/賬戶清單');
                     }
+
+                    if (!financialConfig.expenseCategories || financialConfig.expenseCategories.length === 0) {
+                        financialConfig.expenseCategories = DEFAULT_EXPENSE_ITEMS;
+                    }
                 } else {
                     financialConfig = DEFAULT_CONFIG;
                 }
@@ -567,7 +591,6 @@
                 console.error('LocalStorage 讀取異常:', e);
             }
         }
-
 
         function saveStoredData() {
             localStorage.setItem(STORAGE_KEY_EVENTS, JSON.stringify(eventsData));
@@ -726,6 +749,7 @@
             if (HK_HOLIDAYS_FIXED[key]) return HK_HOLIDAYS_FIXED[key];
             return `初${d.getDate() > 10 ? d.getDate() : ' ' + d.getDate()}`;
         }
+
         // 渲染日曆矩陣 (前後月自動完整補滿 7 欄網格)
         function renderCalendar() {
             const year = currentDate.getFullYear();
@@ -905,7 +929,7 @@
                 accountsContainer.appendChild(cardDiv);
             });
 
-                       // ==========================================
+            // ==========================================
             // 6 大開支分類預算使用量與圖表渲染
             // ==========================================
             const CATEGORY_META = {
@@ -917,21 +941,22 @@
                 '零用錢':   { icon: 'fa-coins',           color: '#06B6D4', barColor: 'bg-cyan-500', defaultBudget: 1000 }
             };
 
-            const catBudgets = financialConfig.categoryBudgets || {
-                '日常開支': 3000, '交通': 1500, '家用': 4500, '餐飲': 3500, '閒暇娛樂': 1500, '零用錢': 1000
-            };
+            const currentCatList = (financialConfig.expenseCategories && financialConfig.expenseCategories.length > 0)
+                ? financialConfig.expenseCategories
+                : DEFAULT_EXPENSE_ITEMS;
 
             // 1. 渲染綜合彩色佔比條 (Stacked Bar)
             const stackedBar = document.getElementById('categoryStackedBar');
             if (stackedBar) {
                 stackedBar.innerHTML = '';
                 if (totalExpense > 0) {
-                    DEFAULT_EXPENSE_CATEGORIES.forEach(cat => {
+                    currentCatList.forEach(cItem => {
+                        const cat = cItem.name;
                         const spent = categorySums[cat] || 0;
                         if (spent > 0) {
                             const ratio = (spent / totalExpense) * 100;
                             const segment = document.createElement('div');
-                            segment.className = `${CATEGORY_META[cat]?.barColor || 'bg-slate-400'} h-full transition-all duration-300`;
+                            segment.className = `${CATEGORY_META[cat]?.barColor || 'bg-indigo-500'} h-full transition-all duration-300`;
                             segment.style.width = `${ratio}%`;
                             segment.title = `${cat}: $${spent.toLocaleString()} (${ratio.toFixed(1)}%)`;
                             stackedBar.appendChild(segment);
@@ -940,14 +965,15 @@
                 }
             }
 
-            // 2. 渲染 6 大開支獨立進度卡片
+            // 2. 渲染各分類獨立進度卡片
             const catBudgetContainer = document.getElementById('categoryBudgetContainer');
             if (catBudgetContainer) {
                 catBudgetContainer.innerHTML = '';
-                DEFAULT_EXPENSE_CATEGORIES.forEach(cat => {
+                currentCatList.forEach(cItem => {
+                    const cat = cItem.name;
                     const meta = CATEGORY_META[cat] || { icon: 'fa-tag', color: '#64748B', barColor: 'bg-slate-500', defaultBudget: 2000 };
                     const spent = categorySums[cat] || 0;
-                    const catLimit = catBudgets[cat] || meta.defaultBudget;
+                    const catLimit = (cItem.limit !== undefined && cItem.limit !== null && cItem.limit !== '') ? Number(cItem.limit) : meta.defaultBudget;
                     const catPercent = catLimit > 0 ? Math.round((spent / catLimit) * 100) : 0;
                     const isOver = spent > catLimit;
                     const remaining = catLimit - spent;
@@ -987,7 +1013,6 @@
                     catBudgetContainer.appendChild(card);
                 });
             }
-
         }
 
         // ==================== 日期彈窗交互邏輯 ====================
@@ -1032,7 +1057,10 @@
         function populateModalCategoryDropdown() {
             const select = document.getElementById('entryCategory');
             select.innerHTML = '';
-            const categories = currentEntryType === 'expense' ? DEFAULT_EXPENSE_CATEGORIES : DEFAULT_INCOME_CATEGORIES;
+            const currentExpenseCategories = (financialConfig.expenseCategories && financialConfig.expenseCategories.length > 0)
+                ? financialConfig.expenseCategories.map(c => c.name)
+                : DEFAULT_EXPENSE_CATEGORIES;
+            const categories = currentEntryType === 'expense' ? currentExpenseCategories : DEFAULT_INCOME_CATEGORIES;
             categories.forEach(cat => {
                 const opt = document.createElement('option');
                 opt.value = cat;
@@ -1269,62 +1297,79 @@
                 row.className = `flex items-center justify-between p-2.5 rounded-xl border transition ${
                     item.completed 
                         ? 'bg-slate-50 dark:bg-slate-900/30 border-slate-200/50 dark:border-slate-800 opacity-60' 
-                        : 'bg-white dark:bg-slate-800 border-slate-200/80 dark:border-slate-700'
-                }`;
-                row.innerHTML = `
-                    <div class="flex items-center space-x-2.5 flex-1 min-w-0">
-                        <input type="checkbox" ${item.completed ? 'checked' : ''} onchange="toggleTodo('${item.id}')" class="rounded border-slate-300 dark:border-slate-600 text-blue-600 focus:ring-0">
-                        <span class="text-xs ${item.completed ? 'line-through text-slate-400' : 'text-slate-700 dark:text-slate-200'} truncate">${item.title}</span>
+                        : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-sm hover:border-indigo-300 dark:hover:border-indigo-600'
+                }" data-id="${item.id}">
+                    <div class="flex items-center gap-3 flex-1 min-w-0">
+                        <span class="todo-drag-handle cursor-grab active:cursor-grabbing text-slate-300 dark:text-slate-600 hover:text-slate-500">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"></path></svg>
+                        </span>
+                        <input type="checkbox" ${item.completed ? 'checked' : ''} onchange="toggleTodo('${item.id}')" 
+                            class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300 dark:border-slate-600 dark:bg-slate-700">
+                        <span class="text-sm truncate ${item.completed ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-700 dark:text-slate-200'}">${escapeHtml(item.text)}</span>
                     </div>
-                    <button onclick="deleteTodo('${item.id}')" class="text-slate-300 dark:text-slate-500 hover:text-rose-500 p-1">
-                        <i class="fa-solid fa-trash-can text-xs"></i>
+                    <button onclick="deleteTodo('${item.id}')" class="text-slate-400 hover:text-rose-500 transition-colors p-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                     </button>
-                `;
-                container.appendChild(row);
-            });
+                </div>
+            `).join('');
+
+            const countEl = document.getElementById('todoCount');
+            if (countEl) {
+                const activeCount = todos.filter(t => !t.completed).length;
+                countEl.innerText = `${activeCount} 項待處理`;
+            }
         }
 
         function handleQuickAddTodo(e) {
-            e.preventDefault();
-            const input = document.getElementById('quickTodoInput');
-            const title = input.value.trim();
-            if (!title) return;
-
-            todosData.push({
-                id: 'todo_' + Date.now(),
-                title: title,
-                completed: false
-            });
-
-            saveStoredData();
-            renderTodos();
-            input.value = '';
+            if (e.key === 'Enter') {
+                const input = e.target;
+                const text = input.value.trim();
+                if (!text) return;
+                todos.unshift({
+                    id: 'todo_' + Date.now(),
+                    text: text,
+                    completed: false,
+                    createdAt: new Date().toISOString()
+                });
+                saveToLocalStorage();
+                renderTodos();
+                input.value = '';
+            }
         }
 
         function toggleTodo(id) {
-            const item = todosData.find(t => t.id === id);
+            const item = todos.find(t => t.id === id);
             if (item) {
                 item.completed = !item.completed;
-                saveStoredData();
+                saveToLocalStorage();
                 renderTodos();
             }
         }
 
         function deleteTodo(id) {
-            todosData = todosData.filter(t => t.id !== id);
-            saveStoredData();
+            todos = todos.filter(t => t.id !== id);
+            saveToLocalStorage();
             renderTodos();
         }
 
-        // ==================== 設定與卡片管理 ====================
+        // ==========================================
+        // 偏好與財務設定 (Settings Modal)
+        // ==========================================
         function openSettingsModal() {
-            document.getElementById('settingMonthlyBudget').value = financialConfig.monthlyBudget || 15000;
-            document.getElementById('settingGasUrl').value = localStorage.getItem(STORAGE_KEY_GAS_URL) || '';
+            document.getElementById('settingGasUrl').value = gasConfig.url || '';
+            document.getElementById('settingGasToken').value = gasConfig.token || '';
+            document.getElementById('settingAutoSync').checked = !!gasConfig.autoSync;
 
-            const listContainer = document.getElementById('accountsSettingList');
-            listContainer.innerHTML = '';
-            (financialConfig.accounts || []).forEach((acc, idx) => {
-                renderAccountRow(acc.name, acc.limit, idx);
+            const accContainer = document.getElementById('settingsAccountsList');
+            accContainer.innerHTML = '';
+            financialConfig.accounts.forEach(acc => {
+                accContainer.appendChild(renderAccountRow(acc));
+            });
+
+            const catContainer = document.getElementById('settingsCategoryList');
+            catContainer.innerHTML = '';
+            financialConfig.expenseCategories.forEach(cat => {
+                catContainer.appendChild(renderCategoryRow(cat));
             });
 
             document.getElementById('settingsModal').classList.remove('hidden');
@@ -1334,102 +1379,188 @@
             document.getElementById('settingsModal').classList.add('hidden');
         }
 
-        function renderAccountRow(name = '', limit = 0, idx) {
-            const listContainer = document.getElementById('accountsSettingList');
+        function renderAccountRow(acc = { id: '', name: '', limit: 10000, billingDay: 1 }) {
             const div = document.createElement('div');
-            div.className = 'flex items-center gap-2 account-setting-item';
+            div.className = 'account-row flex items-center gap-2 p-2 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700 text-xs sm:text-sm';
+            div.dataset.id = acc.id || ('acc_' + Date.now());
             div.innerHTML = `
-                <input type="text" placeholder="賬戶/卡片名稱" value="${name}" class="flex-1 px-3 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100">
-                <input type="number" placeholder="限額" value="${limit || ''}" class="w-24 px-2 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100">
-                <button type="button" onclick="this.parentElement.remove()" class="text-slate-400 hover:text-rose-500 p-1.5"><i class="fa-solid fa-trash-can"></i></button>
+                <input type="text" value="${escapeHtml(acc.name)}" placeholder="卡片/賬戶名稱" class="acc-name flex-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded px-2 py-1 text-slate-800 dark:text-slate-100 min-w-0">
+                <div class="flex items-center gap-1">
+                    <span class="text-slate-400">上限:</span>
+                    <input type="number" value="${acc.limit}" class="acc-limit w-20 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded px-2 py-1 text-slate-800 dark:text-slate-100">
+                </div>
+                <div class="flex items-center gap-1">
+                    <span class="text-slate-400">結賬日:</span>
+                    <input type="number" min="1" max="31" value="${acc.billingDay || 1}" class="acc-billing w-12 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded px-2 py-1 text-slate-800 dark:text-slate-100">
+                </div>
+                <button type="button" onclick="this.parentElement.remove()" class="p-1 text-slate-400 hover:text-rose-500 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
             `;
-            listContainer.appendChild(div);
+            return div;
         }
 
         function addAccountSettingRow() {
-            renderAccountRow('', 0, Date.now());
+            const container = document.getElementById('settingsAccountsList');
+            container.appendChild(renderAccountRow({
+                id: 'acc_' + Date.now(),
+                name: '新卡片/賬戶',
+                limit: 10000,
+                billingDay: 1
+            }));
+        }
+
+        function renderCategoryRow(cat = { id: '', name: '', budget: 2000, color: '#3b82f6' }) {
+            const div = document.createElement('div');
+            div.className = 'category-row flex items-center gap-2 p-2 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700 text-xs sm:text-sm';
+            div.dataset.id = cat.id || ('cat_' + Date.now());
+            div.innerHTML = `
+                <input type="color" value="${cat.color || '#3b82f6'}" class="cat-color w-7 h-7 rounded border-0 p-0 cursor-pointer bg-transparent">
+                <input type="text" value="${escapeHtml(cat.name)}" placeholder="分類名稱" class="cat-name flex-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded px-2 py-1 text-slate-800 dark:text-slate-100 min-w-0">
+                <div class="flex items-center gap-1">
+                    <span class="text-slate-400">預算:</span>
+                    <input type="number" value="${cat.budget}" class="cat-budget w-24 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded px-2 py-1 text-slate-800 dark:text-slate-100">
+                </div>
+                <button type="button" onclick="this.parentElement.remove()" class="p-1 text-slate-400 hover:text-rose-500 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            `;
+            return div;
+        }
+
+        function addCategorySettingRow() {
+            const container = document.getElementById('settingsCategoryList');
+            container.appendChild(renderCategoryRow({
+                id: 'cat_' + Date.now(),
+                name: '新開支分類',
+                budget: 3000,
+                color: '#10b981'
+            }));
         }
 
         function saveSettings() {
-            const budgetVal = parseFloat(document.getElementById('settingMonthlyBudget').value) || 15000;
-            const gasUrlVal = document.getElementById('settingGasUrl').value.trim();
+            gasConfig.url = document.getElementById('settingGasUrl').value.trim();
+            gasConfig.token = document.getElementById('settingGasToken').value.trim();
+            gasConfig.autoSync = document.getElementById('settingAutoSync').checked;
 
-            const rows = document.querySelectorAll('.account-setting-item');
+            const accRows = document.querySelectorAll('#settingsAccountsList .account-row');
             const newAccounts = [];
-            rows.forEach(r => {
-                const inputs = r.querySelectorAll('input');
-                const name = inputs[0].value.trim();
-                const limit = parseFloat(inputs[1].value) || 0;
-                if (name) newAccounts.push({ name, limit });
+            accRows.forEach(row => {
+                const name = row.querySelector('.acc-name').value.trim();
+                const limit = parseFloat(row.querySelector('.acc-limit').value) || 0;
+                const billingDay = parseInt(row.querySelector('.acc-billing').value) || 1;
+                if (name) {
+                    newAccounts.push({
+                        id: row.dataset.id,
+                        name: name,
+                        limit: limit,
+                        billingDay: billingDay
+                    });
+                }
             });
+            financialConfig.accounts = newAccounts.length > 0 ? newAccounts : [...DEFAULT_ACCOUNTS];
 
-            financialConfig.monthlyBudget = budgetVal;
-            financialConfig.accounts = newAccounts;
+            const catRows = document.querySelectorAll('#settingsCategoryList .category-row');
+            const newCats = [];
+            catRows.forEach(row => {
+                const name = row.querySelector('.cat-name').value.trim();
+                const budget = parseFloat(row.querySelector('.cat-budget').value) || 0;
+                const color = row.querySelector('.cat-color').value;
+                if (name) {
+                    newCats.push({
+                        id: row.dataset.id,
+                        name: name,
+                        budget: budget,
+                        color: color
+                    });
+                }
+            });
+            financialConfig.expenseCategories = newCats.length > 0 ? newCats : [...DEFAULT_EXPENSE_ITEMS];
 
-            localStorage.setItem(STORAGE_KEY_CONFIG, JSON.stringify(financialConfig));
-            localStorage.setItem(STORAGE_KEY_GAS_URL, gasUrlVal);
-
+            saveToLocalStorage();
+            updateExpenseCategoryDropdown();
+            renderFinanceOverview();
             closeSettingsModal();
-            renderFinancialSummary();
-            alert('偏好設定已成功更新！');
+            showNotification('設定已成功儲存！', 'success');
         }
 
-        // ==================== Google Apps Script 雲端同步 ====================
+        // ==========================================
+        // GAS 雲端雙向同步模組
+        // ==========================================
         async function syncWithCloud() {
-            const gasUrl = localStorage.getItem(STORAGE_KEY_GAS_URL);
-            if (!gasUrl) {
-                alert('請先點選右上角齒輪設定，填寫 Google Web App API 網址！');
-                return openSettingsModal();
+            if (!gasConfig.url) {
+                showNotification('請先在「偏好與財務設定」中填入 GAS Web App URL', 'error');
+                return;
             }
 
-            if (!confirm('確認要與 Google Sheet 進行同步並合併雲端交易記錄嗎？')) return;
-
-            const icon = document.getElementById('cloudSyncIcon');
-            const text = document.getElementById('cloudSyncText');
-            icon.className = 'fa-solid fa-rotate fa-spin text-blue-500';
-            text.textContent = '同步中...';
+            const syncBtn = document.getElementById('cloudSyncBtn');
+            const originalHtml = syncBtn ? syncBtn.innerHTML : '';
+            if (syncBtn) {
+                syncBtn.disabled = true;
+                syncBtn.innerHTML = `
+                    <svg class="w-4 h-4 animate-spin text-indigo-500" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                    </svg>
+                    <span>同步中...</span>
+                `;
+            }
 
             try {
-                const res = await fetch(gasUrl);
-                const cloudRows = await res.json();
+                const payload = {
+                    action: 'sync',
+                    token: gasConfig.token || '',
+                    data: {
+                        events: events,
+                        financeRecords: financeRecords,
+                        todos: todos,
+                        financialConfig: financialConfig,
+                        customShortcuts: customShortcuts
+                    }
+                };
 
-                if (Array.isArray(cloudRows)) {
-                    let newCount = 0;
-                    cloudRows.forEach(row => {
-                        const exists = financialData.some(local => local.id === row.id);
-                        if (!exists && row.amount) {
-                            financialData.push({
-                                id: row.id || ('txn_' + Date.now()),
-                                date: row.date || getLocalDateStr(new Date()),
-                                type: (row.type === 'incomes' || row.type === 'income') ? 'income' : 'expense',
-                                amount: Number(row.amount),
-                                category: row.category || '日常開支',
-                                account: row.account || '現金',
-                                title: row.title || '雲端同步項目'
-                            });
-                            newCount++;
-                        }
-                    });
+                const response = await fetch(gasConfig.url, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload)
+                });
 
-                    saveStoredData();
-                    renderCalendar();
-                    renderFinancialSummary();
+                if (!response.ok) throw new Error(`HTTP 錯誤: ${response.status}`);
+                const result = await response.json();
 
-                    icon.className = 'fa-solid fa-cloud text-emerald-500';
-                    text.textContent = '已同步';
-                    alert(`雲端同步成功！已成功合併 ${newCount} 筆新交易明細。`);
+                if (result.status === 'success') {
+                    if (result.data) {
+                        if (result.data.events) events = result.data.events;
+                        if (result.data.financeRecords) financeRecords = result.data.financeRecords;
+                        if (result.data.todos) todos = result.data.todos;
+                        if (result.data.financialConfig) financialConfig = result.data.financialConfig;
+                        if (result.data.customShortcuts) customShortcuts = result.data.customShortcuts;
+
+                        saveToLocalStorage();
+                        renderCalendar();
+                        renderFinanceOverview();
+                        renderTodos();
+                        renderShortcutBar();
+                    }
+                    showNotification('雲端雙向同步完成！', 'success');
                 } else {
-                    throw new Error('回傳資料格式不符合預期');
+                    throw new Error(result.message || '雲端同步回應狀態錯誤');
                 }
             } catch (err) {
                 console.error('GAS 同步失敗:', err);
-                icon.className = 'fa-solid fa-triangle-exclamation text-rose-500';
-                text.textContent = '失敗';
-                alert('同步失敗，請檢查 API 網址是否正確授權給「所有人 (Anyone)」存取。');
+                showNotification('同步失敗: ' + err.message, 'error');
+            } finally {
+                if (syncBtn) {
+                    syncBtn.disabled = false;
+                    syncBtn.innerHTML = originalHtml;
+                }
             }
         }
 
-        // ==================== 備份還原 (Backup & Restore) ====================
+        // ==========================================
+        // 備份與還原 (JSON 匯出/匯入)
+        // ==========================================
         function openBackupModal() {
             document.getElementById('backupModal').classList.remove('hidden');
         }
@@ -1439,84 +1570,80 @@
         }
 
         function exportBackupData() {
-            const fullBackup = {
-                version: '2.0',
-                exportDate: new Date().toISOString(),
-                appName: localStorage.getItem(STORAGE_KEY_APP_NAME) || 'MyLife Hub',
-                events: eventsData,
-                financialData: financialData,
-                todos: todosData,
-                config: financialConfig,
-                presetChips: presetChips,
-                layoutOrder: localStorage.getItem(STORAGE_KEY_LAYOUT)
+            const fullData = {
+                version: '2.0.0',
+                exportTime: new Date().toISOString(),
+                events,
+                financeRecords,
+                todos,
+                financialConfig,
+                customShortcuts,
+                gasConfig
             };
 
-            const blob = new Blob([JSON.stringify(fullBackup, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `MyLife_Backup_${getLocalDateStr(new Date())}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
+            const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(fullData, null, 2));
+            const downloadAnchor = document.createElement('a');
+            const fileName = `MyLifeHub_Backup_${new Date().toISOString().slice(0, 10)}.json`;
+            downloadAnchor.setAttribute('href', dataStr);
+            downloadAnchor.setAttribute('download', fileName);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+            showNotification('備份檔案已成功匯出！', 'success');
         }
 
-        document.getElementById('backupFileInput').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
+        function triggerFileInput() {
+            document.getElementById('backupFileInput').click();
+        }
 
-            const reader = new FileReader();
-            reader.onload = function(evt) {
-                try {
-                    const parsed = JSON.parse(evt.target.result);
-                    if (parsed.events) eventsData = parsed.events;
-                    if (parsed.financialData) financialData = parsed.financialData;
-                    if (parsed.todos) todosData = parsed.todos;
-                    if (parsed.config) financialConfig = parsed.config;
-                    if (parsed.presetChips) {
-                        presetChips = parsed.presetChips;
-                        localStorage.setItem(STORAGE_KEY_CHIPS, JSON.stringify(presetChips));
-                        renderPresetChipsUI();
-                    }
-                    if (parsed.appName) {
-                        localStorage.setItem(STORAGE_KEY_APP_NAME, parsed.appName);
-                        initAppName();
-                    }
-                    if (parsed.layoutOrder) localStorage.setItem(STORAGE_KEY_LAYOUT, parsed.layoutOrder);
+        // 綁定檔案上傳監聽
+        document.addEventListener('DOMContentLoaded', () => {
+            const fileInput = document.getElementById('backupFileInput');
+            if (fileInput) {
+                fileInput.addEventListener('change', function (e) {
+                    const file = e.target.files[0];
+                    if (!file) return;
 
-                    saveStoredData();
-                    localStorage.setItem(STORAGE_KEY_CONFIG, JSON.stringify(financialConfig));
-                    initSortableLayout();
-                    renderCalendar();
-                    renderFinancialSummary();
-                    closeBackupModal();
-                    alert('全系統資料還原成功！');
-                } catch (err) {
-                    alert('讀取失敗：' + err.message);
-                }
-            };
-            reader.readAsText(file);
+                    const reader = new FileReader();
+                    reader.onload = function (evt) {
+                        try {
+                            const parsed = JSON.parse(evt.target.result);
+                            if (parsed.events) events = parsed.events;
+                            if (parsed.financeRecords) financeRecords = parsed.financeRecords;
+                            if (parsed.todos) todos = parsed.todos;
+                            if (parsed.financialConfig) financialConfig = parsed.financialConfig;
+                            if (parsed.customShortcuts) customShortcuts = parsed.customShortcuts;
+                            if (parsed.gasConfig) gasConfig = parsed.gasConfig;
+
+                            saveToLocalStorage();
+                            renderCalendar();
+                            renderFinanceOverview();
+                            renderTodos();
+                            renderShortcutBar();
+                            updateExpenseCategoryDropdown();
+
+                            closeBackupModal();
+                            showNotification('資料備份已成功還原！', 'success');
+                        } catch (err) {
+                            showNotification('匯入失敗：JSON 格式不正確', 'error');
+                        }
+                    };
+                    reader.readAsText(file);
+                });
+            }
         });
 
-        // ==========================================
-        // 雲端同步通用函式 (支援日程與記賬寫入 Google Sheet)
-        // ==========================================
-        async function syncToGAS(payload) {
-            const gasUrl = localStorage.getItem(STORAGE_KEY_GAS_URL) || "";
-            if (!gasUrl) return; // 未設定 GAS 網址時靜默跳過
-
-            try {
-                const res = await fetch(gasUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(payload)
-                });
-                const result = await res.json();
-                console.log('雲端同步成功:', result);
-                return result;
-            } catch (err) {
-                console.error('雲端同步失敗:', err);
-            }
+        // 輔助工具：逸出 HTML 特殊字元防止 XSS
+        function escapeHtml(str) {
+            if (typeof str !== 'string') return '';
+            return str
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
         }
     </script>
 </body>
 </html>
+
