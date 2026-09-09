@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>我的智能日程與記賬日曆</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .holiday { color: #dc2626; font-weight: bold; }
+    .holiday-bg { background-color: #fef2f2; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen p-4 md:p-8">
+
+  <div class="max-w-4xl mx-auto space-y-6">
+    
+    <!-- 頂部標題與設定 -->
+    <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+      <div>
+        <h1 class="text-2xl font-bold text-slate-800">🗓️ 智能日程 & 記賬</h1>
+        <p class="text-xs text-slate-400 mt-1">香港法定假期 ‧ 內建本地智能語意解析（免聯網亦可用）</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <input id="apiKeyInput" type="password" placeholder="可選：貼上 OpenRouter/Groq Key" class="border border-slate-200 text-xs px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 w-52">
+        <button onclick="saveApiKey()" class="bg-slate-800 hover:bg-slate-700 text-white text-xs px-3 py-2 rounded-lg transition">儲存 Key</button>
+      </div>
+    </header>
+
+    <!-- 自然語言輸入區 -->
+    <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 space-y-3">
+      <label class="block text-sm font-semibold text-slate-700">想記低啲乜？（試下直接打字，會自動分開日程和記賬）</label>
+      <div class="flex gap-2">
+        <input id="naturalInput" type="text" 
+          placeholder="例如：聽日下晝3點見客，搭的士用咗85蚊；9月25號交水費$300" 
+          class="flex-1 border border-slate-200 px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          onkeydown="if(event.key==='Enter') processInput()">
+        <button id="sendBtn" onclick="processInput()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm px-6 py-2.5 rounded-xl transition flex items-center gap-1">
+          <span>記錄</span>
+        </button>
+      </div>
+      <p id="statusMsg" class="text-xs text-indigo-600 hidden font-medium">⚡ 正在分析語意...</p>
+    </section>
+
+    <!-- 月份導航與本月統計 -->
+    <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+      <div class="flex items-center gap-3">
+        <button onclick="changeMonth(-1)" class="p-2 hover:bg-white rounded-lg border border-slate-200 transition">◀</button>
+        <h2 id="currentMonthYear" class="text-lg font-bold min-w-[120px] text-center"></h2>
+        <button onclick="changeMonth(1)" class="p-2 hover:bg-white rounded-lg border border-slate-200 transition">▶</button>
+        <button onclick="goToToday()" class="text-xs bg-slate-200 hover:bg-slate-300 text-slate-700 px-2.5 py-1.5 rounded-md">今天</button>
+      </div>
+      <div class="bg-indigo-50 border border-indigo-100 px-4 py-2 rounded-xl text-xs flex gap-4">
+        <div>本月日程：<span id="monthEventCount" class="font-bold text-indigo-700">0</span> 項</div>
+        <div>本月開支：<span id="monthExpenseTotal" class="font-bold text-red-600">$0</span></div>
+      </div>
+    </div>
+
+    <!-- 日曆主體 -->
+    <section class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+      <div class="grid grid-cols-7 border-b border-slate-100 bg-slate-50/50 text-center text-xs font-semibold py-2.5 text-slate-500">
+        <div class="text-red-500">日</div>
+        <div>一</div>
+        <div>二</div>
+        <div>三</div>
+        <div>四</div>
+        <div>五</div>
+        <div class="text-red-500">六</div>
+      </div>
+      <div id="calendarGrid" class="grid grid-cols-7 gap-px bg-slate-100 min-h-[500px]"></div>
+    </section>
+
+  </div>
+
+  <!-- 單日詳情彈窗 Modal -->
+  <div id="dayModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4">
+      <div class="flex justify-between items-center border-b pb-3">
+        <div>
+          <h3 id="modalDateTitle" class="font-bold text-base text-slate-800"></h3>
+          <p id="modalHolidayTitle" class="text-xs text-red-500 font-semibold mt-0.5"></p>
+        </div>
+        <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 text-lg">✕</button>
+      </div>
+
+      <div>
+        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">📌 當日日程</h4>
+        <div id="modalEventList" class="space-y-1.5 text-sm"></div>
+      </div>
+
+      <div>
+        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">💰 當日花費明細</h4>
+        <div id="modalExpenseList" class="space-y-1.5 text-sm"></div>
+      </div>
+
+      <div class="pt-2 text-right">
+        <button onclick="closeModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-4 py-2 rounded-lg font-medium">關閉</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 2026 香港公眾假期
+    const HK_HOLIDAYS_2026 = {
+      "2026-01-01": "元旦", "2026-02-17": "農曆年初一", "2026-02-18": "農曆年初二",
+      "2026-02-19": "農曆年初三", "2026-04-03": "耶穌受難節", "2026-04-04": "受難節翌日/清明節",
+      "2026-04-06": "復活節星期一翌日", "2026-05-01": "勞動節", "2026-05-24": "佛誕",
+      "2026-05-25": "佛誕翌日", "2026-06-19": "端午節", "2026-07-01": "特區成立紀念日",
+      "2026-09-26": "中秋節翌日", "2026-10-01": "國慶日", "2026-10-19": "重陽節",
+      "2026-12-25": "聖誕節", "2026-12-26": "節禮日"
+    };
+
+    let appData = JSON.parse(localStorage.getItem('my_cal_data') || '{"events": [], "expenses": []}');
+    let currentDate = new Date();
+
+    document.getElementById('apiKeyInput').value = localStorage.getItem('user_api_key') || '';
+
+    function saveApiKey() {
+      const key = document.getElementById('apiKeyInput').value.trim();
+      localStorage.setItem('user_api_key', key);
+      alert('Key 已保存！若不填 Key，系統會自動使用內建本地引擎解析。');
+    }
+
+    function saveData() {
+      localStorage.setItem('my_cal_data', JSON.stringify(appData));
+      renderCalendar();
+    }
+
+    // ========== 內建本地智能解析引擎（免聯網、零報錯） ==========
+    function parseLocally(text) {
+      const now = new Date();
+      let targetDate = new Date(now);
+      
+      // 1. 日期提取
+      if (text.includes("今日") || text.includes("今天")) {
+        // targetDate 不變
+      } else if (text.includes("聽日") || text.includes("明天")) {
+        targetDate.setDate(targetDate.getDate() + 1);
+      } else if (text.includes("後日") || text.includes("后天")) {
+        targetDate.setDate(targetDate.getDate() + 2);
+      } else {
+        // 匹配 "9月25" 或 "09-25"
+        const dateMatch = text.match(/(?:(\d{4})[年/-])?(\d{1,2})[月/-](\d{1,2})[日號号]?/);
+        if (dateMatch) {
+          const y = dateMatch[1] ? parseInt(dateMatch[1]) : now.getFullYear();
+          const m = parseInt(dateMatch[2]) - 1;
+          const d = parseInt(dateMatch[3]);
+          targetDate = new Date(y, m, d);
+        } else {
+          // 匹配 "下星期三" / "星期五"
+          const weekMap = { "日": 0, "天": 0, "一": 1, "二": 2, "三": 3, "四": 4, "五": 5, "六": 6 };
+          const weekMatch = text.match(/(下周|下星期|星期|周)([日天一二三四五六])/);
+          if (weekMatch) {
+            const isNext = weekMatch[1].startsWith("下");
+            const targetDay = weekMap[weekMatch[2]];
+            let diff = targetDay - now.getDay();
+            if (diff <= 0 || isNext) diff += 7;
+            targetDate.setDate(now.getDate() + diff);
+          }
+        }
+      }
+
+      const dateStr = `${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, '0')}-${String(targetDate.getDate()).padStart(2, '0')}`;
+
+      // 2. 時間提取
+      let timeStr = "";
+      const timeMatch = text.match(/(上晝|早上|上午|下晝|下午|夜晚|晚上)?\s*(\d{1,2})[點点:：](\d{2})?/);
+      if (timeMatch) {
+        let h = parseInt(timeMatch[2]);
+        const m = timeMatch[3] ? timeMatch[3] : "00";
+        const period = timeMatch[1] || "";
+        if ((period.includes("下") || period.includes("晚")) && h < 12) h += 12;
+        timeStr = `${String(h).padStart(2, '0')}:${m}`;
+      }
+
+      // 3. 金額開銷提取（匹配 $300、85蚊、100元）
+      const events = [];
+      const expenses = [];
+
+      const expenseMatch = text.match(/(.+?)(?:用咗|花了|買|支出|畀咗)?\s*[$￥]?\s*(\d+(?:\.\d+)?)\s*(?:蚊|元|塊|塊錢|HKD|hkd)?/);
+      if (expenseMatch && (text.includes("蚊") || text.includes("$") || text.includes("用咗") || text.includes("花") || text.includes("元"))) {
+        const amount = parseFloat(expenseMatch[2]);
+        let item = expenseMatch[1].replace(/(聽日|聽日|明天|今日|今天|下晝|上午|下午|\d+[月號日])/g, '').trim();
+        if (!item) item = "日常支出";
+        expenses.push({ date: dateStr, category: "支出", item: item, amount: amount });
+      }
+
+      // 4. 事件提取（如果包含開會、見客、食飯等或不是純記賬）
+      let cleanTitle = text.replace(/(聽日|明天|今日|今天|下星期[一二三四五六天日]|星期[一二三四五六天日]|\d+[月/-]\d+[日號号]?|上晝|下晝|上午|下午|\d{1,2}[點点:：]\d{0,2})/g, '')
+                           .replace(/用咗.*|花了.*|[$￥]\d+.*|\d+蚊.*/g, '')
+                           .replace(/[，,;；]/g, '')
+                           .trim();
+
+      if (cleanTitle.length > 0) {
+        events.push({ date: dateStr, time: timeStr, title: cleanTitle });
+      }
+
+      return { events, expenses };
+    }
+
+    // 主處理邏輯
+    async function processInput() {
+      const text = document.getElementById('naturalInput').value.trim();
+      if (!text) return;
+
+      const key = localStorage.getItem('user_api_key');
+      const status = document.getElementById('statusMsg');
+      const btn = document.getElementById('sendBtn');
+      status.classList.remove('hidden');
+      btn.disabled = true;
+
+      // 如果有填 API Key，優先調用 API，出錯時自動切回本地
+      if (key) {
+        try {
+          const isGroq = key.startsWith('gsk_');
+          const endpoint = isGroq 
+            ? 'https://api.groq.com/openai/v1/chat/completions'
+            : 'https://openrouter.ai/api/v1/chat/completions';
+          
+          const model = isGroq ? 'llama-3.3-70b-versatile' : 'meta-llama/llama-3.3-70b-instruct:free';
+
+          const todayStr = new Date().toISOString().split('T')[0];
+          const prompt = `今天是 ${todayStr}。請分析此語句，提取日程(events)與花費(expenses)。
+必須嚴格輸出純 JSON，格式：{"events":[{"date":"YYYY-MM-DD","time":"HH:mm 或空","title":"名稱"}],"expenses":[{"date":"YYYY-MM-DD","category":"類別","item":"品項","amount":數字}]}
+內容：「${text}」`;
+
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${key}`
+            },
+            body: JSON.stringify({
+              model: model,
+              messages: [{ role: 'user', content: prompt }],
+              temperature: 0.1
+            })
+          });
+
+          if (!res.ok) {
+            const errJson = await res.json().catch(() => ({}));
+            throw new Error(`API 報錯 (${res.status}): ${errJson.error?.message || '請求失敗'}`);
+          }
+
+          const data = await res.json();
+          let rawText = data.choices[0].message.content.trim();
+          rawText = rawText.replace(/^```json/i, '').replace(/^```/, '').replace(/```$/, '').trim();
+          const parsed = JSON.parse(rawText);
+
+          if (parsed.events) appData.events.push(...parsed.events);
+          if (parsed.expenses) appData.expenses.push(...parsed.expenses);
+
+          finishSuccess();
+          return;
+        } catch (apiErr) {
+          console.warn('API 調用失敗，自動切換至本地智能解析引擎：', apiErr);
+          // API 失敗後不中斷，無縫進入本地解析
+        }
+      }
+
+      // 本地智能解析引擎執行
+      const localResult = parseLocally(text);
+      if (localResult.events.length > 0) appData.events.push(...localResult.events);
+      if (localResult.expenses.length > 0) appData.expenses.push(...localResult.expenses);
+
+      finishSuccess();
+
+      function finishSuccess() {
+        saveData();
+        document.getElementById('naturalInput').value = '';
+        status.classList.add('hidden');
+        btn.disabled = false;
+      }
+    }
+
+    // 渲染日曆
+    function renderCalendar() {
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+      document.getElementById('currentMonthYear').innerText = `${year} 年 ${month + 1} 月`;
+
+      const firstDayIndex = new Date(year, month, 1).getDay();
+      const totalDays = new Date(year, month + 1, 0).getDate();
+
+      const grid = document.getElementById('calendarGrid');
+      grid.innerHTML = '';
+
+      let monthEventCount = 0;
+      let monthExpenseTotal = 0;
+
+      for (let i = 0; i < firstDayIndex; i++) {
+        const emptyCell = document.createElement('div');
+        emptyCell.className = 'bg-slate-50 min-h-[90px]';
+        grid.appendChild(emptyCell);
+      }
+
+      for (let day = 1; day <= totalDays; day++) {
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const dayOfWeek = new Date(year, month, day).getDay();
+        const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+        const holidayName = HK_HOLIDAYS_2026[dateStr];
+
+        const dayEvents = appData.events.filter(e => e.date === dateStr);
+        const dayExpenses = appData.expenses.filter(e => e.date === dateStr);
+
+        monthEventCount += dayEvents.length;
+        const dayExpenseSum = dayExpenses.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+        monthExpenseTotal += dayExpenseSum;
+
+        const cell = document.createElement('div');
+        cell.className = `bg-white p-1.5 flex flex-col justify-between cursor-pointer hover:bg-slate-50 transition border-b border-r border-slate-100 min-h-[95px] ${holidayName ? 'holiday-bg' : ''}`;
+        cell.onclick = () => openModal(dateStr, holidayName, dayEvents, dayExpenses);
+
+        let topBar = `<div class="flex justify-between items-start">
+          <span class="text-xs font-bold ${holidayName || isWeekend ? 'text-red-500' : 'text-slate-700'}">${day}</span>
+          ${holidayName ? `<span class="text-[10px] text-red-500 truncate max-w-[65px] font-semibold">${holidayName}</span>` : ''}
+        </div>`;
+
+        let tags = `<div class="space-y-1 mt-1 overflow-hidden">`;
+        dayEvents.slice(0, 2).forEach(ev => {
+          tags += `<div class="text-[10px] bg-indigo-50 text-indigo-700 px-1 py-0.5 rounded truncate font-medium">📌 ${ev.time ? ev.time + ' ' : ''}${ev.title}</div>`;
+        });
+        if (dayEvents.length > 2) {
+          tags += `<div class="text-[9px] text-indigo-400 font-bold">+${dayEvents.length - 2} 更多</div>`;
+        }
+        tags += `</div>`;
+
+        let bottom = dayExpenseSum > 0 ? `<div class="text-[10px] text-red-600 font-bold text-right mt-1">-$${dayExpenseSum}</div>` : `<div></div>`;
+
+        cell.innerHTML = topBar + tags + bottom;
+        grid.appendChild(cell);
+      }
+
+      document.getElementById('monthEventCount').innerText = monthEventCount;
+      document.getElementById('monthExpenseTotal').innerText = `$${monthExpenseTotal.toLocaleString()}`;
+    }
+
+    function openModal(dateStr, holiday, events, expenses) {
+      document.getElementById('modalDateTitle').innerText = dateStr;
+      document.getElementById('modalHolidayTitle').innerText = holiday ? `🇭🇰 香港公眾假期：${holiday}` : '';
+
+      const evList = document.getElementById('modalEventList');
+      evList.innerHTML = events.length === 0 ? '<p class="text-slate-400 text-xs">無安排日程</p>' : '';
+      events.forEach((ev, idx) => {
+        evList.innerHTML += `
+          <div class="flex justify-between items-center bg-slate-50 p-2 rounded-lg">
+            <span>📌 <b class="text-indigo-600">${ev.time || '全天'}</b> ${ev.title}</span>
+            <button onclick="deleteEvent('${dateStr}', ${idx})" class="text-slate-400 hover:text-red-500 text-xs">刪除</button>
+          </div>
+        `;
+      });
+
+      const exList = document.getElementById('modalExpenseList');
+      exList.innerHTML = expenses.length === 0 ? '<p class="text-slate-400 text-xs">無花費記錄</p>' : '';
+      expenses.forEach((ex, idx) => {
+        exList.innerHTML += `
+          <div class="flex justify-between items-center bg-slate-50 p-2 rounded-lg">
+            <span>💸 [${ex.category || '支出'}] ${ex.item}</span>
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-red-600">-$${ex.amount}</span>
+              <button onclick="deleteExpense('${dateStr}', ${idx})" class="text-slate-400 hover:text-red-500 text-xs">刪除</button>
+            </div>
+          </div>
+        `;
+      });
+
+      document.getElementById('dayModal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('dayModal').classList.add('hidden');
+    }
+
+    function deleteEvent(dateStr, index) {
+      const targetIndices = [];
+      appData.events.forEach((e, idx) => { if (e.date === dateStr) targetIndices.push(idx); });
+      appData.events.splice(targetIndices[index], 1);
+      saveData();
+      closeModal();
+    }
+
+    function deleteExpense(dateStr, index) {
+      const targetIndices = [];
+      appData.expenses.forEach((e, idx) => { if (e.date === dateStr) targetIndices.push(idx); });
+      appData.expenses.splice(targetIndices[index], 1);
+      saveData();
+      closeModal();
+    }
+
+    function changeMonth(offset) {
+      currentDate.setMonth(currentDate.getMonth() + offset);
+      renderCalendar();
+    }
+
+    function goToToday() {
+      currentDate = new Date();
+      renderCalendar();
+    }
+
+    renderCalendar();
+  </script>
+</body>
+</html>
