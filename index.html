@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <html lang="zh-HK">
 <head>
+    <!-- Web App & iOS 專屬主畫面 Icon -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="MyLife">
+
+<!-- 內建高品質漸層 App 圖標 (SVG Data URI) -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%233B82F6'/%3E%3Cstop offset='50%25' stop-color='%236366F1'/%3E%3Cstop offset='100%25' stop-color='%238B5CF6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='512' height='512' rx='115' fill='url(%23g)'/%3E%3Cpath fill='%23ffffff' d='M256 80c-97.2 0-176 78.8-176 176s78.8 176 176 176 176-78.8 176-176S353.2 80 256 80zm70 110l-42.3 98.6c-2.4 5.6-6.8 10-12.4 12.4L172.7 343.3c-7.6 3.3-15.6-4.7-12.3-12.3l42.3-98.6c2.4-5.6 6.8-10 12.4-12.4l98.6-42.3c7.6-3.3 15.6 4.7 12.3 12.3z'/%3E%3C/svg%3E">
+
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%233B82F6'/%3E%3Cstop offset='50%25' stop-color='%236366F1'/%3E%3Cstop offset='100%25' stop-color='%238B5CF6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='512' height='512' rx='115' fill='url(%23g)'/%3E%3Cpath fill='%23ffffff' d='M256 80c-97.2 0-176 78.8-176 176s78.8 176 176 176 176-78.8 176-176S353.2 80 256 80zm70 110l-42.3 98.6c-2.4 5.6-6.8 10-12.4 12.4L172.7 343.3c-7.6 3.3-15.6-4.7-12.3-12.3l42.3-98.6c2.4-5.6 6.8-10 12.4-12.4l98.6-42.3c7.6-3.3 15.6 4.7 12.3 12.3z'/%3E%3C/svg%3E">
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>個人生活、日程與財務儀表板</title>
@@ -34,15 +44,16 @@
         }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen pb-16">
+<body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen pb-16 transition-colors duration-200">
 
     <!-- 頂部導航列 -->
     <header class="bg-white border-b border-slate-200 sticky top-0 z-30 px-4 py-3 shadow-sm">
         <div class="max-w-4xl mx-auto flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-                <span class="text-xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                    <i class="fa-solid fa-compass mr-1 text-blue-600"></i> MyLife Hub
-                </span>
+            <span id="appNameDisplay" onclick="renameApp()" class="text-xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent cursor-pointer hover:opacity-80 transition flex items-center gap-1.5" title="點擊修改名稱">
+    <i class="fa-solid fa-compass text-blue-600"></i>
+    <span id="appNameText">MyLife Hub</span>
+    <i class="fa-solid fa-pen text-[10px] text-slate-400 opacity-60"></i>
+</span>
                 <span id="cloudSyncStatus" class="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 font-medium">
                     <i id="cloudSyncIcon" class="fa-solid fa-cloud mr-1"></i> <span id="cloudSyncText">待命</span>
                 </span>
@@ -52,6 +63,9 @@
                 <button id="btnSyncCloud" onclick="syncWithCloud()" class="p-2 text-slate-600 hover:text-blue-600 hover:bg-slate-50 rounded-xl transition" title="從 Google Sheet 同步">
                     <i class="fa-solid fa-rotate"></i>
                 </button>
+                <button id="themeToggleBtn" onclick="toggleTheme()" class="p-2 text-slate-600 hover:text-amber-500 hover:bg-slate-50 rounded-xl transition" title="切換日夜模式">
+    <i id="themeIcon" class="fa-solid fa-moon"></i>
+</button>
                 <button onclick="openSettingsModal()" class="p-2 text-slate-600 hover:text-blue-600 hover:bg-slate-50 rounded-xl transition" title="預算、卡片與系統設定">
                     <i class="fa-solid fa-sliders"></i>
                 </button>
@@ -94,6 +108,22 @@
     </div>
     <span class="text-xs text-gray-400">按 Enter 即刻儲存</span>
   </div>
+      <!-- 高頻日程快捷膠囊 (點一下自動填入) -->
+  <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-gray-700/60 flex items-center justify-between">
+    <div class="flex items-center gap-1.5 overflow-x-auto hide-scrollbar text-xs py-1" id="quickChipsContainer">
+      <span class="text-[11px] text-slate-400 whitespace-nowrap mr-1"><i class="fa-solid fa-bolt text-amber-500"></i> 常用:</span>
+      <button type="button" onclick="fillQuickPreset('開會', '10:00')" class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-gray-700 hover:bg-blue-50 dark:hover:bg-blue-900/40 text-slate-600 dark:text-slate-200 text-xs whitespace-nowrap transition">💼 開會</button>
+      <button type="button" onclick="fillQuickPreset('健身 / 運動', '19:00')" class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-gray-700 hover:bg-blue-50 dark:hover:bg-blue-900/40 text-slate-600 dark:text-slate-200 text-xs whitespace-nowrap transition">🏋️ 健身</button>
+      <button type="button" onclick="fillQuickPreset('睇醫生 / 覆診', '14:30')" class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-gray-700 hover:bg-blue-50 dark:hover:bg-blue-900/40 text-slate-600 dark:text-slate-200 text-xs whitespace-nowrap transition">🩺 覆診</button>
+      <button type="button" onclick="fillQuickPreset('買餸 / 日用品', '18:30')" class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-gray-700 hover:bg-blue-50 dark:hover:bg-blue-900/40 text-slate-600 dark:text-slate-200 text-xs whitespace-nowrap transition">🛒 買餸</button>
+      <button type="button" onclick="fillQuickPreset('聚餐 / 約會', '19:30')" class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-gray-700 hover:bg-blue-50 dark:hover:bg-blue-900/40 text-slate-600 dark:text-slate-200 text-xs whitespace-nowrap transition">🍽️ 約會</button>
+    <button type="button" onclick="fillQuickPreset('赤口', '09:00')" class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-gray-700 hover:bg-blue-50 dark:hover:bg-blue-900/40 text-slate-600 dark:text-slate-200 text-xs whitespace-nowrap transition"> 💋赤口</button>
+    </div>
+    <button type="button" onclick="customizePresets()" class="text-[11px] text-slate-400 hover:text-blue-500 ml-2 whitespace-nowrap" title="自訂常用詞">
+      <i class="fa-solid fa-gear"></i>
+    </button>
+  </div>
+
 
   <!-- 首頁直接輸入表單 -->
   <form id="homeQuickEventForm" onsubmit="handleHomeQuickAddEvent(event)" class="flex flex-wrap md:flex-nowrap items-center gap-2">
@@ -375,6 +405,50 @@
 
     <!-- JavaScript 核心邏輯 -->
     <script>
+        const STORAGE_KEY_THEME = 'my_cal_theme';
+
+function initTheme() {
+    const savedTheme = localStorage.getItem(STORAGE_KEY_THEME) || 
+        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    applyTheme(savedTheme);
+}
+
+function toggleTheme() {
+    const isDark = document.documentElement.classList.contains('dark');
+    applyTheme(isDark ? 'light' : 'dark');
+}
+
+function applyTheme(theme) {
+    const icon = document.getElementById('themeIcon');
+    if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+        if (icon) icon.className = 'fa-solid fa-sun text-amber-400';
+    } else {
+        document.documentElement.classList.remove('dark');
+        if (icon) icon.className = 'fa-solid fa-moon text-slate-600';
+    }
+    localStorage.setItem(STORAGE_KEY_THEME, theme);
+}
+
+const STORAGE_KEY_APP_NAME = 'my_cal_app_name';
+
+function initAppName() {
+    const savedName = localStorage.getItem(STORAGE_KEY_APP_NAME) || 'MyLife Hub';
+    document.getElementById('appNameText').textContent = savedName;
+    document.title = savedName;
+}
+
+function renameApp() {
+    const current = document.getElementById('appNameText').textContent;
+    const newName = prompt('請輸入你的專屬儀表板名稱：', current);
+    if (newName && newName.trim()) {
+        const trimmed = newName.trim();
+        localStorage.setItem(STORAGE_KEY_APP_NAME, trimmed);
+        document.getElementById('appNameText').textContent = trimmed;
+        document.title = trimmed;
+    }
+}
+
         // 儲存鍵值
         const STORAGE_KEY_DATA = 'my_cal_data';
         const STORAGE_KEY_CONFIG = 'my_cal_financial_config';
@@ -413,7 +487,9 @@
             // 自動將首頁輸入框預設為今天
             const homeDate = document.getElementById('homeEventDate');
             if (homeDate) homeDate.value = new Date().toISOString().split('T')[0];
-        });
+        });initTheme();     // 載入日夜模式
+initAppName();   // 載入自訂 App 名稱
+
 
 
         // 模組拖曳排序初始化
