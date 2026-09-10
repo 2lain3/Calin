@@ -6,9 +6,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="MyLife">
 
-    <!-- 內建高品質漸層 App 圖標 (SVG Data URI) -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%233B82F6'/%3E%3Cstop offset='50%25' stop-color='%236366F1'/%3E%3Cstop offset='100%25' stop-color='%238B5CF6'/%3E%3Cstop offset='100%25' stop-color='%238B5CF6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='512' height='512' rx='115' fill='url(%23g)'/%3E%3Cpath fill='%23ffffff' d='M256 80c-97.2 0-176 78.8-176 176s78.8 176 176 176 176-78.8 176-176S353.2 80 256 80zm70 110l-42.3 98.6c-2.4 5.6-6.8 10-12.4 12.4L172.7 343.3c-7.6 3.3-15.6-4.7-12.3-12.3l42.3-98.6c2.4-5.6 6.8-10 12.4-12.4l98.6-42.3c7.6-3.3 15.6 4.7 12.3 12.3z'/%3E%3C/svg%3E">
-
     <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%233B82F6'/%3E%3Cstop offset='50%25' stop-color='%236366F1'/%3E%3Cstop offset='100%25' stop-color='%238B5CF6'/%3E%3Cstop offset='100%25' stop-color='%238B5CF6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='512' height='512' rx='115' fill='url(%23g)'/%3E%3Cpath fill='%23ffffff' d='M256 80c-97.2 0-176 78.8-176 176s78.8 176 176 176 176-78.8 176-176S353.2 80 256 80zm70 110l-42.3 98.6c-2.4 5.6-6.8 10-12.4 12.4L172.7 343.3c-7.6 3.3-15.6-4.7-12.3-12.3l42.3-98.6c2.4-5.6 6.8-10 12.4-12.4l98.6-42.3c7.6-3.3 15.6 4.7 12.3 12.3z'/%3E%3C/svg%3E">
 
     <meta charset="UTF-8">
@@ -18,14 +16,13 @@
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        // 啟用 Tailwind class 深色模式切換
         tailwind.config = {
             darkMode: 'class'
         };
     </script>
     <!-- FontAwesome CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- SortableJS (支援模組拖曳排序) -->
+    <!-- SortableJS -->
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <style>
         body {
@@ -101,423 +98,413 @@
             </button>
         </div>
 
-        <!-- 可自訂排序模組容器 -->
-        <div id="sortableModulesContainer" class="space-y-6">
+        <!-- 可拖曳模組父容器 -->
+        <div id="moduleContainer" class="space-y-6">
 
-            <!-- 模組 1: 快捷排程膠囊區 (Quick Add Event Module) -->
-            <section data-id="module-quick-event" class="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-200/80 dark:border-slate-700 transition-colors">
-                <div class="flex items-center justify-between mb-3">
+            <!-- 模組 1: 月曆 (module-calendar) -->
+            <section id="module-calendar" data-id="module-calendar" class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700 p-4 transition-colors">
+                <div class="flex items-center justify-between mb-3 border-b border-slate-100 dark:border-slate-700/60 pb-2">
                     <div class="flex items-center gap-2">
-                        <span class="drag-handle cursor-grab text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
-                            <i class="fa-solid fa-grip-vertical"></i>
-                        </span>
-                        <h3 class="text-sm font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-                            <i class="fa-regular fa-calendar-plus text-blue-500"></i> 快速建立日程
+                        <i class="fa-solid fa-grip-vertical text-slate-300 dark:text-slate-600 drag-handle"></i>
+                        <h3 class="font-bold text-slate-800 dark:text-slate-100 text-sm sm:text-base flex items-center gap-2">
+                            <i class="fa-regular fa-calendar-days text-blue-500"></i> 月曆視圖
                         </h3>
                     </div>
-                    <span class="text-xs text-slate-400">按 Enter 即刻儲存</span>
-                </div>
-
-                <!-- 常用快捷膠囊 (保留 💋赤口 與自訂功能) -->
-                <div class="mb-3 pb-2.5 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
-                    <div class="flex items-center gap-1.5 overflow-x-auto hide-scrollbar text-xs py-1" id="quickChipsContainer">
-                        <span class="text-[11px] text-slate-400 whitespace-nowrap mr-1"><i class="fa-solid fa-bolt text-amber-500"></i> 常用:</span>
-                        <button onclick="fillQuickPreset('開會', '10:00')" class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-blue-50 dark:hover:bg-blue-900/40 text-slate-600 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-300 font-medium transition whitespace-nowrap">💼 開會 10:00</button>
-                        <button onclick="fillQuickPreset('健身 / 運動', '19:00')" class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-blue-50 dark:hover:bg-blue-900/40 text-slate-600 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-300 font-medium transition whitespace-nowrap">🏃 運動 19:00</button>
-                        <button onclick="fillQuickPreset('睇醫生 / 覆診', '14:30')" class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-blue-50 dark:hover:bg-blue-900/40 text-slate-600 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-300 font-medium transition whitespace-nowrap">🏥 睇醫生 14:30</button>
-                        <button onclick="fillQuickPreset('買餸 / 日用品', '18:30')" class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-blue-50 dark:hover:bg-blue-900/40 text-slate-600 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-300 font-medium transition whitespace-nowrap">🛒 買餸 18:30</button>
-                        <button onclick="fillQuickPreset('聚餐 / 約會', '19:30')" class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-blue-50 dark:hover:bg-blue-900/40 text-slate-600 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-300 font-medium transition whitespace-nowrap">🍽️ 聚餐 19:30</button>
-                        <button onclick="fillQuickPreset('赤口', '09:00')" class="px-2.5 py-1 rounded-lg bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/60 text-rose-600 dark:text-rose-300 border border-rose-200/60 dark:border-rose-800/60 font-medium transition whitespace-nowrap">💋 赤口 09:00</button>
+                    <div class="flex items-center gap-1.5">
+                        <button onclick="jumpToToday()" class="text-xs px-2.5 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/50 transition font-medium">
+                            回到今天
+                        </button>
                     </div>
-                    <button onclick="customizePresets()" class="ml-2 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition" title="自訂快捷按鈕">
-                        <i class="fa-solid fa-gear text-xs"></i>
-                    </button>
-                </div>
-
-                <form id="homeQuickEventForm" onsubmit="handleHomeQuickAddEvent(event)" class="grid grid-cols-1 sm:grid-cols-12 gap-2">
-                    <div class="sm:col-span-3">
-                        <input type="date" id="homeEventDate" required class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div class="sm:col-span-2">
-                        <input type="time" id="homeEventTime" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div class="sm:col-span-5">
-                        <input type="text" id="homeEventTitle" placeholder="事項名稱 (例如: 尖沙咀聚會)" required class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div class="sm:col-span-2">
-                        <input type="text" id="homeEventLocation" placeholder="地點(選填)" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                </form>
-            </section>
-
-            <!-- 模組 2: 現代整合式日曆 (Calendar Module) -->
-            <section data-id="module-calendar" class="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-200/80 dark:border-slate-700 transition-colors">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="flex items-center gap-2">
-                        <span class="drag-handle cursor-grab text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
-                            <i class="fa-solid fa-grip-vertical"></i>
-                        </span>
-                        <h3 class="text-sm font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-                            <i class="fa-regular fa-calendar text-indigo-500"></i> 月曆視圖
-                        </h3>
-                    </div>
-                    <button onclick="goToToday()" class="text-xs px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 font-medium transition">
-                        回到今天
-                    </button>
                 </div>
 
                 <!-- 星期表頭 -->
-                <div class="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-slate-400 dark:text-slate-400 mb-2">
-                    <div class="text-rose-500">日</div>
-                    <div>一</div>
-                    <div>二</div>
-                    <div>三</div>
-                    <div>四</div>
-                    <div>五</div>
-                    <div class="text-blue-500">六</div>
+                <div class="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-slate-400 mb-1">
+                    <span class="text-rose-500">日</span>
+                    <span>一</span>
+                    <span>二</span>
+                    <span>三</span>
+                    <span>四</span>
+                    <span>五</span>
+                    <span class="text-blue-500">六</span>
                 </div>
 
-                <!-- 42格日曆網格 -->
-                <div id="calendarGrid" class="grid grid-cols-7 gap-1.5">
-                    <!-- 由 JavaScript 動態完整渲染 (前後月自動補齊) -->
+                <!-- 日曆網格 -->
+                <div id="calendarGrid" class="grid grid-cols-7 gap-1"></div>
+            </section>
+
+            <!-- 模組 2: 行程清單 (module-events) -->
+            <section id="module-events" data-id="module-events" class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700 p-4 transition-colors">
+                <div class="flex items-center justify-between mb-3 border-b border-slate-100 dark:border-slate-700/60 pb-2">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-grip-vertical text-slate-300 dark:text-slate-600 drag-handle"></i>
+                        <h3 class="font-bold text-slate-800 dark:text-slate-100 text-sm sm:text-base flex items-center gap-2">
+                            <i class="fa-solid fa-clock-rotate-left text-indigo-500"></i> 近期行程與活動
+                        </h3>
+                    </div>
+                    <button onclick="openAddEventQuickModal()" class="text-xs px-2.5 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg hover:bg-indigo-100 transition font-medium">
+                        <i class="fa-solid fa-plus"></i> 新增行程
+                    </button>
+                </div>
+                <div id="upcomingEventsList" class="space-y-2">
+                    <!-- 動態渲染行程 -->
                 </div>
             </section>
 
-            <!-- 模組 3: 財務概覽與預算進度條 (Financial Summary Module) -->
-            <section data-id="module-financial" class="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-200/80 dark:border-slate-700 transition-colors">
-                <div class="flex items-center justify-between mb-4">
+            <!-- 模組 3: 財務概覽 (module-finance) -->
+            <section id="module-finance" data-id="module-finance" class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700 p-4 transition-colors">
+                <div class="flex items-center justify-between mb-3 border-b border-slate-100 dark:border-slate-700/60 pb-2">
                     <div class="flex items-center gap-2">
-                        <span class="drag-handle cursor-grab text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
-                            <i class="fa-solid fa-grip-vertical"></i>
-                        </span>
-                        <h3 class="text-sm font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                        <i class="fa-solid fa-grip-vertical text-slate-300 dark:text-slate-600 drag-handle"></i>
+                        <h3 class="font-bold text-slate-800 dark:text-slate-100 text-sm sm:text-base flex items-center gap-2">
                             <i class="fa-solid fa-wallet text-emerald-500"></i> 本月財務概覽
                         </h3>
                     </div>
-                    <span id="budgetAlertBadge" class="text-xs px-2 py-0.5 rounded-md font-medium"></span>
-                </div>
-
-                <!-- 總預算進度條 -->
-                <div class="mb-4 bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-100 dark:border-slate-700/60">
-                    <div class="flex justify-between items-center text-xs mb-1.5 font-medium">
-                        <span class="text-slate-500 dark:text-slate-400">月預算消耗 (<span id=\"spentAmountText\">$0</span> / <span id="totalBudgetText">$0</span>)</span>
-                        <span id="budgetPercentText" class="font-bold text-slate-700 dark:text-slate-200">0%</span>
-                    </div>
-                    <div class="w-full bg-slate-200 dark:bg-slate-700 h-2.5 rounded-full overflow-hidden">
-                        <div id="budgetProgressBar" class="bg-emerald-500 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="openSettingsModal()" class="text-xs px-2.5 py-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-lg hover:bg-emerald-100 transition font-medium">
+                            <i class="fa-solid fa-sliders"></i> 設定預算 / Limit
+                        </button>
                     </div>
                 </div>
 
-                <!-- 各卡片/賬戶支出與回贈進度 -->
-                <div class="mb-3">
-                    <h4 class="text-xs font-semibold text-slate-400 dark:text-slate-400 mb-2">卡片/賬戶消費進度 (簽賬上限/回贈門檻)</h4>
-                    <div id="accountsSpendingContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        <!-- 動態渲染卡片支出進度條 -->
+                <!-- 財務數字 Summary 卡片 -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+                    <div class="bg-slate-50 dark:bg-slate-700/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700">
+                        <span class="text-[11px] text-slate-400 block font-medium">本月總收入</span>
+                        <span id="financeTotalIncome" class="text-base sm:text-lg font-bold text-emerald-500">$0.00</span>
+                    </div>
+                    <div class="bg-slate-50 dark:bg-slate-700/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700">
+                        <span class="text-[11px] text-slate-400 block font-medium">本月總開支</span>
+                        <span id="financeTotalExpense" class="text-base sm:text-lg font-bold text-rose-500">$0.00</span>
+                    </div>
+                    <div class="bg-slate-50 dark:bg-slate-700/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700">
+                        <span class="text-[11px] text-slate-400 block font-medium">本月預算總容量</span>
+                        <span id="financeTotalBudget" class="text-base sm:text-lg font-bold text-blue-500">$0.00</span>
+                    </div>
+                    <div class="bg-slate-50 dark:bg-slate-700/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700">
+                        <span class="text-[11px] text-slate-400 block font-medium">預算剩餘額度</span>
+                        <span id="financeBudgetRemaining" class="text-base sm:text-lg font-bold text-slate-700 dark:text-slate-200">$0.00</span>
                     </div>
                 </div>
 
-                <!-- 開支分類預算使用量看板 -->
-                <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-700/60">
+                <!-- 分類預算使用進度 -->
+                <div class="mb-4">
                     <div class="flex items-center justify-between mb-2">
-                        <h4 class="text-xs font-semibold text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
-                            <i class="fa-solid fa-chart-pie text-indigo-500"></i> 開支分類預算使用量
-                        </h4>
-                        <span class="text-[11px] text-slate-400">當月開支進度與佔比</span>
+                        <h4 class="text-xs font-bold text-slate-500 dark:text-slate-400">📊 分類預算使用狀況</h4>
+                        <span id="budgetOverallStatus" class="text-[11px] font-semibold text-emerald-500">正常</span>
                     </div>
+                    <div id="categorySpendingContainer" class="space-y-2.5">
+                        <!-- 動態生成分類進度條 -->
+                    </div>
+                </div>
 
-                    <!-- 綜合彩色佔比分佈條 -->
-                    <div id="categoryStackedBar" class="w-full h-2.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden flex mb-3 shadow-inner"></div>
-
-                    <!-- 各分類獨立卡片與進度條 -->
-                    <div id="categoryBudgetContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5"></div>
+                <!-- 卡片/帳戶 簽賬與回贈門檻進度 -->
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="text-xs font-bold text-slate-500 dark:text-slate-400">💳 卡片及帳戶簽賬進度 (Limit)</h4>
+                    </div>
+                    <div id="accountsSpendingContainer" class="space-y-2.5">
+                        <!-- 動態生成帳戶進度條 -->
+                    </div>
                 </div>
             </section>
 
-            <!-- 模組 4: 待辦與日常清單 (Todo Module) -->
-            <section data-id="module-todos" class="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-200/80 dark:border-slate-700 transition-colors">
-                <div class="flex items-center justify-between mb-3">
+            <!-- 模組 4: 待辦事項 (module-todos) -->
+            <section id="module-todos" data-id="module-todos" class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700 p-4 transition-colors">
+                <div class="flex items-center justify-between mb-3 border-b border-slate-100 dark:border-slate-700/60 pb-2">
                     <div class="flex items-center gap-2">
-                        <span class="drag-handle cursor-grab text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
-                            <i class="fa-solid fa-grip-vertical"></i>
-                        </span>
-                        <h3 class="text-sm font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-                            <i class="fa-solid fa-list-check text-blue-500"></i> 待辦清單
+                        <i class="fa-solid fa-grip-vertical text-slate-300 dark:text-slate-600 drag-handle"></i>
+                        <h3 class="font-bold text-slate-800 dark:text-slate-100 text-sm sm:text-base flex items-center gap-2">
+                            <i class="fa-solid fa-list-check text-purple-500"></i> 待辦清單
                         </h3>
                     </div>
-                    <span id="todoStatsBadge" class="text-xs text-slate-400">0 項進行中</span>
+                    <div class="flex items-center gap-2">
+                        <span id="todoStats" class="text-xs text-slate-400">0 / 0 完成</span>
+                    </div>
                 </div>
 
-                <form onsubmit="handleQuickAddTodo(event)" class="flex gap-2 mb-3">
-                    <input type="text" id="quickTodoInput" placeholder="新增待辦事項..." required class="flex-1 px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-medium transition">
-                        <i class="fa-solid fa-plus"></i>
+                <!-- 新增待辦輸入欄 -->
+                <form id="addTodoForm" onsubmit="handleQuickAddTodo(event)" class="flex gap-2 mb-3">
+                    <input type="text" id="newTodoTitle" placeholder="新增待辦事項..." required class="flex-1 px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    <button type="submit" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs sm:text-sm font-medium transition shadow-sm">
+                        新增
                     </button>
                 </form>
 
-                <div id="todoListContainer" class="space-y-1.5 max-h-56 overflow-y-auto hide-scrollbar">
-                    <!-- 待辦事項動態載入 -->
+                <div id="todoListContainer" class="space-y-2">
+                    <!-- 動態渲染待辦 -->
                 </div>
             </section>
+
+            <!-- 模組 5: 筆記 / 備忘錄 (module-notes) -->
+            <section id="module-notes" data-id="module-notes" class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700 p-4 transition-colors">
+                <div class="flex items-center justify-between mb-3 border-b border-slate-100 dark:border-slate-700/60 pb-2">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-grip-vertical text-slate-300 dark:text-slate-600 drag-handle"></i>
+                        <h3 class="font-bold text-slate-800 dark:text-slate-100 text-sm sm:text-base flex items-center gap-2">
+                            <i class="fa-regular fa-note-sticky text-amber-500"></i> 隨手筆記 / 備忘
+                        </h3>
+                    </div>
+                    <button onclick="openAddNoteModal()" class="text-xs px-2.5 py-1 bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-lg hover:bg-amber-100 transition font-medium">
+                        <i class="fa-solid fa-plus"></i> 新增筆記
+                    </button>
+                </div>
+                <div id="notesContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <!-- 動態渲染筆記清單 -->
+                </div>
+            </section>
+
         </div>
     </main>
 
-    <!-- ==================== 彈窗 Modal 集中區 ==================== -->
-
-    <!-- 日期點擊詳情 Modal (整合：每日日程 + 每日收支記賬) -->
-    <div id="dayDetailModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm hidden">
-        <div class="bg-white dark:bg-slate-800 w-full max-w-lg rounded-2xl shadow-xl overflow-hidden border border-slate-100 dark:border-slate-700 transition-all flex flex-col max-h-[90vh]">
-            <!-- 彈窗頂部標題 -->
-            <div class="px-5 py-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800">
+    <!-- ==========================================
+         彈出視窗：單日詳情 (行程 + 記帳)
+    ========================================== -->
+    <div id="dayDetailModal" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-3 hidden">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <!-- Modal Header -->
+            <div class="p-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
                 <div>
-                    <h3 id="modalDateTitle" class="text-base font-bold text-slate-800 dark:text-slate-100">日期</h3>
-                    <p id="modalDateLunar" class="text-xs text-slate-400">農曆</p>
+                    <h3 id="modalDateTitle" class="text-base font-bold text-slate-800 dark:text-slate-100">2026年9月10日</h3>
+                    <p id="modalDateLunar" class="text-xs text-slate-400">農曆讀取中</p>
                 </div>
-                <button onclick="closeDayModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+                <button onclick="closeDayModal()" class="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg">
                     <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
             </div>
 
-            <div class="p-5 overflow-y-auto space-y-5 flex-1">
-                <!-- 1. 當日日程區 -->
-                <div>
-                    <h4 class="text-xs font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400 mb-2.5 flex items-center gap-1.5">
-                        <i class="fa-regular fa-clock"></i> 當日日程安排
+            <!-- Modal Body (滾動區) -->
+            <div class="p-4 space-y-5 overflow-y-auto flex-1">
+
+                <!-- 區塊 A: 新增日程 / 活動 -->
+                <div class="bg-slate-50 dark:bg-slate-900/40 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
+                    <h4 class="text-xs font-bold text-indigo-600 dark:text-indigo-400 mb-2 flex items-center gap-1.5">
+                        <i class="fa-regular fa-calendar-plus"></i> 新增當日日程
                     </h4>
-                    <div id="modalEventsList" class="space-y-1.5 mb-3">
-                        <!-- 當日日程列表 -->
-                    </div>
-                    <form id="modalAddEventForm" onsubmit="handleSaveEvent(event)" class="flex gap-2">
-                        <input type="time" id="eventTime" class="w-24 px-2 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100">
-                        <input type="text" id="eventTitle" placeholder="事項名稱" required class="flex-1 px-3 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100">
-                        <input type="text" id="eventLocation" placeholder="地點" class="w-24 px-2 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100">
-                        <button type="submit" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-medium transition">
-                            <i class="fa-solid fa-plus"></i>
+                                        <!-- 💋 常用快捷膠囊 (保留 💋赤口 與自訂功能) -->
+                <div class="mb-2.5 pb-2 border-b border-slate-200/60 dark:border-slate-700/60 flex items-center justify-between">
+                        <div class="flex items-center gap-1.5 overflow-x-auto hide-scrollbar text-xs py-0.5" id="quickChipsContainer">
+                            <!-- JS 會自動渲染膠囊 -->
+                        </div>
+                        <button type="button" onclick="customizePresets()" class="ml-1 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 p-1 text-[11px] transition" title="自訂快捷按鈕">
+                            <i class="fa-solid fa-gear"></i>
                         </button>
-                    </form>
-                </div>
-
-                <hr class="border-slate-100 dark:border-slate-700">
-
-                <!-- 2. 當日收支明細區 -->
-                <div>
-                    <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-2.5 flex items-center gap-1.5">
-                        <i class="fa-solid fa-receipt"></i> 當日收支記錄
-                    </h4>
-                    <div id="modalEntriesList" class="space-y-1.5 mb-3">
-                        <!-- 當日收支明細動態載入 -->
                     </div>
-
-                    <!-- 記賬表單 (收支分類解耦) -->
-                    <form id="modalAddEntryForm" onsubmit="handleSaveEntry(event)" class="space-y-2.5 bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-200/60 dark:border-slate-700/60">
-                        <div class="grid grid-cols-2 gap-2">
-                            <div class="flex rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 p-0.5 bg-white dark:bg-slate-800">
-                                <button type="button" id="btnTypeExpense" onclick="setEntryType('expense')" class="flex-1 py-1 text-xs font-medium rounded-md bg-rose-500 text-white transition">支出</button>
-                                <button type="button" id="btnTypeIncome" onclick="setEntryType('income')" class="flex-1 py-1 text-xs font-medium rounded-md text-slate-500 dark:text-slate-400 transition">收入</button>
-                            </div>
-                            <input type="number" step="0.01" id="entryAmount" placeholder="金額 (HKD)" required class="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-2">
-                            <!-- 分類選單由 JavaScript 依據收/支即時切換 -->
-                            <select id="entryCategory" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100"></select>
-                            <select id="entryAccount" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100"></select>
-                        </div>
-
+                    <form id="dayAddEventForm" onsubmit="handleModalAddEvent(event)" class="space-y-2">
                         <div class="flex gap-2">
-                            <input type="text" id="entryTitle" placeholder="備註描述 (如: 午餐、超市、薪水)" class="flex-1 px-3 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                            <button type="submit" class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-medium transition flex items-center gap-1">
-                                <i class="fa-solid fa-plus"></i> 記賬
+                            <input type="time" id="modalEventTime" class="w-24 px-2 py-1.5 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg">
+                            <input type="text" id="modalEventTitle" placeholder="行程標題或內容..." required class="flex-1 px-3 py-1.5 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg">
+                        </div>
+                        <div class="flex items-center justify-between gap-2">
+                            <select id="modalEventRepeat" class="text-xs px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-600 dark:text-slate-300">
+                                <option value="none">單次事件</option>
+                                <option value="weekly">每週重複</option>
+                                <option value="monthly">每月重複</option>
+                                <option value="yearly">每年重複</option>
+                            </select>
+                            <button type="submit" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-medium transition">
+                                加入行程
                             </button>
                         </div>
                     </form>
+                    <!-- 當日行程列表 -->
+                    <div id="modalEventsList" class="mt-3 space-y-1.5"></div>
                 </div>
+
+                <!-- 區塊 B: 新增記帳 (收支) -->
+                <div class="bg-slate-50 dark:bg-slate-900/40 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+                            <i class="fa-solid fa-receipt"></i> 新增當日記帳
+                        </h4>
+                        <!-- 收支切換 -->
+                        <div class="flex bg-slate-200 dark:bg-slate-700 p-0.5 rounded-lg text-[11px]">
+                            <button type="button" id="btnTypeExpense" onclick="setEntryType('expense')" class="px-2.5 py-0.5 rounded-md font-medium bg-rose-500 text-white transition">支出</button>
+                            <button type="button" id="btnTypeIncome" onclick="setEntryType('income')" class="px-2.5 py-0.5 rounded-md font-medium text-slate-600 dark:text-slate-300 transition">收入</button>
+                        </div>
+                    </div>
+
+                    <form id="dayAddFinanceForm" onsubmit="handleModalAddFinance(event)" class="space-y-2">
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[10px] text-slate-400 mb-0.5">金額 ($)</label>
+                                <input type="number" step="0.01" id="entryAmount" placeholder="0.00" required class="w-full px-2.5 py-1.5 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-slate-400 mb-0.5">項目分類</label>
+                                <select id="entryCategory" class="w-full px-2.5 py-1.5 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg"></select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[10px] text-slate-400 mb-0.5">帳戶 / 支付方式</label>
+                                <select id="entryAccount" class="w-full px-2.5 py-1.5 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg"></select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-slate-400 mb-0.5">備註 (可選)</label>
+                                <input type="text" id="entryTitle" placeholder="例如：午餐、車費" class="w-full px-2.5 py-1.5 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-full mt-2 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-medium transition shadow-sm">
+                            儲存記帳
+                        </button>
+                    </form>
+
+                    <!-- 當日收支列表 -->
+                    <div id="modalEntriesList" class="mt-3 space-y-1.5"></div>
+                </div>
+
             </div>
         </div>
     </div>
 
-    <!-- 設定 Modal (卡片上限、自訂預算、GAS Web App 網址) -->
-    <div id="settingsModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm hidden">
-        <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-xl overflow-hidden border border-slate-100 dark:border-slate-700 transition-all flex flex-col max-h-[90vh]">
-            <div class="px-5 py-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800">
+    <!-- ==========================================
+         彈出視窗：預算、卡片與系統設定 (SettingsModal)
+    ========================================== -->
+    <div id="settingsModal" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-3 hidden">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <div class="p-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
                 <h3 class="text-base font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-                    <i class="fa-solid fa-sliders text-blue-600 dark:text-blue-400"></i> 偏好與財務設定
+                    <i class="fa-solid fa-sliders text-blue-500"></i> 預算、卡片與系統設定
                 </h3>
-                <button onclick="closeSettingsModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+                <button onclick="closeSettingsModal()" class="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg">
                     <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
             </div>
 
-            <div class="p-5 overflow-y-auto space-y-4 flex-1">
-                <!-- 每月總預算 -->
+            <div class="p-4 space-y-6 overflow-y-auto flex-1 text-xs">
+
+                <!-- 1. 分類與預算額度設定 -->
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">每月總開支預算上限 (HKD)</label>
-                    <input type="number" id="settingMonthlyBudget" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-500">
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="font-bold text-slate-700 dark:text-slate-300">📊 開支預算分類與每月額度</label>
+                        <button type="button" onclick="addNewCategoryRow()" class="text-blue-600 dark:text-blue-400 text-[11px] font-medium hover:underline">
+                            + 新增分類
+                        </button>
+                    </div>
+                    <div id="settingsCategoryList" class="space-y-2"></div>
                 </div>
 
-                <!-- Google Apps Script 網址 -->
+                <!-- 2. 卡片與帳戶 Limit 設定 -->
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Google Sheet Web App URL (GAS 同步接口)</label>
-                    <input type="url" id="settingGasUrl" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-500">
-                    <p class="text-[10px] text-slate-400 mt-1">填寫此處可啟用雙向雲端備份及 Gmail 香港 4 大支付解析同步。</p>
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="font-bold text-slate-700 dark:text-slate-300">💳 卡片 / 帳戶與門檻上限 (Limit)</label>
+                        <button type="button" onclick="addNewAccountRow()" class="text-blue-600 dark:text-blue-400 text-[11px] font-medium hover:underline">
+                            + 新增帳戶/卡片
+                        </button>
+                    </div>
+                    <div id="settingsAccountList" class="space-y-2"></div>
                 </div>
 
-                <!-- 銀行卡片回贈門檻與管理 -->
-                <div>
-                    <div class="flex justify-between items-center mb-2">
-                        <label class="text-xs font-semibold text-slate-600 dark:text-slate-300">支付賬戶 / 信用卡限額管理</label>
-                        <button type="button" onclick="addAccountSettingRow()" class="text-[11px] text-blue-600 dark:text-blue-400 hover:underline font-medium">+ 新增賬戶</button>
-                    </div>
-                    <div id="accountsSettingList" class="space-y-2">
-                        <!-- 動態生成卡片/賬戶設定列 -->
-                    </div>
-                </div>
-
-                <!-- 開支分類與個別預算上限管理 (+/- 分類與自訂限額) -->
-                <div class="pt-2 border-t border-slate-100 dark:border-slate-700/60">
-                    <div class="flex justify-between items-center mb-2">
-                        <label class="text-xs font-semibold text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
-                            <i class="fa-solid fa-tags text-indigo-500"></i> 開支分類與預算上限 (HKD)
-                        </label>
-                        <button type="button" onclick="addCategorySettingRow()" class="text-[11px] text-blue-600 dark:text-blue-400 hover:underline font-medium">+ 新增分類</button>
-                    </div>
-                    <div id="categoriesSettingList" class="space-y-2">
-                        <!-- 動態生成開支分類與限額列 -->
-                    </div>
+                <!-- 3. Google Apps Script 雲端同步設定 -->
+                <div class="border-t border-slate-100 dark:border-slate-700 pt-4">
+                    <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">☁️ Google Apps Script Web App URL</label>
+                    <input type="url" id="settingScriptUrl" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-xs">
+                    <p class="text-[10px] text-slate-400 mt-1">填入 GAS 部署之 Web App 網址以實現 Google Sheet 雙向同步。</p>
                 </div>
             </div>
 
-            <div class="px-5 py-3 border-t border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800 flex justify-end">
-                <button onclick="saveSettings()" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-xl transition">
+            <div class="p-3 border-t border-slate-100 dark:border-slate-700 flex justify-end gap-2 bg-slate-50 dark:bg-slate-800/80">
+                <button onclick="closeSettingsModal()" class="px-4 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 text-xs">取消</button>
+                <button onclick="saveSettingsForm()" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-medium shadow-sm transition">
                     儲存設定
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- 備份與還原 Modal (JSON Import / Export) -->
-    <div id="backupModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm hidden">
-        <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-xl overflow-hidden border border-slate-100 dark:border-slate-700 transition-all">
-            <div class="px-5 py-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800">
+    <!-- ==========================================
+         彈出視窗：備份與還原 (BackupModal)
+    ========================================== -->
+    <div id="backupModal" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-3 hidden">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full p-4 shadow-xl border border-slate-200 dark:border-slate-700 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-2">
                 <h3 class="text-base font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-                    <i class="fa-solid fa-database text-purple-600 dark:text-purple-400"></i> 資料備份與還原
+                    <i class="fa-solid fa-database text-blue-500"></i> 資料備份與還原
                 </h3>
-                <button onclick="closeBackupModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition">
-                    <i class="fa-solid fa-xmark text-lg"></i>
+                <button onclick="closeBackupModal()" class="p-1 text-slate-400 hover:text-slate-600 rounded-lg">
+                    <i class="fa-solid fa-xmark text-base"></i>
                 </button>
             </div>
 
-            <div class="p-5 space-y-4">
-                <div class="p-3 bg-blue-50 dark:bg-blue-950/40 rounded-xl border border-blue-100 dark:border-blue-900/50 text-xs text-blue-700 dark:text-blue-300">
-                    <i class="fa-solid fa-circle-info mr-1"></i> 備份檔將包含您所有的日程、記賬明細、待辦事項、特色膠囊設定與卡片預算配置。
+            <div class="space-y-3 text-xs">
+                <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-700/40 border border-slate-100 dark:border-slate-700">
+                    <p class="font-bold text-slate-700 dark:text-slate-200 mb-1">匯出本機資料 (Export JSON)</p>
+                    <p class="text-slate-400 text-[11px] mb-2">下載包含所有日程、財務、待辦及筆記的完整 JSON 備份檔。</p>
+                    <button onclick="exportDataJson()" class="w-full py-2 bg-slate-200 dark:bg-slate-600 hover:bg-slate-300 dark:hover:bg-slate-500 text-slate-800 dark:text-slate-100 rounded-lg font-medium transition">
+                        <i class="fa-solid fa-download mr-1"></i> 下載備份檔案
+                    </button>
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
-                    <button onclick="exportBackupData()" class="flex flex-col items-center justify-center p-4 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/60 transition group">
-                        <i class="fa-solid fa-file-export text-2xl text-blue-600 dark:text-blue-400 mb-2 group-hover:scale-110 transition-transform"></i>
-                        <span class="text-xs font-semibold text-slate-700 dark:text-slate-200">匯出 JSON 備份</span>
-                        <span class="text-[10px] text-slate-400 mt-0.5">下載至本機儲存</span>
+                <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-700/40 border border-slate-100 dark:border-slate-700">
+                    <p class="font-bold text-slate-700 dark:text-slate-200 mb-1">匯入本機資料 (Import JSON)</p>
+                    <p class="text-slate-400 text-[11px] mb-2">上傳先前備份的 JSON 檔案以還原資料。</p>
+                    <input type="file" id="importJsonFileInput" accept=".json" class="hidden" onchange="handleFileImport(event)">
+                    <button onclick="document.getElementById('importJsonFileInput').click()" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition">
+                        <i class="fa-solid fa-upload mr-1"></i> 選擇檔案並還原
                     </button>
-
-                    <label class="flex flex-col items-center justify-center p-4 rounded-xl border border-dashed border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700/60 transition cursor-pointer group">
-                        <i class="fa-solid fa-file-import text-2xl text-purple-600 dark:text-purple-400 mb-2 group-hover:scale-110 transition-transform"></i>
-                        <span class="text-xs font-semibold text-slate-700 dark:text-slate-200">匯入 JSON 備份</span>
-                        <span class="text-[10px] text-slate-400 mt-0.5">還原完整資料庫</span>
-                        <input type="file" id="backupFileInput" accept=".json" class="hidden">
-                    </label>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ==================== JavaScript 核心邏輯 ==================== -->
+    <!-- ==========================================
+         彈出視窗：新增筆記 (NoteModal)
+    ========================================== -->
+    <div id="noteModal" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-3 hidden">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full p-4 shadow-xl border border-slate-200 dark:border-slate-700 space-y-3">
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-2">
+                <h3 class="text-base font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                    <i class="fa-regular fa-note-sticky text-amber-500"></i> 新增 / 編輯筆記
+                </h3>
+                <button onclick="closeNoteModal()" class="p-1 text-slate-400 hover:text-slate-600 rounded-lg">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
+            </div>
+            <form onsubmit="handleSaveNote(event)" class="space-y-3 text-xs">
+                <input type="hidden" id="editNoteId">
+                <input type="text" id="noteTitle" placeholder="筆記標題..." required class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl">
+                <textarea id="noteContent" rows="4" placeholder="輸入筆記內容..." required class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl resize-none"></textarea>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeNoteModal()" class="px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-100">取消</button>
+                    <button type="submit" class="px-5 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-medium transition">儲存筆記</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         核心 JavaScript 邏輯
+    ========================================== -->
     <script>
-        // ==========================================
-        // 系統常數與儲存鍵
-        // ==========================================
-        const STORAGE_KEY_EVENTS = 'my_cal_events';
-        const STORAGE_KEY_FINANCE = 'my_cal_finance';
-        const STORAGE_KEY_TODOS = 'my_cal_todos';
-        const STORAGE_KEY_CONFIG = 'my_cal_config';
-        const STORAGE_KEY_GAS_URL = 'my_cal_gas_url';
-        const STORAGE_KEY_LAYOUT = 'my_cal_layout_order';
-        const STORAGE_KEY_THEME = 'my_cal_theme';
-        const STORAGE_KEY_CHIPS = 'my_cal_presets_chips';
-        const STORAGE_KEY_APP_NAME = 'my_cal_app_name';
-
-        // 預設快捷膠囊 (保留 💋赤口)
-        const DEFAULT_PRESET_CHIPS = [
-            { title: '開會', time: '10:00', icon: '💼' },
-            { title: '健身 / 運動', time: '19:00', icon: '🏃' },
-            { title: '睇醫生 / 覆診', time: '14:30', icon: '🏥' },
-            { title: '買餸 / 日用品', time: '18:30', icon: '🛒' },
-            { title: '聚餐 / 約會', time: '19:30', icon: '🍽️' },
-            { title: '赤口', time: '09:00', icon: '💋', isSpecial: true }
-        ];
-
-        // 1. 指定 6 大開支預算分類 (Budget Categories)
+        // ==================== 1. 預設資料設定 ====================
         const DEFAULT_EXPENSE_CATEGORIES = [
-            '日常開支',
-            '交通',
-            '家用',
-            '餐飲',
-            '閒暇娛樂',
-            '零用錢'
+            { name: '家用', budget: 5000 },
+            { name: '餐飲', budget: 3500 },
+            { name: '交通', budget: 800 },
+            { name: '零用錢', budget: 1000 },
+            { name: '投資', budget: 3000 },
+            { name: '日常開支', budget: 1000 },
+            { name: '閒暇娛樂', budget: 1000 }
         ];
 
-        // 預設開支分類及限額物件清單 (修復 DEFAULT_EXPENSE_ITEMS 缺失)
-        const DEFAULT_EXPENSE_ITEMS = [
-            { name: '日常開支', limit: 3000 },
-            { name: '交通', limit: 1500 },
-            { name: '家用', limit: 4500 },
-            { name: '餐飲', limit: 3500 },
-            { name: '閒暇娛樂', limit: 1500 },
-            { name: '零用錢', limit: 1000 }
-        ];
-
-        // 預設收入分類
-        const DEFAULT_INCOME_CATEGORIES = [
-            '薪金收入',
-            '轉賬存入',
-            '投資收益',
-            '獎金回贈',
-            '兼職副業',
-            '其他收入'
-        ];
-
-        // 2. 指定 11 大賬戶 / 卡片清單 (Accounts)
         const DEFAULT_ACCOUNTS = [
             { name: 'MMpower', limit: 5000 },
-            { name: '國泰Mastercard', limit: 10000 },
+            { name: '國泰Mastercard', limit: 8000 },
             { name: 'EveryMile', limit: 8000 },
-            { name: 'PayMe', limit: 3000 },
-            { name: 'Alipay', limit: 3000 },
+            { name: 'PayMe', limit: 1000 },
+            { name: 'Alipay', limit: 1500 },
             { name: 'Cash', limit: 2000 },
             { name: '八達通', limit: 1000 },
-            { name: 'BOCHK', limit: 0 },
-            { name: 'HSBC', limit: 0 },
-            { name: 'Standard Chartered', limit: 0 },
-            { name: '投資', limit: 0 }
+            { name: 'Standard Chartered', limit: 10000 },
+            { name: 'BOCHK', limit: 10000 },
+            { name: 'HSBC', limit: 10000 }
         ];
 
-        // 預設總體配置
-        const DEFAULT_CONFIG = {
-            monthlyBudget: 15000,
-            accounts: DEFAULT_ACCOUNTS,
-            expenseCategories: DEFAULT_EXPENSE_ITEMS
-        };
+        const DEFAULT_INCOME_CATEGORIES = ['薪金', '獎金', '投資回報', '零用', '其他收入'];
 
-        // 核心狀態變數
-        let currentDate = new Date();
-        let activeModalDateStr = '';
-        let currentEntryType = 'expense';
-
-        let eventsData = [];
-        let financialData = [];
-        let todosData = [];
-        let financialConfig = DEFAULT_CONFIG;
-        let presetChips = DEFAULT_PRESET_CHIPS;
-
-        // 農曆簡易轉換對應表 (節氣/香港公眾假期簡要對應)
+        // 香港法定/公眾假期對照表
         const HK_HOLIDAYS_FIXED = {
             '01-01': '元旦',
             '05-01': '勞動節',
@@ -527,128 +514,390 @@
             '12-26': '節禮日'
         };
 
-        // 時區安全封裝函式 (解決 UTC+8 凌晨跨日被截斷問題)
-        function getLocalDateStr(date) {
-            const d = date || new Date();
-            const year = d.getFullYear();
-            const month = String(d.getMonth() + 1).padStart(2, '0');
-            const day = String(d.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
-        }
+        // ==================== 2. 全域狀態 ====================
+        let appConfig = {
+            name: 'MyLife Hub',
+            scriptUrl: '',
+            expenseCategories: [...DEFAULT_EXPENSE_CATEGORIES],
+            accounts: [...DEFAULT_ACCOUNTS]
+        };
 
-        // ==================== 初始化流程 ====================
-        window.addEventListener('DOMContentLoaded', () => {
-            loadAllData();
-            initTheme();
-            initAppName();
-            renderPresetChipsUI();
-            initSortableLayout();
-            renderCalendar();
-            renderFinancialSummary();
-            renderTodos();
-            
-            // 預設填入首頁快速排程日期為今天
-            const homeDateInput = document.getElementById('homeEventDate');
-            if (homeDateInput) {
-                homeDateInput.value = getLocalDateStr(new Date());
-            }
-        });
+        let currentCalendarDate = new Date();
+        let activeModalDateStr = '';
+        let currentEntryType = 'expense';
 
-        // ==========================================
-        // 讀取 LocalStorage 與 自動升級平滑遷移機制
-        // ==========================================
-        function loadAllData() {
+        let eventsData = [];
+        let financialData = [];
+        let todosData = [];
+        let notesData = [];
+
+        // ==================== 3. 離線農曆計算 (極速演算法) ====================
+        function getLunarDateInfo(date) {
             try {
-                eventsData = JSON.parse(localStorage.getItem(STORAGE_KEY_EVENTS)) || [];
-                financialData = JSON.parse(localStorage.getItem(STORAGE_KEY_FINANCE)) || [];
-                todosData = JSON.parse(localStorage.getItem(STORAGE_KEY_TODOS)) || [];
-                
-                const savedConfig = localStorage.getItem(STORAGE_KEY_CONFIG);
-                if (savedConfig) {
-                    financialConfig = JSON.parse(savedConfig);
-                    
-                    // 🛡️ 自動平滑升級：若舊快取缺少新賬戶，自動升級為最新 11 個賬戶
-                    const currentNames = (financialConfig.accounts || []).map(a => a.name);
-                    const hasAll = ['MMpower', '國泰Mastercard', 'EveryMile', 'PayMe', 'Alipay', 'Cash', '八達通', 'BOCHK', 'HSBC', 'Standard Chartered', '投資']
-                        .every(name => currentNames.includes(name));
-
-                    if (!hasAll) {
-                        financialConfig.accounts = DEFAULT_ACCOUNTS;
-                        localStorage.setItem(STORAGE_KEY_CONFIG, JSON.stringify(financialConfig));
-                        console.log('✅ 已自動升級並補齊 11 大指定卡片/賬戶清單');
-                    }
-
-                    if (!financialConfig.expenseCategories || financialConfig.expenseCategories.length === 0) {
-                        financialConfig.expenseCategories = DEFAULT_EXPENSE_ITEMS;
-                    }
-                } else {
-                    financialConfig = DEFAULT_CONFIG;
-                }
-
-                const savedChips = localStorage.getItem(STORAGE_KEY_CHIPS);
-                presetChips = savedChips ? JSON.parse(savedChips) : DEFAULT_PRESET_CHIPS;
+                const formatter = new Intl.DateTimeFormat('zh-u-ca-chinese', {
+                    day: 'numeric',
+                    month: 'numeric'
+                });
+                const parts = formatter.formatToParts(date);
+                let month = '', day = '';
+                parts.forEach(p => {
+                    if (p.type === 'month') month = p.value;
+                    if (p.type === 'day') day = p.value;
+                });
+                return { month, day, text: `${month}月${day}` };
             } catch (e) {
-                console.error('LocalStorage 讀取異常:', e);
+                return { month: '', day: '', text: '' };
             }
         }
 
-        function saveStoredData() {
-            localStorage.setItem(STORAGE_KEY_EVENTS, JSON.stringify(eventsData));
-            localStorage.setItem(STORAGE_KEY_FINANCE, JSON.stringify(financialData));
-            localStorage.setItem(STORAGE_KEY_TODOS, JSON.stringify(todosData));
+        function getHolidayName(date) {
+            const mm = String(date.getMonth() + 1).padStart(2, '0');
+            const dd = String(date.getDate()).padStart(2, '0');
+            const key = `${mm}-${dd}`;
+            if (HK_HOLIDAYS_FIXED[key]) return HK_HOLIDAYS_FIXED[key];
+            return null;
         }
 
-        // 主題切換 (日 / 夜間模式)
-        function initTheme() {
-            const savedTheme = localStorage.getItem(STORAGE_KEY_THEME) || 'light';
-            if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                document.documentElement.classList.add('dark');
-                document.getElementById('themeIcon').className = 'fa-solid fa-sun';
+        // ==================== 4. 初始化與本地儲存 ====================
+        function initApp() {
+            loadLocalStorage();
+            initTheme();
+            setupSortable();
+            renderAll();
+        }
+
+        function loadLocalStorage() {
+            const storedConfig = localStorage.getItem('mylife_config');
+            if (storedConfig) {
+                try {
+                    const parsed = JSON.parse(storedConfig);
+                    appConfig = { ...appConfig, ...parsed };
+                    if (!appConfig.expenseCategories || appConfig.expenseCategories.length === 0) {
+                        appConfig.expenseCategories = [...DEFAULT_EXPENSE_CATEGORIES];
+                    }
+                    if (!appConfig.accounts || appConfig.accounts.length === 0) {
+                        appConfig.accounts = [...DEFAULT_ACCOUNTS];
+                    }
+                } catch (e) {
+                    console.error('Config parse error', e);
+                }
+            }
+            document.getElementById('appNameText').textContent = appConfig.name || 'MyLife Hub';
+
+            eventsData = JSON.parse(localStorage.getItem('mylife_events') || '[]');
+            financialData = JSON.parse(localStorage.getItem('mylife_finance') || '[]');
+            todosData = JSON.parse(localStorage.getItem('mylife_todos') || '[]');
+            notesData = JSON.parse(localStorage.getItem('mylife_notes') || '[]');
+        }
+
+        function saveStateToStorage() {
+            localStorage.setItem('mylife_config', JSON.stringify(appConfig));
+            localStorage.setItem('mylife_events', JSON.stringify(eventsData));
+            localStorage.setItem('mylife_finance', JSON.stringify(financialData));
+            localStorage.setItem('mylife_todos', JSON.stringify(todosData));
+            localStorage.setItem('mylife_notes', JSON.stringify(notesData));
+        }
+
+        function renderAll() {
+            renderCalendar();
+            renderEventsModule();
+            renderFinanceModule();
+            renderTodosModule();
+            renderNotesModule();
+        }
+
+        // ==================== 5. 模組拖曳排序 ====================
+        function setupSortable() {
+            const el = document.getElementById('moduleContainer');
+            if (el && window.Sortable) {
+                new Sortable(el, {
+                    animation: 150,
+                    handle: '.drag-handle',
+                    ghostClass: 'sortable-ghost',
+                    store: {
+                        get: function () {
+                            const order = localStorage.getItem('mylife_module_order');
+                            return order ? order.split('|') : [];
+                        },
+                        set: function (sortable) {
+                            const order = sortable.toArray();
+                            localStorage.setItem('mylife_module_order', order.join('|'));
+                        }
+                    }
+                });
+            }
+        }
+
+        // ==================== 6. 日曆模組渲染 (Calendar) ====================
+        function renderCalendar() {
+            const grid = document.getElementById('calendarGrid');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
+
+            document.getElementById('currentMonthYearText').textContent = `${year}年 ${month + 1}月`;
+            const lunarInfo = getLunarDateInfo(currentCalendarDate);
+            document.getElementById('currentLunarSummary').textContent = lunarInfo.text ? `農曆 ${lunarInfo.text}` : '';
+
+            const firstDayIndex = new Date(year, month, 1).getDay();
+            const totalDaysInMonth = new Date(year, month + 1, 0).getDate();
+            const prevMonthDays = new Date(year, month, 0).getDate();
+
+            const today = new Date();
+            const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
+
+            // 1. 上月補齊
+            for (let i = firstDayIndex - 1; i >= 0; i--) {
+                const dayNum = prevMonthDays - i;
+                const d = new Date(year, month - 1, dayNum);
+                grid.appendChild(createCalendarCell(d, true));
+            }
+
+            // 2. 當月日期
+            for (let day = 1; day <= totalDaysInMonth; day++) {
+                const d = new Date(year, month, day);
+                const isToday = isCurrentMonth && today.getDate() === day;
+                grid.appendChild(createCalendarCell(d, false, isToday));
+            }
+
+            // 3. 下月補齊
+            const totalCells = firstDayIndex + totalDaysInMonth;
+            const remaining = (7 - (totalCells % 7)) % 7;
+            for (let i = 1; i <= remaining; i++) {
+                const d = new Date(year, month + 1, i);
+                grid.appendChild(createCalendarCell(d, true));
+            }
+        }
+
+        function createCalendarCell(dateObj, isOtherMonth, isToday = false) {
+            const cell = document.createElement('div');
+            const dateStr = formatDateKey(dateObj);
+
+            cell.className = `min-h-[72px] sm:min-h-[85px] p-1.5 rounded-xl border flex flex-col justify-between transition cursor-pointer ${
+                isOtherMonth 
+                    ? 'opacity-30 bg-slate-50/50 dark:bg-slate-800/30 border-transparent' 
+                    : isToday 
+                        ? 'bg-blue-50/60 dark:bg-blue-900/20 border-blue-400 dark:border-blue-500 shadow-sm' 
+                        : 'bg-white dark:bg-slate-800/80 border-slate-100 dark:border-slate-700/60 hover:border-blue-300'
+            }`;
+
+            cell.onclick = () => openDayModal(dateStr);
+
+            const holiday = getHolidayName(dateObj);
+            const lunar = getLunarDateInfo(dateObj);
+
+            // 日期表頭
+            const header = document.createElement('div');
+            header.className = 'flex items-center justify-between';
+            header.innerHTML = `
+                <span class="text-xs font-bold ${isToday ? 'text-blue-600 dark:text-blue-400' : 'text-slate-700 dark:text-slate-200'}">
+                    ${dateObj.getDate()}
+                </span>
+                <span class="text-[9px] ${holiday ? 'text-rose-500 font-semibold' : 'text-slate-400'} truncate max-w-[45px]">
+                    ${holiday || (lunar.day ? lunar.day : '')}
+                </span>
+            `;
+            cell.appendChild(header);
+
+            // 內容徽章 (事件 + 收支)
+            const badges = document.createElement('div');
+            badges.className = 'space-y-0.5 mt-1';
+
+            // 事件點
+            const dayEvents = eventsData.filter(e => isEventOnDate(e, dateStr));
+            if (dayEvents.length > 0) {
+                const evBadge = document.createElement('div');
+                evBadge.className = 'text-[9px] px-1 py-0.2 rounded bg-indigo-50 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-300 truncate';
+                evBadge.textContent = dayEvents[0].title;
+                badges.appendChild(evBadge);
+            }
+
+            // 記帳摘要
+            const dayEntries = financialData.filter(e => (e.date || '').split('T')[0] === dateStr);
+            if (dayEntries.length > 0) {
+                let dayExp = 0;
+                dayEntries.forEach(item => {
+                    if (item.type === 'expense') dayExp += Number(item.amount || 0);
+                });
+                if (dayExp > 0) {
+                    const fnBadge = document.createElement('div');
+                    fnBadge.className = 'text-[9px] px-1 py-0.2 rounded bg-rose-50 dark:bg-rose-900/40 text-rose-600 dark:text-rose-300 truncate font-semibold';
+                    fnBadge.textContent = `-$${Math.round(dayExp)}`;
+                    badges.appendChild(fnBadge);
+                }
+            }
+
+            cell.appendChild(badges);
+            return cell;
+        }
+
+        function isEventOnDate(event, dateStr) {
+            if (!event.date) return false;
+            const evDate = event.date.split('T')[0];
+            if (evDate === dateStr) return true;
+            if (event.repeat === 'yearly') {
+                return evDate.slice(5) === dateStr.slice(5);
+            }
+            if (event.repeat === 'monthly') {
+                return evDate.slice(8) === dateStr.slice(8);
+            }
+            return false;
+        }
+
+        function changeMonth(delta) {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + delta);
+            renderCalendar();
+            renderFinanceModule();
+        }
+
+        function jumpToToday() {
+            currentCalendarDate = new Date();
+            renderCalendar();
+            renderFinanceModule();
+        }
+
+        // ==================== 7. 單日詳情 Modal ====================
+        function openDayModal(dateStr) {
+            activeModalDateStr = dateStr;
+            const parts = dateStr.split('-');
+            const d = new Date(parts[0], parts[1] - 1, parts[2]);
+
+            document.getElementById('modalDateTitle').textContent = `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
+            const lunar = getLunarDateInfo(d);
+            document.getElementById('modalDateLunar').textContent = lunar.text ? `農曆 ${lunar.text}` : '';
+
+            setEntryType('expense');
+            populateModalDropdowns();
+            renderModalDayEvents();
+            renderModalDayEntries();
+             loadPresetChips();     // 👈 加呢行
+            renderPresetChipsUI(); // 👈 同加呢行
+
+            document.getElementById('dayDetailModal').classList.remove('hidden');
+        }
+
+        function closeDayModal() {
+            document.getElementById('dayDetailModal').classList.add('hidden');
+        }
+
+        function setEntryType(type) {
+            currentEntryType = type;
+            const btnExp = document.getElementById('btnTypeExpense');
+            const btnInc = document.getElementById('btnTypeIncome');
+
+            if (type === 'expense') {
+                btnExp.className = 'px-2.5 py-0.5 rounded-md font-medium bg-rose-500 text-white transition';
+                btnInc.className = 'px-2.5 py-0.5 rounded-md font-medium text-slate-600 dark:text-slate-300 transition';
             } else {
-                document.documentElement.classList.remove('dark');
-                document.getElementById('themeIcon').className = 'fa-solid fa-moon';
+                btnInc.className = 'px-2.5 py-0.5 rounded-md font-medium bg-emerald-500 text-white transition';
+                btnExp.className = 'px-2.5 py-0.5 rounded-md font-medium text-slate-600 dark:text-slate-300 transition';
+            }
+            populateModalCategoryDropdown();
+        }
+
+        function populateModalDropdowns() {
+            populateModalCategoryDropdown();
+
+            // 帳戶選單
+            const accSelect = document.getElementById('entryAccount');
+            accSelect.innerHTML = '';
+            appConfig.accounts.forEach(acc => {
+                const opt = document.createElement('option');
+                opt.value = acc.name;
+                opt.textContent = acc.name;
+                accSelect.appendChild(opt);
+            });
+        }
+
+        function populateModalCategoryDropdown() {
+            const catSelect = document.getElementById('entryCategory');
+            catSelect.innerHTML = '';
+            const list = currentEntryType === 'expense' 
+                ? appConfig.expenseCategories.map(c => c.name) 
+                : DEFAULT_INCOME_CATEGORIES;
+
+            list.forEach(name => {
+                const opt = document.createElement('option');
+                opt.value = name;
+                opt.textContent = name;
+                catSelect.appendChild(opt);
+            });
+        }
+
+        function handleModalAddEvent(e) {
+            e.preventDefault();
+            const time = document.getElementById('modalEventTime').value;
+            const title = document.getElementById('modalEventTitle').value.trim();
+            const repeat = document.getElementById('modalEventRepeat').value;
+            if (!title) return;
+
+            eventsData.push({
+                id: 'ev_' + Date.now(),
+                date: activeModalDateStr,
+                time: time || '',
+                title: title,
+                repeat: repeat
+            });
+
+            saveStateToStorage();
+            document.getElementById('modalEventTitle').value = '';
+            document.getElementById('modalEventTime').value = '';
+            renderModalDayEvents();
+            renderCalendar();
+            renderEventsModule();
+        }
+                // ==================== 快捷膠囊 (Preset Chips - 保留 💋赤口) ====================
+        const STORAGE_KEY_CHIPS = 'my_cal_presets_chips';
+        const DEFAULT_PRESET_CHIPS = [
+            { title: '開會', time: '10:00', icon: '💼' },
+            { title: '健身 / 運動', time: '19:00', icon: '🏃' },
+            { title: '睇醫生 / 覆診', time: '14:30', icon: '🏥' },
+            { title: '買餸 / 日用品', time: '18:30', icon: '🛒' },
+            { title: '聚餐 / 約會', time: '19:30', icon: '🍽️' },
+            { title: '赤口', time: '09:00', icon: '💋', isSpecial: true }
+        ];
+
+        let presetChips = DEFAULT_PRESET_CHIPS;
+
+        function loadPresetChips() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY_CHIPS) || localStorage.getItem('mylife_presets_chips');
+                presetChips = saved ? JSON.parse(saved) : DEFAULT_PRESET_CHIPS;
+            } catch (e) {
+                presetChips = DEFAULT_PRESET_CHIPS;
             }
         }
 
-        function toggleTheme() {
-            const isDark = document.documentElement.classList.toggle('dark');
-            localStorage.setItem(STORAGE_KEY_THEME, isDark ? 'dark' : 'light');
-            document.getElementById('themeIcon').className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+        function savePresetChips(chips) {
+            presetChips = chips;
+            localStorage.setItem(STORAGE_KEY_CHIPS, JSON.stringify(chips));
+            renderPresetChipsUI();
         }
 
-        // 自訂 App 名稱
-        function initAppName() {
-            const name = localStorage.getItem(STORAGE_KEY_APP_NAME) || 'MyLife Hub';
-            document.getElementById('appNameText').textContent = name;
-        }
-
-        function renameApp() {
-            const current = localStorage.getItem(STORAGE_KEY_APP_NAME) || 'MyLife Hub';
-            const val = prompt('請輸入您的個人儀表板名稱：', current);
-            if (val && val.trim()) {
-                localStorage.setItem(STORAGE_KEY_APP_NAME, val.trim());
-                document.getElementById('appNameText').textContent = val.trim();
-            }
-        }
-
-        // 渲染快捷膠囊 UI (包括 💋赤口)
         function renderPresetChipsUI() {
             const container = document.getElementById('quickChipsContainer');
             if (!container) return;
 
-            let html = `<span class="text-[11px] text-slate-400 whitespace-nowrap mr-1"><i class="fa-solid fa-bolt text-amber-500"></i> 常用:</span>`;
+            let html = `<span class="text-[11px] text-slate-400 whitespace-nowrap mr-1 flex items-center gap-1"><i class="fa-solid fa-bolt text-amber-500"></i>常用:</span>`;
             
             presetChips.forEach(chip => {
-                if (chip.isSpecial || chip.title.includes('赤口')) {
+                const isChikHao = chip.isSpecial || (chip.title && chip.title.includes('赤口'));
+                const icon = chip.icon || (isChikHao ? '💋' : '📌');
+                const title = chip.title || '';
+                const time = chip.time || (isChikHao ? '09:00' : '');
+
+                if (isChikHao) {
                     html += `
-                        <button type="button" onclick="fillQuickPreset('${chip.title}', '${chip.time || '09:00'}')" class="px-2.5 py-1 rounded-lg bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/60 text-rose-600 dark:text-rose-300 border border-rose-200/60 dark:border-rose-800/60 font-medium transition whitespace-nowrap">
-                            ${chip.icon || '💋'} ${chip.title} ${chip.time || ''}
+                        <button type="button" onclick="fillQuickPreset('${icon}${title}', '${time}')" class="px-2.5 py-1 rounded-lg bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/60 text-rose-600 dark:text-rose-300 border border-rose-200/60 dark:border-rose-800/60 font-medium transition whitespace-nowrap text-xs flex items-center gap-1 shadow-sm">
+                            <span>${icon}</span> <span>${title}</span> ${time ? `<span class="opacity-75 font-mono text-[10px]">${time}</span>` : ''}
                         </button>
                     `;
                 } else {
                     html += `
-                        <button type="button" onclick="fillQuickPreset('${chip.title}', '${chip.time || ''}')" class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-blue-50 dark:hover:bg-blue-900/40 text-slate-600 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-300 font-medium transition whitespace-nowrap">
-                            ${chip.icon || ''} ${chip.title} ${chip.time || ''}
+                        <button type="button" onclick="fillQuickPreset('${icon ? icon + ' ' : ''}${title}', '${time}')" class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-300 border border-slate-200/70 dark:border-slate-600 font-medium transition whitespace-nowrap text-xs flex items-center gap-1">
+                            <span>${icon}</span> <span>${title}</span> ${time ? `<span class="opacity-75 font-mono text-[10px]">${time}</span>` : ''}
                         </button>
                     `;
                 }
@@ -657,20 +906,22 @@
             container.innerHTML = html;
         }
 
-        // 點擊快捷膠囊自動帶入
         function fillQuickPreset(title, time) {
-            const titleInput = document.getElementById('homeEventTitle');
-            const timeInput = document.getElementById('homeEventTime');
-            if (titleInput) titleInput.value = title;
-            if (timeInput && time) timeInput.value = time;
-            if (titleInput) titleInput.focus();
+            const titleInput = document.getElementById('modalEventTitle');
+            const timeInput = document.getElementById('modalEventTime');
+            if (titleInput) {
+                titleInput.value = title;
+                titleInput.focus();
+            }
+            if (timeInput && time) {
+                timeInput.value = time;
+            }
         }
 
-        // 自訂快捷膠囊
         function customizePresets() {
             const currentStr = presetChips.map(c => `${c.icon || ''}${c.title}|${c.time || ''}`).join(', ');
             const input = prompt(
-                '編輯自訂快捷膠囊 (以逗號分隔，格式: 圖示標題|時間)\n特別保留: 💋赤口|09:00',
+                '自訂快捷膠囊標籤 (以逗號分隔，格式: 圖示名稱|時間，例如: 💋赤口|09:00, 💼返工|09:00)：',
                 currentStr
             );
 
@@ -686,7 +937,7 @@
                         if (isSpecial) hasChikHao = true;
                         newChips.push({
                             title: fullTitle.replace(/^[^\w\s\u4e00-\u9fa5]+/, '').trim() || fullTitle,
-                            icon: fullTitle.match(/^[^\w\s\u4e00-\u9fa5]+/)?.[0] || '📌',
+                            icon: fullTitle.match(/^[^\w\s\u4e00-\u9fa5]+/)?.[0] || (isSpecial ? '💋' : '📌'),
                             time: time || '',
                             isSpecial: isSpecial
                         });
@@ -697,418 +948,99 @@
                     newChips.push({ title: '赤口', time: '09:00', icon: '💋', isSpecial: true });
                 }
 
-                presetChips = newChips;
-                localStorage.setItem(STORAGE_KEY_CHIPS, JSON.stringify(presetChips));
-                renderPresetChipsUI();
+                savePresetChips(newChips);
             }
         }
 
-        // 模組拖曳排序 (SortableJS)
-        function initSortableLayout() {
-            const el = document.getElementById('sortableModulesContainer');
-            if (!el) return;
-
-            const savedOrder = localStorage.getItem(STORAGE_KEY_LAYOUT);
-            if (savedOrder) {
-                const orderArr = JSON.parse(savedOrder);
-                orderArr.forEach(id => {
-                    const child = el.querySelector(`[data-id="${id}"]`);
-                    if (child) el.appendChild(child);
-                });
-            }
-
-            Sortable.create(el, {
-                handle: '.drag-handle',
-                animation: 200,
-                ghostClass: 'sortable-ghost',
-                onEnd: () => {
-                    const currentOrder = Array.from(el.children).map(c => c.getAttribute('data-id'));
-                    localStorage.setItem(STORAGE_KEY_LAYOUT, JSON.stringify(currentOrder));
-                }
-            });
-        }
-
-        // ==================== 日曆渲染邏輯 ====================
-        function changeMonth(delta) {
-            currentDate.setMonth(currentDate.getMonth() + delta);
-            renderCalendar();
-            renderFinancialSummary();
-        }
-
-        function goToToday() {
-            currentDate = new Date();
-            renderCalendar();
-            renderFinancialSummary();
-        }
-
-        // 簡易節氣與農曆顯示
-        function getLunarText(d) {
-            const m = String(d.getMonth() + 1).padStart(2, '0');
-            const day = String(d.getDate()).padStart(2, '0');
-            const key = `${m}-${day}`;
-            if (HK_HOLIDAYS_FIXED[key]) return HK_HOLIDAYS_FIXED[key];
-            return `初${d.getDate() > 10 ? d.getDate() : ' ' + d.getDate()}`;
-        }
-
-        // 渲染日曆矩陣 (前後月自動完整補滿 7 欄網格)
-        function renderCalendar() {
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth();
-            document.getElementById('currentMonthYearText').textContent = `${year}年 ${month + 1}月`;
-            document.getElementById('currentLunarSummary').textContent = getLunarText(new Date(year, month, 1));
-
-            const firstDayIndex = new Date(year, month, 1).getDay();
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-            const prevMonthDays = new Date(year, month, 0).getDate();
-
-            const grid = document.getElementById('calendarGrid');
-            grid.innerHTML = '';
-
-            // 1. 補齊前月格子
-            for (let i = firstDayIndex - 1; i >= 0; i--) {
-                const dayDiv = document.createElement('div');
-                dayDiv.className = 'min-h-[85px] sm:min-h-[95px] p-1.5 rounded-xl bg-slate-50/50 dark:bg-slate-800/40 text-slate-300 dark:text-slate-600 select-none';
-                dayDiv.innerHTML = `<span class="text-xs font-semibold">${prevMonthDays - i}</span>`;
-                grid.appendChild(dayDiv);
-            }
-
-            // 今天日期字串
-            const todayStr = getLocalDateStr(new Date());
-
-            // 2. 當月格子
-            for (let day = 1; day <= daysInMonth; day++) {
-                const dateObj = new Date(year, month, day);
-                const dateStr = getLocalDateStr(dateObj);
-                const isToday = dateStr === todayStr;
-
-                // 篩選當日日程與記賬
-                const dayEvents = eventsData.filter(e => (e.date || '').split('T')[0].trim() === dateStr);
-                const dayEntries = financialData.filter(e => (e.date || '').split('T')[0].trim() === dateStr);
-
-                // 計算當日總開支
-                const dayExpense = dayEntries
-                    .filter(e => e.type === 'expense' || e.type === 'expenses')
-                    .reduce((sum, item) => sum + Number(item.amount || 0), 0);
-
-                const dayDiv = document.createElement('div');
-                dayDiv.onclick = () => openDayModal(dateStr);
-                dayDiv.className = `min-h-[85px] sm:min-h-[95px] p-1.5 rounded-xl cursor-pointer transition border flex flex-col justify-between ${
-                    isToday 
-                        ? 'bg-blue-50/60 dark:bg-blue-950/40 border-blue-400 dark:border-blue-600 shadow-sm' 
-                        : 'bg-white dark:bg-slate-800/90 border-slate-100 dark:border-slate-700/80 hover:border-slate-300 dark:hover:border-slate-600'
-                }`;
-
-                let eventsBadgeHtml = '';
-                dayEvents.slice(0, 2).forEach(ev => {
-                    const isChik = ev.title.includes('赤口');
-                    eventsBadgeHtml += `
-                        <div class="text-[10px] px-1 py-0.5 rounded truncate ${
-                            isChik 
-                                ? 'bg-rose-100 dark:bg-rose-900/60 text-rose-700 dark:text-rose-200 font-bold' 
-                                : 'bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-200'
-                        }">
-                            ${ev.time ? ev.time + ' ' : ''}${ev.title}
-                        </div>
-                    `;
-                });
-                if (dayEvents.length > 2) {
-                    eventsBadgeHtml += `<div class="text-[9px] text-purple-500 dark:text-purple-400 font-medium pl-0.5">+${dayEvents.length - 2} 更多</div>`;
-                }
-
-                dayDiv.innerHTML = `
-                    <div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold ${isToday ? 'text-blue-600 dark:text-blue-400' : 'text-slate-700 dark:text-slate-200'}">${day}</span>
-                            <span class="text-[9px] text-slate-400 dark:text-slate-400">${getLunarText(dateObj)}</span>
-                        </div>
-                        <div class="mt-1 space-y-0.5">
-                            ${eventsBadgeHtml}
-                        </div>
-                    </div>
-                    ${dayExpense > 0 ? `
-                        <div class="text-right mt-1">
-                            <span class="text-[10px] font-semibold px-1 py-0.2 rounded bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-300">
-                                -$${Math.round(dayExpense)}
-                            </span>
-                        </div>
-                    ` : ''}
-                `;
-
-                grid.appendChild(dayDiv);
-            }
-
-            // 3. 自動補滿月末格子至 7 的整數倍 (防止排版歪斜)
-            const totalCellsRendered = firstDayIndex + daysInMonth;
-            const remainingCells = (7 - (totalCellsRendered % 7)) % 7;
-            for (let i = 1; i <= remainingCells; i++) {
-                const dayDiv = document.createElement('div');
-                dayDiv.className = 'min-h-[85px] sm:min-h-[95px] p-1.5 rounded-xl bg-slate-50/50 dark:bg-slate-800/40 text-slate-300 dark:text-slate-600 select-none';
-                dayDiv.innerHTML = `<span class="text-xs font-semibold">${i}</span>`;
-                grid.appendChild(dayDiv);
-            }
-        }
-
-        // ==================== 財務概覽計算 ====================
-        function renderFinancialSummary() {
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth();
-
-            // 篩選當月記賬
-            const currentMonthEntries = financialData.filter(item => {
-                if (!item.date) return false;
-                const d = new Date(item.date);
-                return d.getFullYear() === year && d.getMonth() === month;
-            });
-
-            // 計算支出與分類統計
-            let totalExpense = 0;
-            const categorySums = {};
-            const accountSums = {};
-
-            currentMonthEntries.forEach(entry => {
-                const amt = Number(entry.amount || 0);
-                const isExpense = entry.type === 'expense' || entry.type === 'expenses';
-
-                if (isExpense) {
-                    totalExpense += amt;
-                    categorySums[entry.category] = (categorySums[entry.category] || 0) + amt;
-                    accountSums[entry.account] = (accountSums[entry.account] || 0) + amt;
-                }
-            });
-
-            const budget = financialConfig.monthlyBudget || 15000;
-            const percent = Math.min(Math.round((totalExpense / budget) * 100), 100);
-
-            // 更新總進度
-            document.getElementById('spentAmountText').textContent = `$${totalExpense.toLocaleString()}`;
-            document.getElementById('totalBudgetText').textContent = `$${budget.toLocaleString()}`;
-            document.getElementById('budgetPercentText').textContent = `${percent}%`;
-
-            const progressBar = document.getElementById('budgetProgressBar');
-            progressBar.style.width = `${percent}%`;
-
-            // 進度條色彩級距警示
-            const badge = document.getElementById('budgetAlertBadge');
-            if (percent >= 100) {
-                progressBar.className = 'bg-rose-600 h-full rounded-full transition-all duration-300';
-                badge.className = 'text-xs px-2 py-0.5 rounded-md font-semibold bg-rose-100 text-rose-700 dark:bg-rose-900/60 dark:text-rose-200';
-                badge.textContent = '已超支！';
-            } else if (percent >= 80) {
-                progressBar.className = 'bg-amber-500 h-full rounded-full transition-all duration-300';
-                badge.className = 'text-xs px-2 py-0.5 rounded-md font-semibold bg-amber-100 text-amber-700 dark:bg-amber-900/60 dark:text-amber-200';
-                badge.textContent = '預算接近上限';
-            } else {
-                progressBar.className = 'bg-emerald-500 h-full rounded-full transition-all duration-300';
-                badge.className = 'text-xs px-2 py-0.5 rounded-md font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/60 dark:text-emerald-200';
-                badge.textContent = '預算健康';
-            }
-
-            // 卡片支出進度條渲染
-            const accountsContainer = document.getElementById('accountsSpendingContainer');
-            accountsContainer.innerHTML = '';
-
-            const configuredAccounts = financialConfig.accounts || [];
-            configuredAccounts.forEach(acc => {
-                const spent = accountSums[acc.name] || 0;
-                const limit = acc.limit || 0;
-                const accPercent = limit > 0 ? Math.min(Math.round((spent / limit) * 100), 100) : 0;
-
-                const cardDiv = document.createElement('div');
-                cardDiv.className = 'p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-700/60';
-                cardDiv.innerHTML = `
-                    <div class="flex justify-between items-center text-xs mb-1 font-medium">
-                        <span class="text-slate-700 dark:text-slate-200">${acc.name}</span>
-                        <span class="text-slate-500 dark:text-slate-400">$${spent.toLocaleString()} ${limit > 0 ? `/ $${limit.toLocaleString()}` : ''}</span>
-                    </div>
-                    ${limit > 0 ? `
-                        <div class="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
-                            <div class="h-full rounded-full ${accPercent >= 100 ? 'bg-rose-500' : 'bg-blue-500'}" style="width: ${accPercent}%"></div>
-                        </div>
-                    ` : ''}
-                `;
-                accountsContainer.appendChild(cardDiv);
-            });
-
-            // ==========================================
-            // 6 大開支分類預算使用量與圖表渲染
-            // ==========================================
-            const CATEGORY_META = {
-                '日常開支': { icon: 'fa-basket-shopping', color: '#3B82F6', barColor: 'bg-blue-500', defaultBudget: 3000 },
-                '交通':     { icon: 'fa-bus',             color: '#10B981', barColor: 'bg-emerald-500', defaultBudget: 1500 },
-                '家用':     { icon: 'fa-house',           color: '#F59E0B', barColor: 'bg-amber-500', defaultBudget: 4500 },
-                '餐飲':     { icon: 'fa-utensils',        color: '#EC4899', barColor: 'bg-pink-500', defaultBudget: 3500 },
-                '閒暇娛樂': { icon: 'fa-gamepad',         color: '#8B5CF6', barColor: 'bg-purple-500', defaultBudget: 1500 },
-                '零用錢':   { icon: 'fa-coins',           color: '#06B6D4', barColor: 'bg-cyan-500', defaultBudget: 1000 }
-            };
-
-            const currentCatList = (financialConfig.expenseCategories && financialConfig.expenseCategories.length > 0)
-                ? financialConfig.expenseCategories
-                : DEFAULT_EXPENSE_ITEMS;
-
-            // 1. 渲染綜合彩色佔比條 (Stacked Bar)
-            const stackedBar = document.getElementById('categoryStackedBar');
-            if (stackedBar) {
-                stackedBar.innerHTML = '';
-                if (totalExpense > 0) {
-                    currentCatList.forEach(cItem => {
-                        const cat = cItem.name;
-                        const spent = categorySums[cat] || 0;
-                        if (spent > 0) {
-                            const ratio = (spent / totalExpense) * 100;
-                            const segment = document.createElement('div');
-                            segment.className = `${CATEGORY_META[cat]?.barColor || 'bg-indigo-500'} h-full transition-all duration-300`;
-                            segment.style.width = `${ratio}%`;
-                            segment.title = `${cat}: $${spent.toLocaleString()} (${ratio.toFixed(1)}%)`;
-                            stackedBar.appendChild(segment);
-                        }
-                    });
-                }
-            }
-
-            // 2. 渲染各分類獨立進度卡片
-            const catBudgetContainer = document.getElementById('categoryBudgetContainer');
-            if (catBudgetContainer) {
-                catBudgetContainer.innerHTML = '';
-                currentCatList.forEach(cItem => {
-                    const cat = cItem.name;
-                    const meta = CATEGORY_META[cat] || { icon: 'fa-tag', color: '#64748B', barColor: 'bg-slate-500', defaultBudget: 2000 };
-                    const spent = categorySums[cat] || 0;
-                    const catLimit = (cItem.limit !== undefined && cItem.limit !== null && cItem.limit !== '') ? Number(cItem.limit) : meta.defaultBudget;
-                    const catPercent = catLimit > 0 ? Math.round((spent / catLimit) * 100) : 0;
-                    const isOver = spent > catLimit;
-                    const remaining = catLimit - spent;
-
-                    // 顏色警示狀態
-                    let progressClass = meta.barColor;
-                    let badgeClass = 'text-slate-500 dark:text-slate-400';
-                    let statusText = `剩餘 $${remaining.toLocaleString()}`;
-
-                    if (isOver) {
-                        progressClass = 'bg-rose-500';
-                        badgeClass = 'text-rose-600 dark:text-rose-400 font-bold';
-                        statusText = `超支 $${Math.abs(remaining).toLocaleString()}`;
-                    } else if (catPercent >= 80) {
-                        progressClass = 'bg-amber-500';
-                        badgeClass = 'text-amber-600 dark:text-amber-400 font-medium';
-                    }
-
-                    const card = document.createElement('div');
-                    card.className = 'p-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-700/60 flex flex-col justify-between';
-                    card.innerHTML = `
-                        <div class="flex items-center justify-between mb-1.5">
-                            <span class="text-xs font-semibold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
-                                <i class="fa-solid ${meta.icon}" style="color: ${meta.color}"></i>
-                                ${cat}
-                            </span>
-                            <span class="text-[11px] ${badgeClass}">${statusText}</span>
-                        </div>
-                        <div class="flex justify-between items-baseline text-[11px] mb-1">
-                            <span class="font-semibold text-slate-800 dark:text-slate-100">$${spent.toLocaleString()}</span>
-                            <span class="text-slate-400">/ $${catLimit.toLocaleString()} (${catPercent}%)</span>
-                        </div>
-                        <div class="w-full bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
-                            <div class="h-full rounded-full ${progressClass} transition-all duration-300" style="width: ${Math.min(catPercent, 100)}%"></div>
-                        </div>
-                    `;
-                    catBudgetContainer.appendChild(card);
-                });
-            }
-        }
-
-        // ==================== 日期彈窗交互邏輯 ====================
-        function openDayModal(dateStr) {
-            activeModalDateStr = dateStr;
-            const d = new Date(dateStr);
-            document.getElementById('modalDateTitle').textContent = `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
-            document.getElementById('modalDateLunar').textContent = `農曆 ${getLunarText(d)}`;
-
-            // 重設收支類型為支出
-            setEntryType('expense');
-
-            // 初始化卡片選單
-            populateModalAccountDropdown();
-            renderModalEvents();
-            renderModalEntries();
-
-            document.getElementById('dayDetailModal').classList.remove('hidden');
-        }
-
-        function closeDayModal() {
-            document.getElementById('dayDetailModal').classList.add('hidden');
-        }
-
-        // 切換收支類型（動態解耦分類）
-        function setEntryType(type) {
-            currentEntryType = type;
-            const btnExp = document.getElementById('btnTypeExpense');
-            const btnInc = document.getElementById('btnTypeIncome');
-
-            if (type === 'expense') {
-                btnExp.className = 'flex-1 py-1 text-xs font-medium rounded-md bg-rose-500 text-white shadow-sm transition';
-                btnInc.className = 'flex-1 py-1 text-xs font-medium rounded-md text-slate-500 dark:text-slate-400 transition';
-            } else {
-                btnInc.className = 'flex-1 py-1 text-xs font-medium rounded-md bg-emerald-500 text-white shadow-sm transition';
-                btnExp.className = 'flex-1 py-1 text-xs font-medium rounded-md text-slate-500 dark:text-slate-400 transition';
-            }
-
-            populateModalCategoryDropdown();
-        }
-
-        function populateModalCategoryDropdown() {
-            const select = document.getElementById('entryCategory');
-            select.innerHTML = '';
-            const currentExpenseCategories = (financialConfig.expenseCategories && financialConfig.expenseCategories.length > 0)
-                ? financialConfig.expenseCategories.map(c => c.name)
-                : DEFAULT_EXPENSE_CATEGORIES;
-            const categories = currentEntryType === 'expense' ? currentExpenseCategories : DEFAULT_INCOME_CATEGORIES;
-            categories.forEach(cat => {
-                const opt = document.createElement('option');
-                opt.value = cat;
-                opt.textContent = cat;
-                select.appendChild(opt);
-            });
-        }
-
-        function populateModalAccountDropdown() {
-            const select = document.getElementById('entryAccount');
-            select.innerHTML = '';
-            const accounts = financialConfig.accounts || DEFAULT_CONFIG.accounts;
-            accounts.forEach(acc => {
-                const opt = document.createElement('option');
-                opt.value = acc.name;
-                opt.textContent = acc.name;
-                select.appendChild(opt);
-            });
-        }
-
-        // 當日收支明細渲染
-        function renderModalEntries() {
-            const container = document.getElementById('modalEntriesList');
+        function renderModalDayEvents() {
+            const container = document.getElementById('modalEventsList');
             container.innerHTML = '';
-            const entries = financialData.filter(e => (e.date || '').split('T')[0].trim() === activeModalDateStr);
+            const dayEvents = eventsData.filter(e => isEventOnDate(e, activeModalDateStr));
 
-            if (entries.length === 0) {
-                container.innerHTML = `<p class="text-xs text-slate-400 text-center py-2">無收支記錄</p>`;
+            if (dayEvents.length === 0) {
+                container.innerHTML = `<p class="text-[11px] text-slate-400 text-center py-1">本日無行程安排</p>`;
                 return;
             }
 
-            entries.forEach((item, index) => {
-                const isExpense = item.type === 'expense' || item.type === 'expenses';
+            dayEvents.forEach(item => {
                 const row = document.createElement('div');
-                row.className = 'flex items-center justify-between p-2 rounded-xl bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800 text-xs';
+                row.className = 'flex items-center justify-between p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-xs';
                 row.innerHTML = `
-                    <div class="flex items-center space-x-2">
-                        <span class="w-1.5 h-6 rounded-full ${isExpense ? 'bg-rose-500' : 'bg-emerald-500'}"></span>
+                    <div class="flex items-center gap-2">
+                        <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                        <span class="text-slate-400 font-mono">${item.time || '整天'}</span>
+                        <span class="font-medium text-slate-700 dark:text-slate-200">${item.title}</span>
+                    </div>
+                    <button onclick="deleteEvent('${item.id}')" class="text-slate-400 hover:text-rose-500 p-1">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        function deleteEvent(id) {
+            eventsData = eventsData.filter(e => e.id !== id);
+            saveStateToStorage();
+            renderModalDayEvents();
+            renderCalendar();
+            renderEventsModule();
+        }
+
+        function handleModalAddFinance(e) {
+            e.preventDefault();
+            const amount = parseFloat(document.getElementById('entryAmount').value);
+            const category = document.getElementById('entryCategory').value;
+            const account = document.getElementById('entryAccount').value;
+            const title = document.getElementById('entryTitle').value.trim();
+
+            if (isNaN(amount) || amount <= 0) return;
+
+            financialData.push({
+                id: 'fn_' + Date.now(),
+                date: activeModalDateStr,
+                type: currentEntryType,
+                amount: amount,
+                category: category,
+                account: account,
+                title: title || category
+            });
+
+            saveStateToStorage();
+            document.getElementById('entryAmount').value = '';
+            document.getElementById('entryTitle').value = '';
+            renderModalDayEntries();
+            renderCalendar();
+            renderFinanceModule();
+        }
+
+        function renderModalDayEntries() {
+            const container = document.getElementById('modalEntriesList');
+            container.innerHTML = '';
+            const dayEntries = financialData.filter(e => (e.date || '').split('T')[0] === activeModalDateStr);
+
+            if (dayEntries.length === 0) {
+                container.innerHTML = `<p class="text-[11px] text-slate-400 text-center py-1">本日無收支紀錄</p>`;
+                return;
+            }
+
+            dayEntries.forEach(item => {
+                const isExpense = item.type === 'expense';
+                const row = document.createElement('div');
+                row.className = 'flex items-center justify-between p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-xs';
+                row.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span class="w-1.5 h-1.5 rounded-full ${isExpense ? 'bg-rose-500' : 'bg-emerald-500'}"></span>
                         <div>
-                            <div class="font-bold text-slate-800 dark:text-slate-100">${item.title || item.category}</div>
-                            <div class="text-[10px] text-slate-400">${item.category} · ${item.account}</div>
+                            <span class="font-medium text-slate-700 dark:text-slate-200">${item.title || item.category}</span>
+                            <span class="text-[10px] text-slate-400 block">${item.category} · ${item.account}</span>
                         </div>
                     </div>
-                    <div class="flex items-center space-x-2">
+                    <div class="flex items-center gap-2">
                         <span class="font-bold ${isExpense ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}">
                             ${isExpense ? '-' : '+'}$${Number(item.amount).toFixed(2)}
                         </span>
-                        <button onclick="deleteEntry('${item.id || ''}', ${index})" class="text-slate-300 dark:text-slate-500 hover:text-rose-500 p-1">
+                        <button onclick="deleteFinanceEntry('${item.id}')" class="text-slate-400 hover:text-rose-500 p-1">
                             <i class="fa-solid fa-trash-can"></i>
                         </button>
                     </div>
@@ -1117,256 +1049,283 @@
             });
         }
 
-        // 儲存收支項目（帶入雲端同步）
-        function handleSaveEntry(e) {
-            e.preventDefault();
-            const type = currentEntryType;
-            const amount = parseFloat(document.getElementById('entryAmount').value);
-            const category = document.getElementById('entryCategory').value;
-            const account = document.getElementById('entryAccount').value;
-            const title = document.getElementById('entryTitle').value.trim();
-
-            if (isNaN(amount) || amount <= 0) return alert('請輸入有效金額！');
-
-            const newRecord = {
-                id: 'id_' + Date.now(),
-                date: activeModalDateStr,
-                type, amount, category, account, title
-            };
-
-            financialData.push(newRecord);
-
-            saveStoredData();
-            renderModalEntries();
+        function deleteFinanceEntry(id) {
+            financialData = financialData.filter(e => e.id !== id);
+            saveStateToStorage();
+            renderModalDayEntries();
             renderCalendar();
-            renderFinancialSummary();
-            document.getElementById('entryAmount').value = '';
-            document.getElementById('entryTitle').value = '';
-
-            // 雲端同步至 Google Sheet (Data 分頁)
-            syncToGAS({
-                dataType: 'record',
-                id: newRecord.id,
-                date: newRecord.date,
-                type: newRecord.type,
-                amount: newRecord.amount,
-                category: newRecord.category,
-                account: newRecord.account,
-                title: newRecord.title
-            });
+            renderFinanceModule();
         }
 
-        function deleteEntry(id, fallbackIndex) {
-            if (!confirm('確定要刪除這筆項目嗎？')) return;
-            if (id) {
-                financialData = financialData.filter(i => i.id !== id);
-            } else {
-                const dayIndexes = [];
-                financialData.forEach((item, idx) => {
-                    if ((item.date || '').split('T')[0].trim() === activeModalDateStr) dayIndexes.push(idx);
-                });
-                if (dayIndexes[fallbackIndex] !== undefined) financialData.splice(dayIndexes[fallbackIndex], 1);
-            }
-            saveStoredData();
-            renderModalEntries();
-            renderCalendar();
-            renderFinancialSummary();
-        }
-
-        // 日程安排 (Events) 邏輯
-        function renderModalEvents() {
-            const container = document.getElementById('modalEventsList');
+        // ==================== 8. 近期行程模組 (Events Module) ====================
+        function renderEventsModule() {
+            const container = document.getElementById('upcomingEventsList');
+            if (!container) return;
             container.innerHTML = '';
-            const events = eventsData.filter(e => (e.date || '').split('T')[0].trim() === activeModalDateStr);
 
-            if (events.length === 0) {
-                container.innerHTML = `<p class="text-xs text-slate-400 text-center py-2">無排定日程</p>`;
+            const todayStr = formatDateKey(new Date());
+            const futureEvents = eventsData
+                .filter(e => (e.date || '') >= todayStr || e.repeat !== 'none')
+                .sort((a, b) => (a.date || '').localeCompare(b.date || ''))
+                .slice(0, 5);
+
+            if (futureEvents.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">近期沒有行程安排</p>`;
                 return;
             }
 
-            events.forEach(item => {
-                const row = document.createElement('div');
-                row.className = 'flex items-center justify-between p-2 rounded-xl bg-purple-50/50 dark:bg-purple-950/40 border border-purple-100 dark:border-purple-800/40 text-xs';
-                row.innerHTML = `
-                    <div class="flex-1 min-w-0 pr-2">
-                        <div class="font-bold text-slate-800 dark:text-slate-100">${item.title}</div>
-                        <div class="text-[10px] text-purple-600 dark:text-purple-300 flex items-center space-x-2 mt-0.5">
-                            ${item.time ? `<span><i class="fa-solid fa-clock mr-1"></i>${item.time}</span>` : ''}
-                            ${item.location ? `<span><i class="fa-solid fa-location-dot mr-1"></i>${item.location}</span>` : ''}
+            futureEvents.forEach(item => {
+                const el = document.createElement('div');
+                el.className = 'flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-700/40 border border-slate-100 dark:border-slate-700 text-xs';
+                el.innerHTML = `
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-[10px]">
+                            ${(item.date || '').slice(5)}
+                        </div>
+                        <div>
+                            <div class="font-bold text-slate-800 dark:text-slate-100">${item.title}</div>
+                            <div class="text-[10px] text-slate-400">${item.time ? item.time + ' · ' : ''}${item.repeat !== 'none' ? '循環' : '單次'}</div>
                         </div>
                     </div>
                     <button onclick="deleteEvent('${item.id}')" class="text-slate-300 dark:text-slate-500 hover:text-rose-500 p-1">
                         <i class="fa-solid fa-trash-can"></i>
                     </button>
                 `;
-                container.appendChild(row);
+                container.appendChild(el);
             });
         }
 
-        function handleSaveEvent(e) {
-            e.preventDefault();
-            const time = document.getElementById('eventTime').value;
-            const location = document.getElementById('eventLocation').value.trim();
-            const title = document.getElementById('eventTitle').value.trim();
-
-            const newEvent = {
-                id: 'evt_' + Date.now(),
-                date: activeModalDateStr,
-                time, location, title
-            };
-
-            eventsData.push(newEvent);
-
-            saveStoredData();
-            renderModalEvents();
-            renderCalendar();
-            document.getElementById('eventTitle').value = '';
-            document.getElementById('eventLocation').value = '';
-
-            // 雲端同步至 Google Sheet (Schedules 分頁)
-            syncToGAS({
-                dataType: 'schedule',
-                id: newEvent.id,
-                date: newEvent.date,
-                time: newEvent.time,
-                title: newEvent.title,
-                desc: newEvent.location || ''
-            });
+        function openAddEventQuickModal() {
+            openDayModal(formatDateKey(new Date()));
         }
 
-        function deleteEvent(id) {
-            eventsData = eventsData.filter(i => i.id !== id);
-            saveStoredData();
-            renderModalEvents();
-            renderCalendar();
-        }
+        // ==================== 9. 財務總覽模組 (Finance Module) ====================
+        function renderFinanceModule() {
+            const year = currentCalendarDate.getFullYear();
+            const monthStr = String(currentCalendarDate.getMonth() + 1).padStart(2, '0');
+            const currentPrefix = `${year}-${monthStr}`;
 
-        // 首頁直接快速加入日程（包含 💋赤口 快速鍵）
-        function handleHomeQuickAddEvent(e) {
-            e.preventDefault();
-            const date = document.getElementById('homeEventDate').value;
-            const time = document.getElementById('homeEventTime').value;
-            const location = document.getElementById('homeEventLocation').value.trim();
-            const title = document.getElementById('homeEventTitle').value.trim();
+            let totalInc = 0;
+            let totalExp = 0;
+            const categorySpentMap = {};
+            const accountSpentMap = {};
 
-            if (!title || !date) return;
-
-            const newEvent = {
-                id: 'evt_' + Date.now(),
-                date: date,
-                time: time,
-                location: location,
-                title: title
-            };
-
-            eventsData.push(newEvent);
-
-            saveStoredData();
-            renderCalendar();
-
-            document.getElementById('homeEventTitle').value = '';
-            document.getElementById('homeEventLocation').value = '';
-
-            // 雲端同步至 Google Sheet (Schedules 分頁)
-            syncToGAS({
-                dataType: 'schedule',
-                id: newEvent.id,
-                date: newEvent.date,
-                time: newEvent.time,
-                title: newEvent.title,
-                desc: newEvent.location || ''
+            // 統計當月數據
+            financialData.forEach(item => {
+                if ((item.date || '').startsWith(currentPrefix)) {
+                    const amt = Number(item.amount || 0);
+                    if (item.type === 'income') {
+                        totalInc += amt;
+                    } else {
+                        totalExp += amt;
+                        categorySpentMap[item.category] = (categorySpentMap[item.category] || 0) + amt;
+                        accountSpentMap[item.account] = (accountSpentMap[item.account] || 0) + amt;
+                    }
+                }
             });
 
-            alert(`已成功排入日程：${title} (${date})`);
-        }
+            // 計算總預算
+            const totalBudget = appConfig.expenseCategories.reduce((acc, cur) => acc + Number(cur.budget || 0), 0);
+            const remainingBudget = totalBudget - totalExp;
 
-        // 待辦清單 (Todos) 邏輯
-                function renderTodos() {
-            const container = document.getElementById('todoList');
-            if (!container) return;
+            document.getElementById('financeTotalIncome').textContent = `$${totalInc.toFixed(2)}`;
+            document.getElementById('financeTotalExpense').textContent = `$${totalExp.toFixed(2)}`;
+            document.getElementById('financeTotalBudget').textContent = `$${totalBudget.toFixed(2)}`;
+            
+            const remEl = document.getElementById('financeBudgetRemaining');
+            remEl.textContent = `$${remainingBudget.toFixed(2)}`;
+            remEl.className = `text-base sm:text-lg font-bold ${remainingBudget >= 0 ? 'text-emerald-500' : 'text-rose-500'}`;
 
-            if (todos.length === 0) {
-                container.innerHTML = '<div class="text-center py-6 text-slate-400 dark:text-slate-500 text-sm">目前沒有待辦事項</div>';
-            } else {
-                container.innerHTML = todos.map(item => `
-                    <div class="flex items-center justify-between p-2.5 rounded-xl border transition ${
-                        item.completed 
-                            ? 'bg-slate-50 dark:bg-slate-900/30 border-slate-200/50 dark:border-slate-800 opacity-60' 
-                            : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-sm hover:border-indigo-300 dark:hover:border-indigo-600'
-                    }" data-id="${item.id}">
-                        <div class="flex items-center gap-3 flex-1 min-w-0">
-                            <span class="todo-drag-handle cursor-grab active:cursor-grabbing text-slate-300 dark:text-slate-600 hover:text-slate-500">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"></path></svg>
-                            </span>
-                            <input type="checkbox" ${item.completed ? 'checked' : ''} onchange="toggleTodo('${item.id}')" 
-                                class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300 dark:border-slate-600 dark:bg-slate-700">
-                            <span class="text-sm truncate ${item.completed ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-700 dark:text-slate-200'}">${escapeHtml(item.text)}</span>
-                        </div>
-                        <button onclick="deleteTodo('${item.id}')" class="text-slate-400 hover:text-rose-500 transition-colors p-1">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                        </button>
+            // 分類預算進度條渲染
+            const catContainer = document.getElementById('categorySpendingContainer');
+            catContainer.innerHTML = '';
+            appConfig.expenseCategories.forEach(cat => {
+                const spent = categorySpentMap[cat.name] || 0;
+                const budget = Number(cat.budget || 0);
+                const percent = budget > 0 ? Math.min(Math.round((spent / budget) * 100), 100) : 0;
+                const isOver = spent > budget && budget > 0;
+
+                const row = document.createElement('div');
+                row.className = 'p-2 rounded-xl bg-slate-50 dark:bg-slate-700/30 border border-slate-100 dark:border-slate-700/60';
+                row.innerHTML = `
+                    <div class="flex justify-between text-xs mb-1">
+                        <span class="font-medium text-slate-700 dark:text-slate-200">${cat.name}</span>
+                        <span class="text-[11px] ${isOver ? 'text-rose-500 font-bold' : 'text-slate-400'}">
+                            $${spent.toFixed(0)} / $${budget.toFixed(0)} (${percent}%)
+                        </span>
                     </div>
-                `).join('');
+                    <div class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                        <div class="h-full rounded-full transition-all duration-300 ${isOver ? 'bg-rose-500' : percent > 85 ? 'bg-amber-500' : 'bg-blue-500'}" style="width: ${percent}%"></div>
+                    </div>
+                `;
+                catContainer.appendChild(row);
+            });
+
+            // 帳戶簽賬 Limit 進度條渲染
+            const accContainer = document.getElementById('accountsSpendingContainer');
+            accContainer.innerHTML = '';
+            appConfig.accounts.forEach(acc => {
+                const spent = accountSpentMap[acc.name] || 0;
+                const limit = Number(acc.limit || 0);
+                const percent = limit > 0 ? Math.min(Math.round((spent / limit) * 100), 100) : 0;
+                const isOver = spent >= limit && limit > 0;
+
+                const row = document.createElement('div');
+                row.className = 'p-2 rounded-xl bg-slate-50 dark:bg-slate-700/30 border border-slate-100 dark:border-slate-700/60';
+                row.innerHTML = `
+                    <div class="flex justify-between text-xs mb-1">
+                        <span class="font-medium text-slate-700 dark:text-slate-200">${acc.name}</span>
+                        <span class="text-[11px] ${isOver ? 'text-emerald-600 dark:text-emerald-400 font-bold' : 'text-slate-400'}">
+                            $${spent.toFixed(0)} / $${limit.toFixed(0)} (${percent}%)
+                        </span>
+                    </div>
+                    <div class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                        <div class="h-full rounded-full transition-all duration-300 ${isOver ? 'bg-emerald-500' : 'bg-indigo-500'}" style="width: ${percent}%"></div>
+                    </div>
+                `;
+                accContainer.appendChild(row);
+            });
+        }
+
+        // ==================== 10. 待辦事項模組 (Todos Module) ====================
+        function renderTodosModule() {
+            const container = document.getElementById('todoListContainer');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const completedCount = todosData.filter(t => t.completed).length;
+            document.getElementById('todoStats').textContent = `${completedCount} / ${todosData.length} 完成`;
+
+            if (todosData.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">目前沒有待辦事項</p>`;
+                return;
             }
 
-            const countEl = document.getElementById('todoCount');
-            if (countEl) {
-                const activeCount = todos.filter(t => !t.completed).length;
-                countEl.innerText = `${activeCount} 項待處理`;
-            }
+            todosData.forEach(todo => {
+                const el = document.createElement('div');
+                el.className = `flex items-center justify-between p-2.5 rounded-xl border transition ${
+                    todo.completed 
+                        ? 'bg-slate-50/60 dark:bg-slate-800/40 border-slate-100 dark:border-slate-800 opacity-60' 
+                        : 'bg-white dark:bg-slate-700/40 border-slate-100 dark:border-slate-700'
+                }`;
+                el.innerHTML = `
+                    <label class="flex items-center gap-2.5 cursor-pointer flex-1">
+                        <input type="checkbox" ${todo.completed ? 'checked' : ''} onchange="toggleTodo('${todo.id}')" class="w-4 h-4 rounded text-purple-600 focus:ring-purple-500">
+                        <span class="text-xs ${todo.completed ? 'line-through text-slate-400' : 'text-slate-700 dark:text-slate-200'}">${todo.title}</span>
+                    </label>
+                    <button onclick="deleteTodo('${todo.id}')" class="text-slate-300 dark:text-slate-500 hover:text-rose-500 p-1">
+                        <i class="fa-solid fa-trash-can text-xs"></i>
+                    </button>
+                `;
+                container.appendChild(el);
+            });
         }
+
         function handleQuickAddTodo(e) {
-            if (e.key === 'Enter') {
-                const input = e.target;
-                const text = input.value.trim();
-                if (!text) return;
-                todos.unshift({
-                    id: 'todo_' + Date.now(),
-                    text: text,
-                    completed: false,
-                    createdAt: new Date().toISOString()
-                });
-                saveToLocalStorage();
-                renderTodos();
-                input.value = '';
-            }
+            e.preventDefault();
+            const input = document.getElementById('newTodoTitle');
+            const title = input.value.trim();
+            if (!title) return;
+
+            todosData.push({
+                id: 'td_' + Date.now(),
+                title: title,
+                completed: false
+            });
+
+            saveStateToStorage();
+            input.value = '';
+            renderTodosModule();
         }
 
         function toggleTodo(id) {
-            const item = todos.find(t => t.id === id);
-            if (item) {
-                item.completed = !item.completed;
-                saveToLocalStorage();
-                renderTodos();
+            const target = todosData.find(t => t.id === id);
+            if (target) {
+                target.completed = !target.completed;
+                saveStateToStorage();
+                renderTodosModule();
             }
         }
 
         function deleteTodo(id) {
-            todos = todos.filter(t => t.id !== id);
-            saveToLocalStorage();
-            renderTodos();
+            todosData = todosData.filter(t => t.id !== id);
+            saveStateToStorage();
+            renderTodosModule();
         }
 
-        // ==========================================
-        // 偏好與財務設定 (Settings Modal)
-        // ==========================================
+        // ==================== 11. 筆記模組 (Notes Module) ====================
+        function renderNotesModule() {
+            const container = document.getElementById('notesContainer');
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (notesData.length === 0) {
+                container.innerHTML = `<p class="col-span-full text-xs text-slate-400 text-center py-4">暫無備忘筆記</p>`;
+                return;
+            }
+
+            notesData.forEach(note => {
+                const el = document.createElement('div');
+                el.className = 'p-3 rounded-xl bg-amber-50/50 dark:bg-slate-700/40 border border-amber-100 dark:border-slate-700 flex flex-col justify-between';
+                el.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <h4 class="font-bold text-xs text-slate-800 dark:text-slate-100">${note.title}</h4>
+                            <button onclick="deleteNote('${note.id}')" class="text-slate-400 hover:text-rose-500">
+                                <i class="fa-solid fa-trash-can text-[11px]"></i>
+                            </button>
+                        </div>
+                        <p class="text-xs text-slate-600 dark:text-slate-300 whitespace-pre-wrap">${note.content}</p>
+                    </div>
+                    <span class="text-[9px] text-slate-400 mt-2 block">${note.updatedAt || ''}</span>
+                `;
+                container.appendChild(el);
+            });
+        }
+
+        function openAddNoteModal() {
+            document.getElementById('editNoteId').value = '';
+            document.getElementById('noteTitle').value = '';
+            document.getElementById('noteContent').value = '';
+            document.getElementById('noteModal').classList.remove('hidden');
+        }
+
+        function closeNoteModal() {
+            document.getElementById('noteModal').classList.add('hidden');
+        }
+
+        function handleSaveNote(e) {
+            e.preventDefault();
+            const title = document.getElementById('noteTitle').value.trim();
+            const content = document.getElementById('noteContent').value.trim();
+            if (!title) return;
+
+            const now = new Date();
+            const updatedAt = `${now.getMonth() + 1}/${now.getDate()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+            notesData.unshift({
+                id: 'nt_' + Date.now(),
+                title: title,
+                content: content,
+                updatedAt: updatedAt
+            });
+
+            saveStateToStorage();
+            closeNoteModal();
+            renderNotesModule();
+        }
+
+        function deleteNote(id) {
+            notesData = notesData.filter(n => n.id !== id);
+            saveStateToStorage();
+            renderNotesModule();
+        }
+
+        // ==================== 12. 設定 Modal (Settings) ====================
         function openSettingsModal() {
-            document.getElementById('settingGasUrl').value = gasConfig.url || '';
-            document.getElementById('settingGasToken').value = gasConfig.token || '';
-            document.getElementById('settingAutoSync').checked = !!gasConfig.autoSync;
-
-            const accContainer = document.getElementById('settingsAccountsList');
-            accContainer.innerHTML = '';
-            financialConfig.accounts.forEach(acc => {
-                accContainer.appendChild(renderAccountRow(acc));
-            });
-
-            const catContainer = document.getElementById('settingsCategoryList');
-            catContainer.innerHTML = '';
-            financialConfig.expenseCategories.forEach(cat => {
-                catContainer.appendChild(renderCategoryRow(cat));
-            });
-
+            document.getElementById('settingScriptUrl').value = appConfig.scriptUrl || '';
+            renderSettingsCategoryRows();
+            renderSettingsAccountRows();
             document.getElementById('settingsModal').classList.remove('hidden');
         }
 
@@ -1374,188 +1333,93 @@
             document.getElementById('settingsModal').classList.add('hidden');
         }
 
-        function renderAccountRow(acc = { id: '', name: '', limit: 10000, billingDay: 1 }) {
-            const div = document.createElement('div');
-            div.className = 'account-row flex items-center gap-2 p-2 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700 text-xs sm:text-sm';
-            div.dataset.id = acc.id || ('acc_' + Date.now());
-            div.innerHTML = `
-                <input type="text" value="${escapeHtml(acc.name)}" placeholder="卡片/賬戶名稱" class="acc-name flex-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded px-2 py-1 text-slate-800 dark:text-slate-100 min-w-0">
-                <div class="flex items-center gap-1">
-                    <span class="text-slate-400">上限:</span>
-                    <input type="number" value="${acc.limit}" class="acc-limit w-20 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded px-2 py-1 text-slate-800 dark:text-slate-100">
-                </div>
-                <div class="flex items-center gap-1">
-                    <span class="text-slate-400">結賬日:</span>
-                    <input type="number" min="1" max="31" value="${acc.billingDay || 1}" class="acc-billing w-12 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded px-2 py-1 text-slate-800 dark:text-slate-100">
-                </div>
-                <button type="button" onclick="this.parentElement.remove()" class="p-1 text-slate-400 hover:text-rose-500 transition-colors">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
-            `;
-            return div;
-        }
-
-        function addAccountSettingRow() {
-            const container = document.getElementById('settingsAccountsList');
-            container.appendChild(renderAccountRow({
-                id: 'acc_' + Date.now(),
-                name: '新卡片/賬戶',
-                limit: 10000,
-                billingDay: 1
-            }));
-        }
-
-        function renderCategoryRow(cat = { id: '', name: '', budget: 2000, color: '#3b82f6' }) {
-            const div = document.createElement('div');
-            div.className = 'category-row flex items-center gap-2 p-2 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700 text-xs sm:text-sm';
-            div.dataset.id = cat.id || ('cat_' + Date.now());
-            div.innerHTML = `
-                <input type="color" value="${cat.color || '#3b82f6'}" class="cat-color w-7 h-7 rounded border-0 p-0 cursor-pointer bg-transparent">
-                <input type="text" value="${escapeHtml(cat.name)}" placeholder="分類名稱" class="cat-name flex-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded px-2 py-1 text-slate-800 dark:text-slate-100 min-w-0">
-                <div class="flex items-center gap-1">
-                    <span class="text-slate-400">預算:</span>
-                    <input type="number" value="${cat.budget}" class="cat-budget w-24 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded px-2 py-1 text-slate-800 dark:text-slate-100">
-                </div>
-                <button type="button" onclick="this.parentElement.remove()" class="p-1 text-slate-400 hover:text-rose-500 transition-colors">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
-            `;
-            return div;
-        }
-
-        function addCategorySettingRow() {
+        function renderSettingsCategoryRows() {
             const container = document.getElementById('settingsCategoryList');
-            container.appendChild(renderCategoryRow({
-                id: 'cat_' + Date.now(),
-                name: '新開支分類',
-                budget: 3000,
-                color: '#10b981'
-            }));
-        }
-
-        function saveSettings() {
-            gasConfig.url = document.getElementById('settingGasUrl').value.trim();
-            gasConfig.token = document.getElementById('settingGasToken').value.trim();
-            gasConfig.autoSync = document.getElementById('settingAutoSync').checked;
-
-            const accRows = document.querySelectorAll('#settingsAccountsList .account-row');
-            const newAccounts = [];
-            accRows.forEach(row => {
-                const name = row.querySelector('.acc-name').value.trim();
-                const limit = parseFloat(row.querySelector('.acc-limit').value) || 0;
-                const billingDay = parseInt(row.querySelector('.acc-billing').value) || 1;
-                if (name) {
-                    newAccounts.push({
-                        id: row.dataset.id,
-                        name: name,
-                        limit: limit,
-                        billingDay: billingDay
-                    });
-                }
-            });
-            financialConfig.accounts = newAccounts.length > 0 ? newAccounts : [...DEFAULT_ACCOUNTS];
-
-            const catRows = document.querySelectorAll('#settingsCategoryList .category-row');
-            const newCats = [];
-            catRows.forEach(row => {
-                const name = row.querySelector('.cat-name').value.trim();
-                const budget = parseFloat(row.querySelector('.cat-budget').value) || 0;
-                const color = row.querySelector('.cat-color').value;
-                if (name) {
-                    newCats.push({
-                        id: row.dataset.id,
-                        name: name,
-                        budget: budget,
-                        color: color
-                    });
-                }
-            });
-            financialConfig.expenseCategories = newCats.length > 0 ? newCats : [...DEFAULT_EXPENSE_ITEMS];
-
-            saveToLocalStorage();
-            updateExpenseCategoryDropdown();
-            renderFinanceOverview();
-            closeSettingsModal();
-            showNotification('設定已成功儲存！', 'success');
-        }
-
-        // ==========================================
-        // GAS 雲端雙向同步模組
-        // ==========================================
-        async function syncWithCloud() {
-            if (!gasConfig.url) {
-                showNotification('請先在「偏好與財務設定」中填入 GAS Web App URL', 'error');
-                return;
-            }
-
-            const syncBtn = document.getElementById('cloudSyncBtn');
-            const originalHtml = syncBtn ? syncBtn.innerHTML : '';
-            if (syncBtn) {
-                syncBtn.disabled = true;
-                syncBtn.innerHTML = `
-                    <svg class="w-4 h-4 animate-spin text-indigo-500" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
-                    </svg>
-                    <span>同步中...</span>
+            container.innerHTML = '';
+            appConfig.expenseCategories.forEach((cat, index) => {
+                const row = document.createElement('div');
+                row.className = 'flex items-center gap-2';
+                row.innerHTML = `
+                    <input type="text" value="${cat.name}" data-idx="${index}" class="cat-name-input flex-1 px-2.5 py-1.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs">
+                    <input type="number" value="${cat.budget}" data-idx="${index}" class="cat-budget-input w-24 px-2.5 py-1.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs" placeholder="預算">
+                    <button type="button" onclick="removeCategoryRow(${index})" class="text-slate-400 hover:text-rose-500 p-1">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
                 `;
-            }
-
-            try {
-                const payload = {
-                    action: 'sync',
-                    token: gasConfig.token || '',
-                    data: {
-                        events: events,
-                        financeRecords: financeRecords,
-                        todos: todos,
-                        financialConfig: financialConfig,
-                        customShortcuts: customShortcuts
-                    }
-                };
-
-                const response = await fetch(gasConfig.url, {
-                    method: 'POST',
-                    mode: 'cors',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(payload)
-                });
-
-                if (!response.ok) throw new Error(`HTTP 錯誤: ${response.status}`);
-                const result = await response.json();
-
-                if (result.status === 'success') {
-                    if (result.data) {
-                        if (result.data.events) events = result.data.events;
-                        if (result.data.financeRecords) financeRecords = result.data.financeRecords;
-                        if (result.data.todos) todos = result.data.todos;
-                        if (result.data.financialConfig) financialConfig = result.data.financialConfig;
-                        if (result.data.customShortcuts) customShortcuts = result.data.customShortcuts;
-
-                        saveToLocalStorage();
-                        renderCalendar();
-                        renderFinanceOverview();
-                        renderTodos();
-                        renderShortcutBar();
-                    }
-                    showNotification('雲端雙向同步完成！', 'success');
-                } else {
-                    throw new Error(result.message || '雲端同步回應狀態錯誤');
-                }
-            } catch (err) {
-                console.error('GAS 同步失敗:', err);
-                showNotification('同步失敗: ' + err.message, 'error');
-            } finally {
-                if (syncBtn) {
-                    syncBtn.disabled = false;
-                    syncBtn.innerHTML = originalHtml;
-                }
-            }
+                container.appendChild(row);
+            });
         }
 
-        // ==========================================
-        // 備份與還原 (JSON 匯出/匯入)
-        // ==========================================
+        function addNewCategoryRow() {
+            appConfig.expenseCategories.push({ name: '新分類', budget: 1000 });
+            renderSettingsCategoryRows();
+        }
+
+        function removeCategoryRow(index) {
+            appConfig.expenseCategories.splice(index, 1);
+            renderSettingsCategoryRows();
+        }
+
+        function renderSettingsAccountRows() {
+            const container = document.getElementById('settingsAccountList');
+            container.innerHTML = '';
+            appConfig.accounts.forEach((acc, index) => {
+                const row = document.createElement('div');
+                row.className = 'flex items-center gap-2';
+                row.innerHTML = `
+                    <input type="text" value="${acc.name}" data-idx="${index}" class="acc-name-input flex-1 px-2.5 py-1.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs">
+                    <input type="number" value="${acc.limit}" data-idx="${index}" class="acc-limit-input w-24 px-2.5 py-1.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs" placeholder="Limit">
+                    <button type="button" onclick="removeAccountRow(${index})" class="text-slate-400 hover:text-rose-500 p-1">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        function addNewAccountRow() {
+            appConfig.accounts.push({ name: '新卡片/帳戶', limit: 5000 });
+            renderSettingsAccountRows();
+        }
+
+        function removeAccountRow(index) {
+            appConfig.accounts.splice(index, 1);
+            renderSettingsAccountRows();
+        }
+
+        function saveSettingsForm() {
+            // 讀取分類輸入
+            const nameInputs = document.querySelectorAll('.cat-name-input');
+            const budgetInputs = document.querySelectorAll('.cat-budget-input');
+            const newCats = [];
+            nameInputs.forEach((inp, idx) => {
+                const name = inp.value.trim();
+                const budget = parseFloat(budgetInputs[idx].value) || 0;
+                if (name) newCats.push({ name, budget });
+            });
+            appConfig.expenseCategories = newCats.length > 0 ? newCats : [...DEFAULT_EXPENSE_CATEGORIES];
+
+            // 讀取帳戶輸入
+            const accNameInputs = document.querySelectorAll('.acc-name-input');
+            const accLimitInputs = document.querySelectorAll('.acc-limit-input');
+            const newAccs = [];
+            accNameInputs.forEach((inp, idx) => {
+                const name = inp.value.trim();
+                const limit = parseFloat(accLimitInputs[idx].value) || 0;
+                if (name) newAccs.push({ name, limit });
+            });
+            appConfig.accounts = newAccs.length > 0 ? newAccs : [...DEFAULT_ACCOUNTS];
+
+            // 讀取 GAS 網址
+            appConfig.scriptUrl = document.getElementById('settingScriptUrl').value.trim();
+
+            saveStateToStorage();
+            closeSettingsModal();
+            renderAll();
+            alert('設定已成功儲存！');
+        }
+
+        // ==================== 13. 資料備份、還原與雲端同步 ====================
         function openBackupModal() {
             document.getElementById('backupModal').classList.remove('hidden');
         }
@@ -1564,81 +1428,135 @@
             document.getElementById('backupModal').classList.add('hidden');
         }
 
-        function exportBackupData() {
-            const fullData = {
-                version: '2.0.0',
-                exportTime: new Date().toISOString(),
-                events,
-                financeRecords,
-                todos,
-                financialConfig,
-                customShortcuts,
-                gasConfig
+        function exportDataJson() {
+            const data = {
+                config: appConfig,
+                events: eventsData,
+                finance: financialData,
+                todos: todosData,
+                notes: notesData,
+                exportedAt: new Date().toISOString()
             };
-
-            const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(fullData, null, 2));
-            const downloadAnchor = document.createElement('a');
-            const fileName = `MyLifeHub_Backup_${new Date().toISOString().slice(0, 10)}.json`;
-            downloadAnchor.setAttribute('href', dataStr);
-            downloadAnchor.setAttribute('download', fileName);
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
-            showNotification('備份檔案已成功匯出！', 'success');
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `mylife_backup_${formatDateKey(new Date())}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
         }
 
-        function triggerFileInput() {
-            document.getElementById('backupFileInput').click();
+        function handleFileImport(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const parsed = JSON.parse(event.target.result);
+                    if (parsed.config) appConfig = parsed.config;
+                    if (parsed.events) eventsData = parsed.events;
+                    if (parsed.finance) financialData = parsed.finance;
+                    if (parsed.todos) todosData = parsed.todos;
+                    if (parsed.notes) notesData = parsed.notes;
+
+                    saveStateToStorage();
+                    renderAll();
+                    closeBackupModal();
+                    alert('備份還原成功！');
+                } catch (err) {
+                    alert('還原失敗：檔案格式不正確');
+                }
+            };
+            reader.readAsText(file);
         }
 
-        // 綁定檔案上傳監聽
-        document.addEventListener('DOMContentLoaded', () => {
-            const fileInput = document.getElementById('backupFileInput');
-            if (fileInput) {
-                fileInput.addEventListener('change', function (e) {
-                    const file = e.target.files[0];
-                    if (!file) return;
-
-                    const reader = new FileReader();
-                    reader.onload = function (evt) {
-                        try {
-                            const parsed = JSON.parse(evt.target.result);
-                            if (parsed.events) events = parsed.events;
-                            if (parsed.financeRecords) financeRecords = parsed.financeRecords;
-                            if (parsed.todos) todos = parsed.todos;
-                            if (parsed.financialConfig) financialConfig = parsed.financialConfig;
-                            if (parsed.customShortcuts) customShortcuts = parsed.customShortcuts;
-                            if (parsed.gasConfig) gasConfig = parsed.gasConfig;
-
-                            saveToLocalStorage();
-                            renderCalendar();
-                            renderFinanceOverview();
-                            renderTodos();
-                            renderShortcutBar();
-                            updateExpenseCategoryDropdown();
-
-                            closeBackupModal();
-                            showNotification('資料備份已成功還原！', 'success');
-                        } catch (err) {
-                            showNotification('匯入失敗：JSON 格式不正確', 'error');
-                        }
-                    };
-                    reader.readAsText(file);
-                });
+        async function syncWithCloud() {
+            if (!appConfig.scriptUrl) {
+                alert('請先在設定中填寫 Google Apps Script Web App URL！');
+                openSettingsModal();
+                return;
             }
-        });
 
-        // 輔助工具：逸出 HTML 特殊字元防止 XSS
-        function escapeHtml(str) {
-            if (typeof str !== 'string') return '';
-            return str
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#039;');
+            const statusEl = document.getElementById('cloudSyncStatus');
+            const iconEl = document.getElementById('cloudSyncIcon');
+            const textEl = document.getElementById('cloudSyncText');
+
+            statusEl.className = 'text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-600 font-medium';
+            iconEl.className = 'fa-solid fa-rotate fa-spin mr-1';
+            textEl.textContent = '同步中...';
+
+            try {
+                // 上傳本地資料至 GAS
+                const payload = {
+                    config: appConfig,
+                    events: eventsData,
+                    finance: financialData,
+                    todos: todosData,
+                    notes: notesData
+                };
+
+                const res = await fetch(appConfig.scriptUrl, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    statusEl.className = 'text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-600 font-medium';
+                    iconEl.className = 'fa-solid fa-circle-check mr-1';
+                    textEl.textContent = '已同步';
+                } else {
+                    throw new Error('Sync failed');
+                }
+            } catch (err) {
+                statusEl.className = 'text-xs px-2 py-0.5 rounded-full bg-rose-100 text-rose-600 font-medium';
+                iconEl.className = 'fa-solid fa-triangle-exclamation mr-1';
+                textEl.textContent = '同步失敗';
+            }
         }
+
+        // ==================== 14. 實用工具函數 ====================
+        function formatDateKey(d) {
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const date = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${date}`;
+        }
+
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('mylife_theme', isDark ? 'dark' : 'light');
+            updateThemeIcon(isDark);
+        }
+
+        function initTheme() {
+            const savedTheme = localStorage.getItem('mylife_theme');
+            const isDark = savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            if (isDark) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+            updateThemeIcon(isDark);
+        }
+
+        function updateThemeIcon(isDark) {
+            const icon = document.getElementById('themeIcon');
+            if (icon) {
+                icon.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+            }
+        }
+
+        function renameApp() {
+            const newName = prompt('請輸入應用程式名稱：', appConfig.name || 'MyLife Hub');
+            if (newName && newName.trim()) {
+                appConfig.name = newName.trim();
+                document.getElementById('appNameText').textContent = appConfig.name;
+                saveStateToStorage();
+            }
+        }
+
+        // 頁面加載完成啟動
+        document.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
 </html>
-
