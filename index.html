@@ -1024,14 +1024,23 @@
             renderEventsModule();
         }
 
-        function handleModalAddFinance(e) {
+             function handleModalAddFinance(e) {
             e.preventDefault();
-            const amount = parseFloat(document.getElementById('entryAmount').value);
-            const category = document.getElementById('entryCategory').value;
-            const account = document.getElementById('entryAccount').value;
-            const title = document.getElementById('entryTitle').value.trim();
+            const amountInput = document.getElementById('entryAmount');
+            const amount = parseFloat(amountInput.value);
+            
+            // 防禦 1：金額必須大於 0
+            if (isNaN(amount) || amount <= 0) {
+                alert("請輸入有效金額！");
+                return;
+            }
 
-            if (isNaN(amount) || amount <= 0) return;
+            // 防禦 2：若下拉選單為空，給予預設值，絕不傳送空字串
+            const catSelect = document.getElementById('entryCategory');
+            const accSelect = document.getElementById('entryAccount');
+            const category = (catSelect && catSelect.value) ? catSelect.value : (currentEntryType === 'income' ? '其他收入' : '日常開支');
+            const account = (accSelect && accSelect.value) ? accSelect.value : '現金';
+            const title = document.getElementById('entryTitle').value.trim() || category;
 
             financialData.push({
                 id: 'fn_' + Date.now(),
@@ -1040,16 +1049,18 @@
                 amount: amount,
                 category: category,
                 account: account,
-                title: title || category
+                title: title
             });
 
             saveStateToStorage();
-            document.getElementById('entryAmount').value = '';
+            amountInput.value = '';
             document.getElementById('entryTitle').value = '';
-            renderModalDayEntries();
-            renderCalendar();
+            
+            renderModalDayFinance();
             renderFinanceModule();
+            renderCalendar();
         }
+
 
         function renderModalDayEntries() {
             const container = document.getElementById('modalEntriesList');
@@ -1155,18 +1166,16 @@
 
         // ==================== 9. 財務概覽模組 (Finance Module) ====================
                // ==================== 9. 財務概覽模組 (Finance Module) ====================
-        function renderFinanceModule() {
-            // 修正 1：統一使用 currentCalendarDate，杜絕 ReferenceError
+               function renderFinanceModule() {
+            // 修正：使用 currentCalendarDate 替代不存在的 currentDate
             const calDate = currentCalendarDate || new Date();
             const currentYear = calDate.getFullYear();
-            const currentMonth = calDate.getMonth(); // 0 - 11
+            const currentMonth = calDate.getMonth();
             const currentYearMonthStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
 
-            // 修正 2：改用字串前綴比對 (YYYY-MM)，避免 new Date 時區跨月跑位問題
             const currentMonthExpenses = financialData.filter(item => {
                 if (!item || !item.date) return false;
-                const dStr = item.date.split('T')[0];
-                return dStr.startsWith(currentYearMonthStr);
+                return (item.date.split('T')[0]).startsWith(currentYearMonthStr);
             });
 
             let totalInc = 0;
