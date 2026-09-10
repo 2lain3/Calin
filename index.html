@@ -1435,6 +1435,7 @@
                 finance: financialData,
                 todos: todosData,
                 notes: notesData,
+                presetChips: presetChips,
                 exportedAt: new Date().toISOString()
             };
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -1458,6 +1459,8 @@
                     if (parsed.finance) financialData = parsed.finance;
                     if (parsed.todos) todosData = parsed.todos;
                     if (parsed.notes) notesData = parsed.notes;
+                    if (parsed.presetChips && Array.isArray(parsed.presetChips)) { // 👈 加入此兩行
+                        savePresetChips(parsed.presetChips);                      // 👈
 
                     saveStateToStorage();
                     renderAll();
@@ -1469,24 +1472,21 @@
             };
             reader.readAsText(file);
         }
-
         async function syncWithCloud() {
             if (!appConfig.scriptUrl) {
                 alert('請先在設定中填寫 Google Apps Script Web App URL！');
                 openSettingsModal();
                 return;
             }
-
+            
             const statusEl = document.getElementById('cloudSyncStatus');
             const iconEl = document.getElementById('cloudSyncIcon');
             const textEl = document.getElementById('cloudSyncText');
-
             statusEl.className = 'text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-600 font-medium';
             iconEl.className = 'fa-solid fa-rotate fa-spin mr-1';
             textEl.textContent = '同步中...';
-
+            
             try {
-                // 上傳本地資料至 GAS
                 const payload = {
                     config: appConfig,
                     events: eventsData,
@@ -1494,25 +1494,43 @@
                     todos: todosData,
                     notes: notesData
                 };
-
+                
                 const res = await fetch(appConfig.scriptUrl, {
                     method: 'POST',
-                    body: JSON.stringify(payload)
-                });
+                    body: JSON.stringify(payload),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
 
-                if (res.ok) {
-                    statusEl.className = 'text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-600 font-medium';
-                    iconEl.className = 'fa-solid fa-circle-check mr-1';
-                    textEl.textContent = '已同步';
-                } else {
-                    throw new Error('Sync failed');
+                });
+                
+                if (!res.ok) throw new Error('Sync failed with status ' + res.status);
+                const result = await res.json();
+                
+
+                // 合併 GAS 抓取到的最新交易（如 Gmail 自動記帳）
+
+                if (result && result.finance && Array.isArray(result.finance)) {
+                    const existingIds = new Set(financialData.map(f => f.id));
+                    result.finance.forEach(remoteItem => {
+                        if (!existingIds.has(remoteItem.id)) {
+                            financialData.unshift(remoteItem);
+                            existingIds.add(remoteItem.id);
+                        }
+                    });
+                    saveStateToStorage();
+                    renderAll();
                 }
+                
+                statusEl.className = 'text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-600 font-medium';
+                iconEl.className = 'fa-solid fa-circle-check mr-1';
+                textEl.textContent = '已同步';
             } catch (err) {
+                console.error('同步錯誤:', err);
                 statusEl.className = 'text-xs px-2 py-0.5 rounded-full bg-rose-100 text-rose-600 font-medium';
                 iconEl.className = 'fa-solid fa-triangle-exclamation mr-1';
                 textEl.textContent = '同步失敗';
             }
         }
+
 
         // ==================== 14. 實用工具函數 ====================
         function formatDateKey(d) {
