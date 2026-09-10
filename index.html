@@ -1459,19 +1459,22 @@
                     if (parsed.finance) financialData = parsed.finance;
                     if (parsed.todos) todosData = parsed.todos;
                     if (parsed.notes) notesData = parsed.notes;
-                    if (parsed.presetChips && Array.isArray(parsed.presetChips)) { // 👈 加入此兩行
-                        savePresetChips(parsed.presetChips);                      // 👈
+                    if (parsed.presetChips && Array.isArray(parsed.presetChips)) {
+                        savePresetChips(parsed.presetChips);
+                    } // 👈 補回此關閉括號
 
                     saveStateToStorage();
                     renderAll();
                     closeBackupModal();
                     alert('備份還原成功！');
                 } catch (err) {
+                    console.error('還原錯誤:', err);
                     alert('還原失敗：檔案格式不正確');
                 }
             };
             reader.readAsText(file);
         }
+
         async function syncWithCloud() {
             if (!appConfig.scriptUrl) {
                 alert('請先在設定中填寫 Google Apps Script Web App URL！');
