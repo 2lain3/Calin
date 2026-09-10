@@ -364,8 +364,8 @@
                         </h4>
                         <!-- 收支切換 -->
                         <div class="flex bg-slate-200 dark:bg-slate-700 p-0.5 rounded-lg text-[11px]">
-                            <button type="button" id="btnTypeExpense" onclick="setEntryType('expense')" class="px-2.5 py-0.5 rounded-md font-medium bg-rose-500 text-white transition">支出</button>
-                            <button type="button" id="btnTypeIncome" onclick="setEntryType('income')" class="px-2.5 py-0.5 rounded-md font-medium text-slate-600 dark:text-slate-300 transition">收入</button>
+                            <button type="button" id="btnTypeExpense" onclick="setEntryType('expenses')" class="px-2.5 py-0.5 rounded-md font-medium bg-rose-500 text-white transition">支出</button>
+                            <button type="button" id="btnTypeIncome" onclick="setEntryType('incomes')" class="px-2.5 py-0.5 rounded-md font-medium text-slate-600 dark:text-slate-300 transition">收入</button>
                         </div>
                     </div>
 
@@ -1104,8 +1104,8 @@
             
             // 兼容含 s 或不含 s
             let cleanType = (entry.type || '').trim().toLowerCase();
-            if (cleanType.startsWith('exp')) cleanType = 'expense';
-            else cleanType = 'income';
+            if (cleanType.startsWith('exp')) cleanType = 'expenses';
+            else cleanType = 'incomes';
 
             setEntryType(cleanType);
             document.getElementById('entryAmount').value = entry.amount;
@@ -1151,7 +1151,7 @@
             }
 
             dayEntries.forEach(item => {
-                const isExpense = item.type === 'expense';
+                const isExpense = item.type === 'expenses';
                 const row = document.createElement('div');
                 row.className = 'flex items-center justify-between p-2 rounded-xl bg-slate-50 dark:bg-slate-700/50 text-xs';
                 row.innerHTML = `
@@ -1412,7 +1412,7 @@
 
             // 依維度篩選所有開支
             const filteredExpenses = (financialData || []).filter(item => {
-                if (!item || !item.date || item.type === 'income') return false;
+                if (!item || !item.date || item.type === 'incomes') return false;
                 const d = item.date.split('T')[0];
                 
                 if (chartPeriodFilter === 'day') {
@@ -1849,9 +1849,9 @@
                     result.finance.forEach(remoteItem => {
                         // 自動轉為單數，無論 sheet 傳來 income/incomes/expense/expenses
                         let cleanType = (remoteItem.type || '').trim().toLowerCase();
-                        if (cleanType.startsWith('exp')) cleanType = 'expense';
-                        else if (cleanType.startsWith('inc')) cleanType = 'income';
-                        else cleanType = 'expense';
+                        if (cleanType.startsWith('exp')) cleanType = 'expenses';
+                        else if (cleanType.startsWith('inc')) cleanType = 'incomes';
+                        else cleanType = 'expenses';
                         
                         remoteItem.type = cleanType;
 
