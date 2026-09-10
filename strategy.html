@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2026-2027 流日作戰指引</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 20px;
+    }
+    .header {
+      max-width: 900px;
+      margin: 0 auto 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .back-btn {
+      padding: 8px 16px;
+      background: #3b82f6;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .filter-bar {
+      max-width: 900px;
+      margin: 0 auto 20px;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+    }
+    .filter-btn {
+      padding: 6px 14px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+    .filter-btn.active {
+      background: #3b82f6;
+      color: white;
+      border-color: #3b82f6;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      display: grid;
+      grid-template-columns: 140px 140px 1fr 1fr;
+      align-items: center;
+      gap: 16px;
+      transition: transform 0.15s ease;
+    }
+    .card:hover {
+      transform: translateY(-2px);
+    }
+    .date-badge {
+      font-weight: 700;
+      font-size: 16px;
+      letter-spacing: 0.5px;
+    }
+    .ganzhi {
+      color: var(--text-muted);
+      font-size: 13px;
+      margin-left: 6px;
+    }
+    .tag {
+      font-size: 13px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 6px;
+      display: inline-block;
+      width: fit-content;
+    }
+    .tag-red { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid #ef444433; }
+    .tag-orange { background: rgba(249, 115, 22, 0.15); color: #fb923c; border: 1px solid #f9731633; }
+    .tag-yellow { background: rgba(234, 179, 8, 0.15); color: #facc15; border: 1px solid #eab30833; }
+    .tag-green { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid #22c55e33; }
+
+    .action-col {
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .label {
+      font-weight: bold;
+      margin-right: 4px;
+    }
+    .label-yi { color: #4ade80; }
+    .label-ji { color: #f87171; }
+
+    @media (max-width: 768px) {
+      .card {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div>
+      <h2 style="margin: 0;">🧭 丙午轉折・流日攻防指南</h2>
+      <p style="margin: 4px 0 0; font-size: 13px; color: var(--text-muted);">2026/09 ~ 2027/04 週期作戰清單</p>
+    </div>
+    <!-- 串聯你的主記賬頁面 -->
+    <a href="index.html" class="back-btn">⬅️ 返回主日程與記賬</a>
+  </div>
+
+  <div class="filter-bar">
+    <button class="filter-btn active" onclick="filterTag('ALL')">全部顯示</button>
+    <button class="filter-btn" onclick="filterTag('🔴')">🔴 極致防禦</button>
+    <button class="filter-btn" onclick="filterTag('🟠')">🟠 謹言避雷</button>
+    <button class="filter-btn" onclick="filterTag('🟡')">🟡 暗度陳倉</button>
+    <button class="filter-btn" onclick="filterTag('🟢')">🟢 主動/王牌進攻</button>
+  </div>
+
+  <div class="container" id="cardContainer"></div>
+
+  <script>
+    // 完整資料結構庫
+    const strategyList = [
+      // 2026 年 9 月
+      { date: "2026/09/12", gz: "己丑", type: "🟠 謹言避雷", yi: "獨處、複習代碼、整理筆記", ji: "糾正他人、家庭聚會論政" },
+      { date: "2026/09/14", gz: "辛卯", type: "🟢 主動進攻", yi: "精修履歷、投遞頂級職位、聯繫獵頭", ji: "猶豫退縮、錯失先機" },
+      { date: "2026/09/16", gz: "癸巳", type: "🟡 暗度陳倉", yi: "提報方案、薪資底線拍板、留文字紀錄", ji: "濫好人承諾與站隊" },
+      { date: "2026/09/17", gz: "甲午", type: "🔴 極致防禦", yi: "封口閉麥、深呼吸、提早下班泡腳", ji: "情緒化談判與回嗆" },
+      { date: "2026/09/18", gz: "乙未", type: "🟢 主動進攻", yi: "梳理交接細節、確認書面紀錄、重訓塑形", ji: "粗心大意、怠惰拖延" },
+      { date: "2026/09/20", gz: "丁酉", type: "🟠 謹言避雷", yi: "聽音樂、給大腦放空、靜音手機", ji: "社群抱怨與碎嘴" },
+      { date: "2026/09/21", gz: "戊戌", type: "🟢 王牌進攻", yi: "【最強掌權日】敲定合約、樹立界限、確立威望", ji: "軟弱妥協、拱手讓人" },
+      { date: "2026/09/22", gz: "己亥", type: "🟠 謹言避雷", yi: "用「數據與排期」推搪無理需求", ji: "當面頂撞主管體制" },
+      { date: "2026/09/25", gz: "壬寅", type: "🟠 謹言避雷", yi: "寄信前重複覆核收件人、早到會場", ji: "冒進搶快與夜行" },
+      { date: "2026/09/26", gz: "癸卯", type: "🟢 主動進攻", yi: "複盤面試表現、個人專業深度研習", ji: "焦慮內耗、胡思亂想" },
+      { date: "2026/09/28", gz: "乙巳", type: "🟢 王牌進攻", yi: "【全面展現日】跨部門合作推進、展現 BA 結論", ji: "掩藏實力、過度謙遜" },
+      { date: "2026/09/29", gz: "丙午", type: "🔴 極致防禦", yi: "冷靜審視預算、低調做交付物", ji: "憤怒掀桌衝動離職" },
+      { date: "2026/09/30", gz: "丁未", type: "🟢 主動進攻", yi: "財務盤點、確立十月份儲蓄投資架構", ji: "衝動消費、非理性破財" },
+
+      // 2026 年 10 月
+      { date: "2026/10/02", gz: "己卯", type: "🟡 暗度陳倉", yi: "戴降噪耳機專注報表、暗中打磨作品集", ji: "挑刺質疑直屬長官" },
+      { date: "2026/10/03", gz: "庚戌", type: "🟢 主動進攻", yi: "梳理資產配置、下定決心斬斷消耗性人際", ji: "優柔寡斷、藕斷絲連" },
+      { date: "2026/10/08", gz: "乙卯", type: "🟢 王牌進攻", yi: "【頂級面試日】核心提案 Presentation、全英文面試", ji: "臨場怯場、邏輯混亂" },
+      { date: "2026/10/10", gz: "丁巳", type: "🟢 王牌進攻", yi: "【年度財運日】薪酬終極談判、高端社交破冰", ji: "賤賣價值、低聲下氣" },
+      { date: "2026/10/11", gz: "戊午", type: "🔴 極致防禦", yi: "居家整理、做前額頭皮放鬆按摩", ji: "家事冷戰硬碰硬" },
+      { date: "2026/10/12", gz: "己未", type: "🟡 暗度陳倉", yi: "晨會裝透明人、只回覆「收到」、默默交付", ji: "爭搶出頭直言惹禍" },
+      { date: "2026/10/15", gz: "壬戌", type: "🟢 主動進攻", yi: "梳理年終考核指標、爭取高含金量專案權限", ji: "被動等待、隨波逐流" },
+      { date: "2026/10/20", gz: "丁卯", type: "🟢 王牌進攻", yi: "公開演講、發表專業洞察、爭取高層背書", ji: "縮手縮腳、自我設限" },
+      { date: "2026/10/22", gz: "己巳", type: "🟡 暗度陳倉", yi: "書面總結進度、落實工單、務實 1-on-1", ji: "跨部門抱怨搞八卦" },
+      { date: "2026/10/23", gz: "庚午", type: "🔴 極致防禦", yi: "到點打卡下班、物理遠離是非中心", ji: "硬剛挑剔藉酒消愁" },
+      { date: "2026/10/24", gz: "辛未", type: "🟢 主動進攻", yi: "身心放鬆、溫水足浴排濕、安排私密局", ji: "消耗精力於無效社交" },
+      { date: "2026/10/27", gz: "甲戌", type: "🟢 王牌進攻", yi: "【戰略定案日】敲定新季度戰略、落實晉升/跳槽", ji: "盲目變更核心目標" },
+
+      // 2026 年 11 月
+      { date: "2026/11/01", gz: "己卯", type: "🟡 暗度陳倉", yi: "閱讀遠足、沉澱專業能力、隔絕工作訊號", ji: "社群爭辯瞎管閒事" },
+      { date: "2026/11/03", gz: "辛巳", type: "🟢 主動進攻", yi: "向上級索取資源、提出有數據支撐的申請", ji: "憑空索要、缺乏依據" },
+      { date: "2026/11/04", gz: "壬午", type: "🔴 極致防禦", yi: "喝熱薑茶暖局、早睡保養神經系統", ji: "夜間衝動決策簽約" },
+      { date: "2026/11/05", gz: "癸未", type: "🟢 主動進攻", yi: "推進合約蓋章審批、鎖定法務合規細節", ji: "輕信口頭諾言" },
+      { date: "2026/11/08", gz: "丙戌", type: "🟢 王牌進攻", yi: "【財富增長日】做出重大財務決策、購置增值設備", ji: "投機賭博、盲目跟風" },
+      { date: "2026/11/11", gz: "己亥", type: "🟠 謹言避雷", yi: "專注自修技能、按既有 SOP 交付", ji: "強出頭挑戰體制" },
+      { date: "2026/11/13", gz: "辛卯", type: "🟢 主動進攻", yi: "高難度跨部門溝通、用冷靜專業說服質疑者", ji: "情緒失控、口出惡言" },
+      { date: "2026/11/15", gz: "癸巳", type: "🟢 主動進攻", yi: "戶外曬太陽補午火、身心全面蓄能", ji: "宅家沉溺負面情緒" },
+      { date: "2026/11/16", gz: "甲午", type: "🔴 極致防禦", yi: "以柔克剛、回覆「好的我拉個排期」", ji: "受質疑頂撞急趕工" },
+      { date: "2026/11/17", gz: "乙未", type: "🟢 主動進攻", yi: "攻堅交付關鍵成果、確立不可替代地位", ji: "敷衍了事、推諉塞責" },
+      { date: "2026/11/20", gz: "戊戌", type: "🟢 王牌進攻", yi: "【霸氣控場日】果斷拒絕越界甩鍋、以威服人", ji: "當爛好人吞下委屈" },
+      { date: "2026/11/21", gz: "己丑", type: "🟠 謹言避雷", yi: "給身心排濕除寒、清淡飲食、保暖", ji: "悲觀沉溺倒苦水" },
+      { date: "2026/11/25", gz: "癸卯", type: "🟢 主動進攻", yi: "精準提出需求、爭取核心數據介面權限", ji: "羞於開口、被動挨打" },
+      { date: "2026/11/27", gz: "乙巳", type: "🟢 王牌進攻", yi: "與心儀企業 HR 敲定意向、正式發出關鍵郵件", ji: "拖泥帶水、猶豫不決" },
+      { date: "2026/11/28", gz: "丙午", type: "🔴 極致防禦", yi: "看展、戶外活動、獨處充電回血", ji: "破財洩憤網路筆戰" },
+      { date: "2026/11/29", gz: "丁未", type: "🟢 主動進攻", yi: "規劃年終假勤與調養節奏、盤點成果", ji: "焦慮未來、浪費假期" },
+
+      // 2026 年 12 月
+      { date: "2026/12/01", gz: "己巳", type: "🟡 暗度陳倉", yi: "一對一匯報多讚美流程、少談缺點、默默談利", ji: "揭穿同儕搶功辯解" },
+      { date: "2026/12/02", gz: "庚戌", type: "🟢 主動進攻", yi: "鎖定年末既得利益、催收應得獎金與款項", ji: "抹不開面子拖延催收" },
+      { date: "2026/12/07", gz: "乙卯", type: "🟢 主動進攻", yi: "用同理心與嚴密邏輯搞定棘手長官", ji: "硬碰硬對峙挑釁" },
+      { date: "2026/12/09", gz: "丁巳", type: "🟢 王牌進攻", yi: "【寒月破局日】敲定核心薪資待遇、打破職場僵局", ji: "妥協賤賣、退讓底線" },
+      { date: "2026/12/10", gz: "戊午", type: "🔴 極致防禦", yi: "極致裝傻、洗熱水澡、保養神經偏頭痛", ji: "考評對線硬碰硬" },
+      { date: "2026/12/14", gz: "壬戌", type: "🟢 主動進攻", yi: "排除外界雜音干擾、專注核心數據交付物", ji: "被同事焦慮帶偏節奏" },
+      { date: "2026/12/19", gz: "丁卯", type: "🟢 主動進攻", yi: "知己聚會充電、攝入優質高蛋白暖局", ji: "封閉內耗、熬夜傷神" },
+      { date: "2026/12/21", gz: "己卯", type: "🟡 暗度陳倉", yi: "週一閉麥聽指示、低調產出關鍵數據", ji: "開會尖銳挑批高層" },
+      { date: "2026/12/22", gz: "庚午", type: "🔴 極致防禦", yi: "冬至溫補、下班即失聯、防寒保暖", ji: "焦慮熬夜失控抓狂" },
+      { date: "2026/12/26", gz: "甲戌", type: "🟢 王牌進攻", yi: "制定 2027 年個人資產增長與職涯躍升規劃", ji: "妄自菲薄、悲觀退縮" },
+      { date: "2026/12/31", gz: "己丑", type: "🟠 謹言避雷", yi: "默默復盤年度收支、整理房間、泡腳排濕", ji: "節慶算舊帳聊感傷" },
+
+      // 2027 年 1 月
+      { date: "2027/01/02", gz: "辛巳", type: "🟢 主動進攻", yi: "制定新年減脂衝刺方案、調整飲食熱量", ji: "暴飲暴食破壞代謝" },
+      { date: "2027/01/03", gz: "壬午", type: "🔴 極致防禦", yi: "寫個人願望清單、安靜散步放鬆", ji: "自我否定沉溺得失" },
+      { date: "2027/01/07", gz: "丙戌", type: "🟢 王牌進攻", yi: "【年終落袋日】確認年終獎份額、鎖定財務收益", ji: "冒險投機、盲目加倉" },
+      { date: "2027/01/10", gz: "己未", type: "🟡 暗度陳倉", yi: "全身拉伸、做家務轉移注意力、收斂心神", ji: "鑽牛角尖死槓觀念" },
+      { date: "2027/01/12", gz: "辛卯", type: "🟢 主動進攻", yi: "面試終審答辯、將業務痛點轉化為方案", ji: "言語刻薄、賣弄技巧" },
+      { date: "2027/01/14", gz: "癸巳", type: "🟢 王牌進攻", yi: "與核心決策者非正式溝通、鎖定年後報到日", ji: "口頭隨意允諾細節" },
+      { date: "2027/01/15", gz: "甲午", type: "🔴 極致防禦", yi: "年終收尾只交付成果、絕不加個人主觀評語", ji: "酒後失言諷刺體制" },
+      { date: "2027/01/16", gz: "乙未", type: "🟢 主動進攻", yi: "確立個人生活邊界、優雅回避家族人情拉扯", ji: "介入他人因果爭端" },
+      { date: "2027/01/19", gz: "戊戌", type: "🟢 王牌進攻", yi: "【拍板定案日】做出跳槽決絕拍板、拒絕無效挽留", ji: "猶豫動搖吃回頭草" },
+      { date: "2027/01/20", gz: "己亥", type: "🟠 謹言避雷", yi: "依交接清單逐條核對、冷靜客觀公事公辦", ji: "越級告狀非議前任" },
+      { date: "2027/01/24", gz: "癸卯", type: "🟢 主動進攻", yi: "完成年度覆盤總結、構建新年度分析體系", ji: "自滿懈怠、停止精進" },
+      { date: "2027/01/26", gz: "乙巳", type: "🟢 王牌進攻", yi: "【正式簽約日】簽字確認正式 Offer Letter", ji: "拖沓耽擱、橫生枝節" },
+      { date: "2027/01/27", gz: "丙午", type: "🔴 極致防禦", yi: "落袋為安、確認年終獎與款項安全入帳", ji: "輕諾去留硬槓人事" },
+      { date: "2027/01/30", gz: "己丑", type: "🟠 謹言避雷", yi: "睡足8小時、看喜劇或研究命理玄學", ji: "勉強應酬低效飯局" },
+      { date: "2027/01/31", gz: "庚戌", type: "🟢 主動進攻", yi: "封盤休假、全面停止焦慮、沉澱身心氣場", ji: "無事生非、過度擔憂" },
+
+      // 2027 年 2 月
+      { date: "2027/02/05", gz: "乙卯", type: "🟢 王牌進攻", yi: "在開局會議中以極高專業結構奠定話語權", ji: "鋒芒過露樹敵過早" },
+      { date: "2027/02/07", gz: "丁巳", type: "🟢 王牌進攻", yi: "【春季最強進攻日】拓展高階人脈、明確新權限", ji: "固步自封、拒絕破圈" },
+      { date: "2027/02/08", gz: "戊午", type: "🔴 極致防禦", yi: "開工第一天摸魚防守、微笑拜年發呆", ji: "搶出風頭立軍令狀" },
+      { date: "2027/02/09", gz: "己未", type: "🟡 暗度陳倉", yi: "埋頭清理累積郵件、少說多聽、暗中布署", ji: "貿然進言大改架構" },
+      { date: "2027/02/12", gz: "壬戌", type: "🟢 主動進攻", yi: "敲定新專案架構、制定團隊 KPI 與里程碑", ji: "好大喜功、脫離實際" },
+      { date: "2027/02/17", gz: "丁卯", type: "🟢 王牌進攻", yi: "提交深度商業洞察報告、贏得管理層贊譽", ji: "粗製濫造急於求成" },
+      { date: "2027/02/19", gz: "己巳", type: "🟡 暗度陳倉", yi: "週五收工整理桌面、準時下班、暗中核算", ji: "休假焦慮秒回公事" },
+      { date: "2027/02/20", gz: "庚午", type: "🔴 極致防禦", yi: "戶外曬太陽補午火、做頭皮刮痧放鬆神經", ji: "聚會聊薪資辯觀念" },
+      { date: "2027/02/21", gz: "辛未", type: "🟢 主動進攻", yi: "全身肌肉深度拉伸放鬆、補充足量電解質", ji: "劇烈力竭、透支神經" },
+      { date: "2027/02/24", gz: "甲戌", type: "🟢 王牌進攻", yi: "主動接管核心關鍵模組、展現領導力潛質", ji: "畏首畏尾不敢擔責" },
+
+      // 2027 年 3 月
+      { date: "2027/03/01", gz: "己卯", type: "🟡 暗度陳倉", yi: "春招履歷安靜海投、專注自我實戰提升", ji: "洩漏跳槽離職風聲" },
+      { date: "2027/03/03", gz: "辛巳", type: "🟢 王牌進攻", yi: "【變現突破日】爭取加薪、擴大核心管轄範疇", ji: "輕易滿足現狀" },
+      { date: "2027/03/04", gz: "壬午", type: "🔴 極致防禦", yi: "調試情緒、專注在不可替代的硬核技能上", ji: "盲目攀比他人職涯" },
+      { date: "2027/03/05", gz: "癸未", type: "🟢 主動進攻", yi: "推進試用期轉正/續約流程、鎖定項目歸屬", ji: "拖拉放任、缺乏推進" },
+      { date: "2027/03/08", gz: "丙戌", type: "🟢 王牌進攻", yi: "財務投資獲利了結、採購提升專業形象單品", ji: "盲目跟風大額開銷" },
+      { date: "2027/03/11", gz: "己亥", type: "🟠 謹言避雷", yi: "面試回答注重「團隊協同與具體量化框架」", ji: "專斷掌控挑剔前人" },
+      { date: "2027/03/13", gz: "辛卯", type: "🟢 主動進攻", yi: "體態調整見證體脂 22%~24% 目標達成", ji: "節食挨餓反彈復胖" },
+      { date: "2027/03/15", gz: "癸巳", type: "🟢 王牌進攻", yi: "主動向上匯報破局性業務成果、鎖定關注", ji: "默默無聞埋沒功勞" },
+      { date: "2027/03/16", gz: "甲午", type: "🔴 極致防禦", yi: "把反駁的話吞下去、面試以溫柔堅定示人", ji: "面試傲慢針鋒相對" },
+      { date: "2027/03/17", gz: "乙未", type: "🟢 主動進攻", yi: "優化團隊工作流、引入自動化數據工具", ji: "固守低效手工作業" },
+      { date: "2027/03/20", gz: "戊戌", type: "🟢 王牌進攻", yi: "【地位奠定日】徹底確立在組織中的權威定位", ji: "自我懷疑、退縮怯懦" },
+      { date: "2027/03/21", gz: "己丑", type: "🟠 謹言避雷", yi: "春分靜心冥想、調整呼吸、放鬆前額頭皮", ji: "過度焦慮未來不定" },
+      { date: "2027/03/25", gz: "癸卯", type: "🟢 主動進攻", yi: "撰寫核心專利、方法論或業務總結報告", ji: "散漫摸魚浪費文星" },
+      { date: "2027/03/27", gz: "乙巳", type: "🟢 王牌進攻", yi: "商務走訪、結交業界頂尖前輩或獵頭夥伴", ji: "封閉內向拒絕溝通" },
+      { date: "2027/03/28", gz: "丙午", type: "🔴 極致防禦", yi: "享受春季暖陽、看輕鬆書籍給身心充電", ji: "投機投資盲簽長約" },
+      { date: "2027/03/31", gz: "己巳", type: "🟡 暗度陳倉", yi: "季末結算只講 Fact（事實），暗中鎖定績效", ji: "會上甩鍋具體同儕" },
+
+      // 2027 年 4 月
+      { date: "2027/04/01", gz: "庚戌", type: "🟢 主動進攻", yi: "盤點首季現金流、確認財務健康度持續向好", ji: "盲目擴張財務槓桿" },
+      { date: "2027/04/06", gz: "乙卯", type: "🟢 王牌進攻", yi: "代表團隊對外發布核心數據成果、樹立品牌", ji: "推脫登台露臉良機" },
+      { date: "2027/04/08", gz: "丁巳", type: "🟢 王牌進攻", yi: "【年度收割日】收穫重大項目紅利、提升職權溢價", ji: "故作姿態不敢要價" },
+      { date: "2027/04/09", gz: "戊午", type: "🔴 極致防禦", yi: "週末前安全著陸、任何急件一律推至下週", ji: "放假前接壓怒失態" },
+      { date: "2027/04/10", gz: "己未", type: "🟡 暗度陳倉", yi: "走進大自然接地氣排濕、整理心態", ji: "私域尖刻品評他人" },
+      { date: "2027/04/13", gz: "壬戌", type: "🟢 主動進攻", yi: "確立年度下半場戰略、組建專屬協同網絡", ji: "單打獨鬥抗拒合作" },
+      { date: "2027/04/18", gz: "丁卯", type: "🟢 王牌進攻", yi: "生理指標完全達標、享受身心勻稱緊緻感", ji: "苛求完美過度自責" },
+      { date: "2027/04/20", gz: "己巳", type: "🟡 暗度陳倉", yi: "梳理第二季 KPI，用明確 Milestone 說話", ji: "道德綁架工作夥伴" },
+      { date: "2027/04/21", gz: "庚午", type: "🔴 極致防禦", yi: "啟動「灰石防禦法」、耳根清淨準時早退", ji: "貿然簽約對峙主管" },
+      { date: "2027/04/22", gz: "辛未", type: "🟢 主動進攻", yi: "鞏固現有勝利果實、完善知識庫存檔", ji: "虎頭蛇尾鬆懈爛尾" },
+      { date: "2027/04/25", gz: "甲戌", type: "🟢 王牌進攻", yi: "【大圓滿日】慶祝職涯躍升與體態塑形大獲全勝", ji: "悲觀回望過去創傷" },
+      { date: "2027/04/30", gz: "己丑", type: "🟠 謹言避雷", yi: "迎接勞動連假、清空桌面與行事曆、放假！", ji: "假前透支捲入是非" }
+    ];
+
+    function getTagClass(type) {
+      if (type.includes("🔴")) return "tag-red";
+      if (type.includes("🟠")) return "tag-orange";
+      if (type.includes("🟡")) return "tag-yellow";
+      return "tag-green";
+    }
+
+    function renderList(list) {
+      const container = document.getElementById("cardContainer");
+      container.innerHTML = list.map(item => `
+        <div class="card">
+          <div>
+            <span class="date-badge">${item.date.slice(5)}</span>
+            <span class="ganzhi">${item.gz}</span>
+          </div>
+          <div>
+            <span class="tag ${getTagClass(item.type)}">${item.type}</span>
+          </div>
+          <div class="action-col">
+            <span class="label label-yi">【宜】</span>${item.yi}
+          </div>
+          <div class="action-col">
+            <span class="label label-ji">【忌】</span>${item.ji}
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function filterTag(filter) {
+      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+
+      if (filter === 'ALL') {
+        renderList(strategyList);
+      } else {
+        const filtered = strategyList.filter(item => item.type.includes(filter));
+        renderList(filtered);
+      }
+    }
+
+    // 初始化渲染全部
+    renderList(strategyList);
+  </script>
+</body>
+</html>
