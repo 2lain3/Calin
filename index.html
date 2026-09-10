@@ -24,6 +24,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- SortableJS -->
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+        <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -151,62 +154,93 @@
             </section>
 
             <!-- 模組 3: 財務概覽 (module-finance) -->
-            <section id="module-finance" data-id="module-finance" class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700 p-4 transition-colors">
-                <div class="flex items-center justify-between mb-3 border-b border-slate-100 dark:border-slate-700/60 pb-2">
-                    <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-grip-vertical text-slate-300 dark:text-slate-600 drag-handle"></i>
-                        <h3 class="font-bold text-slate-800 dark:text-slate-100 text-sm sm:text-base flex items-center gap-2">
-                            <i class="fa-solid fa-wallet text-emerald-500"></i> 本月財務概覽
-                        </h3>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <button onclick="openSettingsModal()" class="text-xs px-2.5 py-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-lg hover:bg-emerald-100 transition font-medium">
-                            <i class="fa-solid fa-sliders"></i> 設定預算 / Limit
-                        </button>
-                    </div>
+        <section id="module-finance" class="bg-white dark:bg-slate-800 p-4 sm:p-5 rounded-3xl shadow-sm border border-slate-200/80 dark:border-slate-700 transition-colors">
+            <!-- 標題欄 -->
+            <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-100 dark:border-slate-700/60">
+                <div class="flex items-center gap-2 drag-handle">
+                    <i class="fa-solid fa-grip-vertical text-slate-300 dark:text-slate-600"></i>
+                    <h3 class="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2 text-base">
+                        <i class="fa-solid fa-wallet text-emerald-500"></i> 本月財務概覽
+                    </h3>
                 </div>
+                <button onclick="openSettingsModal()" class="text-xs px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-blue-50 hover:text-blue-600 transition flex items-center gap-1 font-medium">
+                    <i class="fa-solid fa-sliders text-[10px]"></i> 設定預算 / Limit
+                </button>
+            </div>
 
-                <!-- 財務數字 Summary 卡片 -->
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-                    <div class="bg-slate-50 dark:bg-slate-700/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700">
-                        <span class="text-[11px] text-slate-400 block font-medium">本月總收入</span>
-                        <span id="financeTotalIncome" class="text-base sm:text-lg font-bold text-emerald-500">$0.00</span>
-                    </div>
-                    <div class="bg-slate-50 dark:bg-slate-700/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700">
-                        <span class="text-[11px] text-slate-400 block font-medium">本月總開支</span>
-                        <span id="financeTotalExpense" class="text-base sm:text-lg font-bold text-rose-500">$0.00</span>
-                    </div>
-                    <div class="bg-slate-50 dark:bg-slate-700/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700">
-                        <span class="text-[11px] text-slate-400 block font-medium">本月預算總容量</span>
-                        <span id="financeTotalBudget" class="text-base sm:text-lg font-bold text-blue-500">$0.00</span>
-                    </div>
-                    <div class="bg-slate-50 dark:bg-slate-700/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700">
-                        <span class="text-[11px] text-slate-400 block font-medium">預算剩餘額度</span>
-                        <span id="financeBudgetRemaining" class="text-base sm:text-lg font-bold text-slate-700 dark:text-slate-200">$0.00</span>
-                    </div>
+            <!-- 頂部四大數字看板 -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-4">
+                <div class="p-3 bg-emerald-50/70 dark:bg-emerald-950/20 rounded-2xl border border-emerald-100 dark:border-emerald-900/30">
+                    <div class="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">本月總收入</div>
+                    <div id="financeTotalIncome" class="text-base sm:text-lg font-bold text-emerald-600 dark:text-emerald-400 mt-0.5">$0.00</div>
                 </div>
+                <div class="p-3 bg-rose-50/70 dark:bg-rose-950/20 rounded-2xl border border-rose-100 dark:border-rose-900/30">
+                    <div class="text-[11px] text-rose-600 dark:text-rose-400 font-medium">本月總開支</div>
+                    <div id="financeTotalExpense" class="text-base sm:text-lg font-bold text-rose-600 dark:text-rose-400 mt-0.5">$0.00</div>
+                </div>
+                <div class="p-3 bg-blue-50/70 dark:bg-blue-950/20 rounded-2xl border border-blue-100 dark:border-blue-900/30">
+                    <div class="text-[11px] text-blue-600 dark:text-blue-400 font-medium">本月預算總容量</div>
+                    <div id="financeTotalBudget" class="text-base sm:text-lg font-bold text-blue-600 dark:text-blue-400 mt-0.5">$0.00</div>
+                </div>
+                <div class="p-3 bg-indigo-50/70 dark:bg-indigo-950/20 rounded-2xl border border-indigo-100 dark:border-indigo-900/30">
+                    <div class="text-[11px] text-indigo-600 dark:text-indigo-400 font-medium">預算剩餘額度</div>
+                    <div id="financeBudgetRemaining" class="text-base sm:text-lg font-bold text-indigo-600 dark:text-indigo-400 mt-0.5">$0.00</div>
+                </div>
+            </div>
 
-                <!-- 分類預算使用進度 -->
-                <div class="mb-4">
-                    <div class="flex items-center justify-between mb-2">
-                        <h4 class="text-xs font-bold text-slate-500 dark:text-slate-400">📊 分類預算使用狀況</h4>
-                        <span id="budgetOverallStatus" class="text-[11px] font-semibold text-emerald-500">正常</span>
+            <!-- 開支佔比圓餅圖看板 -->
+            <div class="mb-4 p-3.5 bg-slate-50 dark:bg-slate-700/30 rounded-2xl border border-slate-100 dark:border-slate-700/60">
+                <div class="text-xs font-semibold text-slate-700 dark:text-slate-200 mb-2 flex items-center justify-between">
+                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-chart-pie text-indigo-500"></i> 本月開支分佈</span>
+                    <span id="chartTotalBadge" class="text-[11px] font-normal text-slate-400">總計 $0</span>
+                </div>
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <div class="relative w-36 h-36 flex-shrink-0 flex items-center justify-center">
+                        <canvas id="financePieChart"></canvas>
+                        <div id="pieChartEmpty" class="hidden absolute inset-0 flex items-center justify-center text-[11px] text-slate-400 text-center px-2">
+                            尚無開支
+                        </div>
                     </div>
-                    <div id="categorySpendingContainer" class="space-y-2.5">
-                        <!-- 動態生成分類進度條 -->
+                    <!-- 圓餅圖圖例排行榜 -->
+                    <div id="pieChartLegend" class="w-full grid grid-cols-2 gap-1.5 text-xs">
+                        <!-- 動態注入 -->
                     </div>
                 </div>
+            </div>
 
-                <!-- 卡片/帳戶 簽賬與回贈門檻進度 -->
-                <div>
-                    <div class="flex items-center justify-between mb-2">
-                        <h4 class="text-xs font-bold text-slate-500 dark:text-slate-400">💳 卡片及帳戶簽賬進度 (Limit)</h4>
-                    </div>
-                    <div id="accountsSpendingContainer" class="space-y-2.5">
-                        <!-- 動態生成帳戶進度條 -->
+            <!-- 可摺疊區塊 1：分類預算使用狀況 -->
+            <div class="mb-3">
+                <button type="button" onclick="toggleCollapse('catBudgetWrapper', 'catChevron')" class="w-full flex items-center justify-between p-2 rounded-xl bg-slate-50 hover:bg-slate-100 dark:bg-slate-700/40 dark:hover:bg-slate-700 transition text-left">
+                    <span class="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+                        <i class="fa-solid fa-chart-simple text-blue-500"></i> 分類預算使用狀況
+                        <span id="catCountBadge" class="text-[10px] font-normal px-1.5 py-0.2 rounded-full bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-300">0 項</span>
+                    </span>
+                    <i id="catChevron" class="fa-solid fa-chevron-up text-xs text-slate-400 transition-transform duration-200"></i>
+                </button>
+                <div id="catBudgetWrapper" class="mt-2.5 transition-all duration-300">
+                    <div id="categorySpendingContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <!-- 動態注入小卡片 -->
                     </div>
                 </div>
-            </section>
+            </div>
+
+            <!-- 可摺疊區塊 2：卡片及帳戶簽賬進度 (Limit) -->
+            <div>
+                <button type="button" onclick="toggleCollapse('accLimitWrapper', 'accChevron')" class="w-full flex items-center justify-between p-2 rounded-xl bg-slate-50 hover:bg-slate-100 dark:bg-slate-700/40 dark:hover:bg-slate-700 transition text-left">
+                    <span class="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+                        <i class="fa-solid fa-credit-card text-purple-500"></i> 卡片及帳戶簽賬進度 (Limit)
+                        <span id="accCountBadge" class="text-[10px] font-normal px-1.5 py-0.2 rounded-full bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-300">0 項</span>
+                    </span>
+                    <i id="accChevron" class="fa-solid fa-chevron-up text-xs text-slate-400 transition-transform duration-200"></i>
+                </button>
+                <div id="accLimitWrapper" class="mt-2.5 transition-all duration-300">
+                    <div id="accountsSpendingContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <!-- 動態注入小卡片 -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
 
             <!-- 模組 4: 待辦事項 (module-todos) -->
             <section id="module-todos" data-id="module-todos" class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700 p-4 transition-colors">
@@ -1099,33 +1133,50 @@
             openDayModal(formatDateKey(new Date()));
         }
 
-        // ==================== 9. 財務總覽模組 (Finance Module) ====================
+              // 財務圓餅圖全域實例
+        let expenseChartInstance = null;
+
+        // 摺疊與展開切換
+        function toggleCollapse(wrapperId, chevronId) {
+            const wrapper = document.getElementById(wrapperId);
+            const chevron = document.getElementById(chevronId);
+            if (!wrapper) return;
+            if (wrapper.classList.contains('hidden')) {
+                wrapper.classList.remove('hidden');
+                if (chevron) chevron.classList.remove('rotate-180');
+            } else {
+                wrapper.classList.add('hidden');
+                if (chevron) chevron.classList.add('rotate-180');
+            }
+        }
+
+        // ==================== 9. 財務概覽模組 (Finance Module) ====================
         function renderFinanceModule() {
-            const year = currentCalendarDate.getFullYear();
-            const monthStr = String(currentCalendarDate.getMonth() + 1).padStart(2, '0');
-            const currentPrefix = `${year}-${monthStr}`;
+            const currentYear = currentDate.getFullYear();
+            const currentMonth = currentDate.getMonth();
+
+            const currentMonthExpenses = financialData.filter(item => {
+                const d = new Date(item.date);
+                return d.getFullYear() === currentYear && d.getMonth() === currentMonth;
+            });
 
             let totalInc = 0;
             let totalExp = 0;
             const categorySpentMap = {};
             const accountSpentMap = {};
 
-            // 統計當月數據
-            financialData.forEach(item => {
-                if ((item.date || '').startsWith(currentPrefix)) {
-                    const amt = Number(item.amount || 0);
-                    if (item.type === 'income') {
-                        totalInc += amt;
-                    } else {
-                        totalExp += amt;
-                        categorySpentMap[item.category] = (categorySpentMap[item.category] || 0) + amt;
-                        accountSpentMap[item.account] = (accountSpentMap[item.account] || 0) + amt;
-                    }
+            currentMonthExpenses.forEach(item => {
+                const amount = Number(item.amount) || 0;
+                if (item.type === 'income') {
+                    totalInc += amount;
+                } else {
+                    totalExp += amount;
+                    categorySpentMap[item.category] = (categorySpentMap[item.category] || 0) + amount;
+                    accountSpentMap[item.account] = (accountSpentMap[item.account] || 0) + amount;
                 }
             });
 
-            // 計算總預算
-            const totalBudget = appConfig.expenseCategories.reduce((acc, cur) => acc + Number(cur.budget || 0), 0);
+            const totalBudget = (appConfig.expenseCategories || []).reduce((sum, c) => sum + (Number(c.budget) || 0), 0);
             const remainingBudget = totalBudget - totalExp;
 
             document.getElementById('financeTotalIncome').textContent = `$${totalInc.toFixed(2)}`;
@@ -1136,56 +1187,154 @@
             remEl.textContent = `$${remainingBudget.toFixed(2)}`;
             remEl.className = `text-base sm:text-lg font-bold ${remainingBudget >= 0 ? 'text-emerald-500' : 'text-rose-500'}`;
 
-            // 分類預算進度條渲染
+            // 更新項目數量 Badge
+            const catBadge = document.getElementById('catCountBadge');
+            if (catBadge) catBadge.textContent = `${(appConfig.expenseCategories || []).length} 項`;
+            const accBadge = document.getElementById('accCountBadge');
+            if (accBadge) accBadge.textContent = `${(appConfig.accounts || []).length} 項`;
+
+            // 分類預算小格子網格渲染 (Grid 小卡片)
             const catContainer = document.getElementById('categorySpendingContainer');
             catContainer.innerHTML = '';
-            appConfig.expenseCategories.forEach(cat => {
+            (appConfig.expenseCategories || []).forEach(cat => {
                 const spent = categorySpentMap[cat.name] || 0;
                 const budget = Number(cat.budget || 0);
                 const percent = budget > 0 ? Math.min(Math.round((spent / budget) * 100), 100) : 0;
                 const isOver = spent > budget && budget > 0;
 
-                const row = document.createElement('div');
-                row.className = 'p-2 rounded-xl bg-slate-50 dark:bg-slate-700/30 border border-slate-100 dark:border-slate-700/60';
-                row.innerHTML = `
-                    <div class="flex justify-between text-xs mb-1">
-                        <span class="font-medium text-slate-700 dark:text-slate-200">${cat.name}</span>
-                        <span class="text-[11px] ${isOver ? 'text-rose-500 font-bold' : 'text-slate-400'}">
-                            $${spent.toFixed(0)} / $${budget.toFixed(0)} (${percent}%)
+                const card = document.createElement('div');
+                card.className = 'p-2.5 rounded-xl bg-slate-50 dark:bg-slate-700/40 border border-slate-100 dark:border-slate-700/60 flex flex-col justify-between hover:border-slate-200 transition';
+                card.innerHTML = `
+                    <div class="flex justify-between items-center text-xs mb-1.5">
+                        <span class="font-semibold text-slate-700 dark:text-slate-200 truncate max-w-[110px]">${cat.name}</span>
+                        <span class="text-[11px] font-medium ${isOver ? 'text-rose-500 font-bold' : 'text-slate-500 dark:text-slate-400'}">
+                            $${spent.toFixed(0)} / <span class="opacity-75">$${budget.toFixed(0)}</span>
                         </span>
                     </div>
-                    <div class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                        <div class="h-full rounded-full transition-all duration-300 ${isOver ? 'bg-rose-500' : percent > 85 ? 'bg-amber-500' : 'bg-blue-500'}" style="width: ${percent}%"></div>
+                    <div class="flex items-center gap-2">
+                        <div class="flex-1 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                            <div class="h-full rounded-full transition-all duration-300 ${isOver ? 'bg-rose-500' : percent > 85 ? 'bg-amber-500' : 'bg-blue-500'}" style="width: ${percent}%"></div>
+                        </div>
+                        <span class="text-[10px] w-7 text-right font-mono text-slate-400">${percent}%</span>
                     </div>
                 `;
-                catContainer.appendChild(row);
+                catContainer.appendChild(card);
             });
 
-            // 帳戶簽賬 Limit 進度條渲染
+            // 帳戶簽賬 Limit 小格子網格渲染 (Grid 小卡片)
             const accContainer = document.getElementById('accountsSpendingContainer');
             accContainer.innerHTML = '';
-            appConfig.accounts.forEach(acc => {
+            (appConfig.accounts || []).forEach(acc => {
                 const spent = accountSpentMap[acc.name] || 0;
                 const limit = Number(acc.limit || 0);
                 const percent = limit > 0 ? Math.min(Math.round((spent / limit) * 100), 100) : 0;
                 const isOver = spent >= limit && limit > 0;
 
-                const row = document.createElement('div');
-                row.className = 'p-2 rounded-xl bg-slate-50 dark:bg-slate-700/30 border border-slate-100 dark:border-slate-700/60';
-                row.innerHTML = `
-                    <div class="flex justify-between text-xs mb-1">
-                        <span class="font-medium text-slate-700 dark:text-slate-200">${acc.name}</span>
-                        <span class="text-[11px] ${isOver ? 'text-emerald-600 dark:text-emerald-400 font-bold' : 'text-slate-400'}">
-                            $${spent.toFixed(0)} / $${limit.toFixed(0)} (${percent}%)
+                const card = document.createElement('div');
+                card.className = 'p-2.5 rounded-xl bg-slate-50 dark:bg-slate-700/40 border border-slate-100 dark:border-slate-700/60 flex flex-col justify-between hover:border-slate-200 transition';
+                card.innerHTML = `
+                    <div class="flex justify-between items-center text-xs mb-1.5">
+                        <span class="font-semibold text-slate-700 dark:text-slate-200 truncate max-w-[110px]">${acc.name}</span>
+                        <span class="text-[11px] font-medium ${isOver ? 'text-emerald-600 dark:text-emerald-400 font-bold' : 'text-slate-500 dark:text-slate-400'}">
+                            $${spent.toFixed(0)} / <span class="opacity-75">$${limit.toFixed(0)}</span>
                         </span>
                     </div>
-                    <div class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                        <div class="h-full rounded-full transition-all duration-300 ${isOver ? 'bg-emerald-500' : 'bg-indigo-500'}" style="width: ${percent}%"></div>
+                    <div class="flex items-center gap-2">
+                        <div class="flex-1 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                            <div class="h-full rounded-full transition-all duration-300 ${isOver ? 'bg-emerald-500' : 'bg-purple-500'}" style="width: ${percent}%"></div>
+                        </div>
+                        <span class="text-[10px] w-7 text-right font-mono text-slate-400">${percent}%</span>
                     </div>
                 `;
-                accContainer.appendChild(row);
+                accContainer.appendChild(card);
             });
+
+            // 渲染圓餅圖
+            renderExpensePieChart(categorySpentMap, totalExp);
         }
+
+        // 繪製或更新開支圓餅圖
+        function renderExpensePieChart(spentMap, totalExp) {
+            const canvas = document.getElementById('financePieChart');
+            const emptyEl = document.getElementById('pieChartEmpty');
+            const legendEl = document.getElementById('pieChartLegend');
+            const badgeEl = document.getElementById('chartTotalBadge');
+
+            if (badgeEl) badgeEl.textContent = `總計 $${totalExp.toFixed(2)}`;
+
+            const labels = Object.keys(spentMap).filter(cat => spentMap[cat] > 0);
+            const dataValues = labels.map(cat => spentMap[cat]);
+
+            // 若本月無支出
+            if (totalExp === 0 || labels.length === 0) {
+                if (expenseChartInstance) {
+                    expenseChartInstance.destroy();
+                    expenseChartInstance = null;
+                }
+                if (canvas) canvas.classList.add('opacity-0');
+                if (emptyEl) emptyEl.classList.remove('hidden');
+                if (legendEl) legendEl.innerHTML = '<div class="col-span-2 text-center text-slate-400 text-[11px] py-4">暫無開支數據</div>';
+                return;
+            }
+
+            if (emptyEl) emptyEl.classList.add('hidden');
+            if (canvas) canvas.classList.remove('opacity-0');
+
+            const colorPalette = [
+                '#3B82F6', '#10B981', '#F59E0B', '#EF4444', 
+                '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16', 
+                '#F97316', '#6366F1', '#14B8A6'
+            ];
+
+            if (expenseChartInstance) {
+                expenseChartInstance.destroy();
+            }
+
+            expenseChartInstance = new Chart(canvas, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: dataValues,
+                        backgroundColor: colorPalette.slice(0, labels.length),
+                        borderWidth: 2,
+                        borderColor: document.documentElement.classList.contains('dark') ? '#1E293B' : '#FFFFFF'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '65%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => ` ${ctx.label}: $${ctx.raw.toFixed(2)} (${Math.round(ctx.raw / totalExp * 100)}%)`
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 渲染圓餅圖旁的圖例排行榜
+            if (legendEl) {
+                legendEl.innerHTML = labels.map((cat, idx) => {
+                    const val = spentMap[cat];
+                    const pct = Math.round((val / totalExp) * 100);
+                    const color = colorPalette[idx % colorPalette.length];
+                    return `
+                        <div class="flex items-center justify-between p-1.5 rounded-lg bg-white dark:bg-slate-800/80 border border-slate-100 dark:border-slate-700/50">
+                            <div class="flex items-center gap-1.5 truncate">
+                                <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background-color: ${color}"></span>
+                                <span class="text-slate-700 dark:text-slate-300 truncate">${cat}</span>
+                            </div>
+                            <span class="font-bold text-slate-900 dark:text-slate-100 ml-1 flex-shrink-0">${pct}%</span>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
 
         // ==================== 10. 待辦事項模組 (Todos Module) ====================
         function renderTodosModule() {
