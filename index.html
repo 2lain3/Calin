@@ -1154,13 +1154,19 @@
         }
 
         // ==================== 9. 財務概覽模組 (Finance Module) ====================
+               // ==================== 9. 財務概覽模組 (Finance Module) ====================
         function renderFinanceModule() {
-            const currentYear = currentDate.getFullYear();
-            const currentMonth = currentDate.getMonth();
+            // 修正 1：統一使用 currentCalendarDate，杜絕 ReferenceError
+            const calDate = currentCalendarDate || new Date();
+            const currentYear = calDate.getFullYear();
+            const currentMonth = calDate.getMonth(); // 0 - 11
+            const currentYearMonthStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
 
+            // 修正 2：改用字串前綴比對 (YYYY-MM)，避免 new Date 時區跨月跑位問題
             const currentMonthExpenses = financialData.filter(item => {
-                const d = new Date(item.date);
-                return d.getFullYear() === currentYear && d.getMonth() === currentMonth;
+                if (!item || !item.date) return false;
+                const dStr = item.date.split('T')[0];
+                return dStr.startsWith(currentYearMonthStr);
             });
 
             let totalInc = 0;
@@ -1174,21 +1180,29 @@
                     totalInc += amount;
                 } else {
                     totalExp += amount;
-                    categorySpentMap[item.category] = (categorySpentMap[item.category] || 0) + amount;
-                    accountSpentMap[item.account] = (accountSpentMap[item.account] || 0) + amount;
+                    const cat = item.category || '其他支出';
+                    const acc = item.account || '未指定帳戶';
+                    categorySpentMap[cat] = (categorySpentMap[cat] || 0) + amount;
+                    accountSpentMap[acc] = (accountSpentMap[acc] || 0) + amount;
                 }
             });
 
             const totalBudget = (appConfig.expenseCategories || []).reduce((sum, c) => sum + (Number(c.budget) || 0), 0);
             const remainingBudget = totalBudget - totalExp;
 
-            document.getElementById('financeTotalIncome').textContent = `$${totalInc.toFixed(2)}`;
-            document.getElementById('financeTotalExpense').textContent = `$${totalExp.toFixed(2)}`;
-            document.getElementById('financeTotalBudget').textContent = `$${totalBudget.toFixed(2)}`;
-            
+            // 更新頂部總覽金額
+            const incEl = document.getElementById('financeTotalIncome');
+            const expEl = document.getElementById('financeTotalExpense');
+            const bgtEl = document.getElementById('financeTotalBudget');
             const remEl = document.getElementById('financeBudgetRemaining');
-            remEl.textContent = `$${remainingBudget.toFixed(2)}`;
-            remEl.className = `text-base sm:text-lg font-bold ${remainingBudget >= 0 ? 'text-emerald-500' : 'text-rose-500'}`;
+
+            if (incEl) incEl.textContent = `$${totalInc.toFixed(2)}`;
+            if (expEl) expEl.textContent = `$${totalExp.toFixed(2)}`;
+            if (bgtEl) bgtEl.textContent = `$${totalBudget.toFixed(2)}`;
+            if (remEl) {
+                remEl.textContent = `$${remainingBudget.toFixed(2)}`;
+                remEl.className = `text-base sm:text-lg font-bold ${remainingBudget >= 0 ? 'text-emerald-500' : 'text-rose-500'}`;
+            }
 
             // 更新項目數量 Badge
             const catBadge = document.getElementById('catCountBadge');
@@ -1198,63 +1212,68 @@
 
             // 分類預算小格子網格渲染 (Grid 小卡片)
             const catContainer = document.getElementById('categorySpendingContainer');
-            catContainer.innerHTML = '';
-            (appConfig.expenseCategories || []).forEach(cat => {
-                const spent = categorySpentMap[cat.name] || 0;
-                const budget = Number(cat.budget || 0);
-                const percent = budget > 0 ? Math.min(Math.round((spent / budget) * 100), 100) : 0;
-                const isOver = spent > budget && budget > 0;
+            if (catContainer) {
+                catContainer.innerHTML = '';
+                (appConfig.expenseCategories || []).forEach(cat => {
+                    const spent = categorySpentMap[cat.name] || 0;
+                    const budget = Number(cat.budget || 0);
+                    const percent = budget > 0 ? Math.min(Math.round((spent / budget) * 100), 100) : 0;
+                    const isOver = spent > budget && budget > 0;
 
-                const card = document.createElement('div');
-                card.className = 'p-2.5 rounded-xl bg-slate-50 dark:bg-slate-700/40 border border-slate-100 dark:border-slate-700/60 flex flex-col justify-between hover:border-slate-200 transition';
-                card.innerHTML = `
-                    <div class="flex justify-between items-center text-xs mb-1.5">
-                        <span class="font-semibold text-slate-700 dark:text-slate-200 truncate max-w-[110px]">${cat.name}</span>
-                        <span class="text-[11px] font-medium ${isOver ? 'text-rose-500 font-bold' : 'text-slate-500 dark:text-slate-400'}">
-                            $${spent.toFixed(0)} / <span class="opacity-75">$${budget.toFixed(0)}</span>
-                        </span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <div class="flex-1 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                            <div class="h-full rounded-full transition-all duration-300 ${isOver ? 'bg-rose-500' : percent > 85 ? 'bg-amber-500' : 'bg-blue-500'}" style="width: ${percent}%"></div>
+                    const card = document.createElement('div');
+                    card.className = 'p-2.5 rounded-xl bg-slate-50 dark:bg-slate-700/40 border border-slate-100 dark:border-slate-700/60 flex flex-col justify-between hover:border-slate-200 transition';
+                    card.innerHTML = `
+                        <div class="flex justify-between items-center text-xs mb-1.5">
+                            <span class="font-semibold text-slate-700 dark:text-slate-200 truncate max-w-[110px]">${cat.name}</span>
+                            <span class="text-[11px] font-medium ${isOver ? 'text-rose-500 font-bold' : 'text-slate-500 dark:text-slate-400'}">
+                                $${spent.toFixed(0)} / <span class="opacity-75">$${budget.toFixed(0)}</span>
+                            </span>
                         </div>
-                        <span class="text-[10px] w-7 text-right font-mono text-slate-400">${percent}%</span>
-                    </div>
-                `;
-                catContainer.appendChild(card);
-            });
+                        <div class="flex items-center gap-2">
+                            <div class="flex-1 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                                <div class="h-full rounded-full transition-all duration-300 ${isOver ? 'bg-rose-500' : percent > 85 ? 'bg-amber-500' : 'bg-blue-500'}" style="width: ${percent}%"></div>
+                            </div>
+                            <span class="text-[10px] w-7 text-right font-mono text-slate-400">${percent}%</span>
+                        </div>
+                    `;
+                    catContainer.appendChild(card);
+                });
+            }
 
             // 帳戶簽賬 Limit 小格子網格渲染 (Grid 小卡片)
             const accContainer = document.getElementById('accountsSpendingContainer');
-            accContainer.innerHTML = '';
-            (appConfig.accounts || []).forEach(acc => {
-                const spent = accountSpentMap[acc.name] || 0;
-                const limit = Number(acc.limit || 0);
-                const percent = limit > 0 ? Math.min(Math.round((spent / limit) * 100), 100) : 0;
-                const isOver = spent >= limit && limit > 0;
+            if (accContainer) {
+                accContainer.innerHTML = '';
+                (appConfig.accounts || []).forEach(acc => {
+                    const spent = accountSpentMap[acc.name] || 0;
+                    const limit = Number(acc.limit || 0);
+                    const percent = limit > 0 ? Math.min(Math.round((spent / limit) * 100), 100) : 0;
+                    const isOver = spent >= limit && limit > 0;
 
-                const card = document.createElement('div');
-                card.className = 'p-2.5 rounded-xl bg-slate-50 dark:bg-slate-700/40 border border-slate-100 dark:border-slate-700/60 flex flex-col justify-between hover:border-slate-200 transition';
-                card.innerHTML = `
-                    <div class="flex justify-between items-center text-xs mb-1.5">
-                        <span class="font-semibold text-slate-700 dark:text-slate-200 truncate max-w-[110px]">${acc.name}</span>
-                        <span class="text-[11px] font-medium ${isOver ? 'text-emerald-600 dark:text-emerald-400 font-bold' : 'text-slate-500 dark:text-slate-400'}">
-                            $${spent.toFixed(0)} / <span class="opacity-75">$${limit.toFixed(0)}</span>
-                        </span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <div class="flex-1 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                            <div class="h-full rounded-full transition-all duration-300 ${isOver ? 'bg-emerald-500' : 'bg-purple-500'}" style="width: ${percent}%"></div>
+                    const card = document.createElement('div');
+                    card.className = 'p-2.5 rounded-xl bg-slate-50 dark:bg-slate-700/40 border border-slate-100 dark:border-slate-700/60 flex flex-col justify-between hover:border-slate-200 transition';
+                    card.innerHTML = `
+                        <div class="flex justify-between items-center text-xs mb-1.5">
+                            <span class="font-semibold text-slate-700 dark:text-slate-200 truncate max-w-[110px]">${acc.name}</span>
+                            <span class="text-[11px] font-medium ${isOver ? 'text-emerald-600 dark:text-emerald-400 font-bold' : 'text-slate-500 dark:text-slate-400'}">
+                                $${spent.toFixed(0)} / <span class="opacity-75">$${limit.toFixed(0)}</span>
+                            </span>
                         </div>
-                        <span class="text-[10px] w-7 text-right font-mono text-slate-400">${percent}%</span>
-                    </div>
-                `;
-                accContainer.appendChild(card);
-            });
+                        <div class="flex items-center gap-2">
+                            <div class="flex-1 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                                <div class="h-full rounded-full transition-all duration-300 ${isOver ? 'bg-emerald-500' : 'bg-purple-500'}" style="width: ${percent}%"></div>
+                            </div>
+                            <span class="text-[10px] w-7 text-right font-mono text-slate-400">${percent}%</span>
+                        </div>
+                    `;
+                    accContainer.appendChild(card);
+                });
+            }
 
             // 渲染圓餅圖
             renderExpensePieChart(categorySpentMap, totalExp);
         }
+
 
         // 繪製或更新開支圓餅圖
         function renderExpensePieChart(spentMap, totalExp) {
