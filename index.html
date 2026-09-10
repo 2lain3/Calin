@@ -577,7 +577,7 @@
 
         let currentCalendarDate = new Date();
         let activeModalDateStr = '';
-        let currentEntryType = 'expense';
+        let currentEntryType = 'expenses';
 
         let eventsData = [];
         let financialData = [];
@@ -769,10 +769,11 @@
 
             // 記帳摘要
             const dayEntries = financialData.filter(e => (e.date || '').split('T')[0] === dateStr);
-            if (dayEntries.length > 0) {
+                      if (dayEntries.length > 0) {
                 let dayExp = 0;
                 dayEntries.forEach(item => {
-                    if (item.type === 'expense') dayExp += Number(item.amount || 0);
+                    const t = (item.type || '').trim().toLowerCase();
+                    if (t.startsWith('exp')) dayExp += Number(item.amount || 0); // 👈 容錯判定
                 });
                 if (dayExp > 0) {
                     const fnBadge = document.createElement('div');
@@ -821,7 +822,7 @@
             const lunar = getLunarDateInfo(d);
             document.getElementById('modalDateLunar').textContent = lunar.text ? `農曆 ${lunar.text}` : '';
 
-            setEntryType('expense');
+            setEntryType('expenses');
             populateModalDropdowns();
             renderModalDayEvents();
             renderModalDayEntries();
@@ -835,12 +836,15 @@
             document.getElementById('dayDetailModal').classList.add('hidden');
         }
 
-        function setEntryType(type) {
-            currentEntryType = type;
+                function setEntryType(type) {
+            // 自動標準化為複數 (帶 S)
+            const clean = (type || '').trim().toLowerCase();
+            currentEntryType = clean.startsWith('inc') ? 'incomes' : 'expenses';
+            
             const btnExp = document.getElementById('btnTypeExpense');
             const btnInc = document.getElementById('btnTypeIncome');
 
-            if (type === 'expense') {
+            if (currentEntryType === 'expenses') {
                 btnExp.className = 'px-2.5 py-0.5 rounded-md font-medium bg-rose-500 text-white transition';
                 btnInc.className = 'px-2.5 py-0.5 rounded-md font-medium text-slate-600 dark:text-slate-300 transition';
             } else {
@@ -867,7 +871,7 @@
         function populateModalCategoryDropdown() {
             const catSelect = document.getElementById('entryCategory');
             catSelect.innerHTML = '';
-            const list = currentEntryType === 'expense' 
+                        const list = currentEntryType.startsWith('exp')
                 ? appConfig.expenseCategories.map(c => c.name) 
                 : DEFAULT_INCOME_CATEGORIES;
 
@@ -1054,7 +1058,7 @@
 
             const catSelect = document.getElementById('entryCategory');
             const accSelect = document.getElementById('entryAccount');
-            const category = (catSelect && catSelect.value) ? catSelect.value : (currentEntryType === 'income' ? '其他收入' : '日常開支');
+            const category = (catSelect && catSelect.value) ? catSelect.value : (currentEntryType.startsWith('inc') ? '其他收入' : '日常開支');
             const account = (accSelect && accSelect.value) ? accSelect.value : '現金';
             const title = document.getElementById('entryTitle').value.trim() || category;
 
@@ -1151,7 +1155,7 @@
             }
 
             dayEntries.forEach(item => {
-                const isExpense = item.type === 'expenses';
+                const isExpense = (item.type || '').trim().toLowerCase().startsWith('exp');
                 const row = document.createElement('div');
                 row.className = 'flex items-center justify-between p-2 rounded-xl bg-slate-50 dark:bg-slate-700/50 text-xs';
                 row.innerHTML = `
@@ -1267,9 +1271,11 @@
             const categorySpentMap = {};
             const accountSpentMap = {};
 
-            currentMonthExpenses.forEach(item => {
+                        currentMonthExpenses.forEach(item => {
                 const amount = Number(item.amount) || 0;
-                if (item.type === 'income') {
+                const t = (item.type || '').trim().toLowerCase();
+                
+                if (t.startsWith('inc')) {
                     totalInc += amount;
                 } else {
                     totalExp += amount;
@@ -1410,11 +1416,13 @@
             const monStr = `${monday.getFullYear()}-${String(monday.getMonth() + 1).padStart(2, '0')}-${String(monday.getDate()).padStart(2, '0')}`;
             const sunStr = `${sunday.getFullYear()}-${String(sunday.getMonth() + 1).padStart(2, '0')}-${String(sunday.getDate()).padStart(2, '0')}`;
 
-            // 依維度篩選所有開支
+                       // 依維度篩選所有開支 (排除收入)
             const filteredExpenses = (financialData || []).filter(item => {
-                if (!item || !item.date || item.type === 'incomes') return false;
+                if (!item || !item.date) return false;
+                const t = (item.type || '').trim().toLowerCase();
+                if (t.startsWith('inc')) return false; // 排除收入
                 const d = item.date.split('T')[0];
-                
+
                 if (chartPeriodFilter === 'day') {
                     return d === todayStr;
                 } else if (chartPeriodFilter === 'week') {
@@ -1846,11 +1854,10 @@
 
                                // 合併 GAS 抓取到的最新交易（自動處理 expense/expenses 與覆蓋）
                 if (result && result.finance && Array.isArray(result.finance)) {
-                    result.finance.forEach(remoteItem => {
-                        // 自動轉為單數，無論 sheet 傳來 income/incomes/expense/expenses
+                                       result.finance.forEach(remoteItem => {
+                        // 強制標準化為帶 S 的 expenses / incomes
                         let cleanType = (remoteItem.type || '').trim().toLowerCase();
-                        if (cleanType.startsWith('exp')) cleanType = 'expenses';
-                        else if (cleanType.startsWith('inc')) cleanType = 'incomes';
+                        if (cleanType.startsWith('inc')) cleanType = 'incomes';
                         else cleanType = 'expenses';
                         
                         remoteItem.type = cleanType;
