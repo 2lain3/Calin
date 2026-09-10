@@ -392,9 +392,16 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="w-full mt-2 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-medium transition shadow-sm">
-                            儲存記帳
-                        </button>
+                        <!-- 儲存 / 更新 與 取消編輯按鈕組 -->
+<div class="flex gap-2">
+    <button type="button" onclick="saveFinanceEntry()" id="btnSaveFinance" class="flex-1 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-sm transition">
+        儲存記帳
+    </button>
+    <button type="button" onclick="cancelEditFinance()" id="btnCancelEditFinance" class="hidden px-3 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 rounded-xl text-xs font-medium transition">
+        取消
+    </button>
+</div>
+
                     </form>
 
                     <!-- 當日收支列表 -->
@@ -1033,58 +1040,120 @@
             renderEventsModule();
         }
 
-             function handleModalAddFinance(e) {
-            e.preventDefault();
+                        let editingFinanceId = null; // 記錄當前正在編輯的記帳 ID
+
+        function handleModalAddFinance(e) {
+            if (e) e.preventDefault();
             const amountInput = document.getElementById('entryAmount');
             const amount = parseFloat(amountInput.value);
             
-            // 防禦 1：金額必須大於 0
             if (isNaN(amount) || amount <= 0) {
                 alert("請輸入有效金額！");
                 return;
             }
 
-            // 防禦 2：若下拉選單為空，給予預設值，絕不傳送空字串
             const catSelect = document.getElementById('entryCategory');
             const accSelect = document.getElementById('entryAccount');
             const category = (catSelect && catSelect.value) ? catSelect.value : (currentEntryType === 'income' ? '其他收入' : '日常開支');
             const account = (accSelect && accSelect.value) ? accSelect.value : '現金';
             const title = document.getElementById('entryTitle').value.trim() || category;
 
-            financialData.push({
-                id: 'fn_' + Date.now(),
-                date: activeModalDateStr,
-                type: currentEntryType,
-                amount: amount,
-                category: category,
-                account: account,
-                title: title
-            });
+            if (editingFinanceId) {
+                // 編輯模式：更新原有項目
+                const idx = financialData.findIndex(f => f.id === editingFinanceId);
+                if (idx > -1) {
+                    financialData[idx].type = currentEntryType;
+                    financialData[idx].amount = amount;
+                    financialData[idx].category = category;
+                    financialData[idx].account = account;
+                    financialData[idx].title = title;
+                }
+                editingFinanceId = null;
+                resetFinanceFormUI();
+            } else {
+                // 新增模式
+                financialData.push({
+                    id: 'fn_' + Date.now(),
+                    date: activeModalDateStr,
+                    type: currentEntryType,
+                    amount: amount,
+                    category: category,
+                    account: account,
+                    title: title
+                });
+            }
 
             saveStateToStorage();
             amountInput.value = '';
             document.getElementById('entryTitle').value = '';
             
-            renderModalDayFinance();
-            renderFinanceModule();
+            renderModalDayEntries();
             renderCalendar();
+            renderFinanceModule();
         }
 
+        function saveFinanceEntry() {
+            handleModalAddFinance(null);
+        }
+
+            function editFinanceEntry(id) {
+            const entry = financialData.find(f => f.id === id);
+            if (!entry) return;
+
+            editingFinanceId = id;
+            
+            // 兼容含 s 或不含 s
+            let cleanType = (entry.type || '').trim().toLowerCase();
+            if (cleanType.startsWith('exp')) cleanType = 'expense';
+            else cleanType = 'income';
+
+            setEntryType(cleanType);
+            document.getElementById('entryAmount').value = entry.amount;
+            
+            const catSelect = document.getElementById('entryCategory');
+            if (catSelect) catSelect.value = entry.category;
+
+            const accSelect = document.getElementById('entryAccount');
+            if (accSelect) accSelect.value = entry.account;
+
+            document.getElementById('entryTitle').value = entry.title || '';
+
+            // UI 切換為編輯狀態
+            const btnSave = document.getElementById('btnSaveFinance');
+            const btnCancel = document.getElementById('btnCancelEditFinance');
+            if (btnSave) btnSave.innerText = '儲存修改';
+            if (btnCancel) btnCancel.classList.remove('hidden');
+        }
+
+
+        function cancelEditFinance() {
+            editingFinanceId = null;
+            resetFinanceFormUI();
+        }
+
+        function resetFinanceFormUI() {
+            document.getElementById('entryAmount').value = '';
+            document.getElementById('entryTitle').value = '';
+            const btnSave = document.getElementById('btnSaveFinance');
+            const btnCancel = document.getElementById('btnCancelEditFinance');
+            if (btnSave) btnSave.innerText = '儲存記帳';
+            if (btnCancel) btnCancel.classList.add('hidden');
+        }
 
         function renderModalDayEntries() {
             const container = document.getElementById('modalEntriesList');
             container.innerHTML = '';
+            
             const dayEntries = financialData.filter(e => (e.date || '').split('T')[0] === activeModalDateStr);
-
             if (dayEntries.length === 0) {
-                container.innerHTML = `<p class="text-[11px] text-slate-400 text-center py-1">本日無收支紀錄</p>`;
+                container.innerHTML = '<p class="text-xs text-slate-400 text-center py-2">本日無收支紀錄</p>';
                 return;
             }
 
             dayEntries.forEach(item => {
                 const isExpense = item.type === 'expense';
                 const row = document.createElement('div');
-                row.className = 'flex items-center justify-between p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-xs';
+                row.className = 'flex items-center justify-between p-2 rounded-xl bg-slate-50 dark:bg-slate-700/50 text-xs';
                 row.innerHTML = `
                     <div class="flex items-center gap-2">
                         <span class="w-1.5 h-1.5 rounded-full ${isExpense ? 'bg-rose-500' : 'bg-emerald-500'}"></span>
@@ -1093,11 +1162,16 @@
                             <span class="text-[10px] text-slate-400 block">${item.category} · ${item.account}</span>
                         </div>
                     </div>
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-1.5">
                         <span class="font-bold ${isExpense ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}">
-                            ${isExpense ? '-' : '+'}$${Number(item.amount).toFixed(2)}
+                            ${isExpense ? '-' : '+'}$${parseFloat(item.amount).toFixed(2)}
                         </span>
-                        <button onclick="deleteFinanceEntry('${item.id}')" class="text-slate-400 hover:text-rose-500 p-1">
+                        <!-- 原地編輯按鈕 -->
+                        <button type="button" onclick="editFinanceEntry('${item.id}')" title="修改此筆記帳" class="text-slate-400 hover:text-blue-500 p-1 transition">
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+                        <!-- 刪除按鈕 -->
+                        <button type="button" onclick="deleteModalFinanceItem('${item.id}')" title="刪除" class="text-slate-400 hover:text-rose-500 p-1 transition">
                             <i class="fa-solid fa-trash-can"></i>
                         </button>
                     </div>
@@ -1106,8 +1180,9 @@
             });
         }
 
-        function deleteFinanceEntry(id) {
-            financialData = financialData.filter(e => e.id !== id);
+        function deleteModalFinanceItem(id) {
+            financialData = financialData.filter(f => f.id !== id);
+            if (editingFinanceId === id) cancelEditFinance();
             saveStateToStorage();
             renderModalDayEntries();
             renderCalendar();
@@ -1769,19 +1844,28 @@
                 const result = await res.json();
                 
 
-                // 合併 GAS 抓取到的最新交易（如 Gmail 自動記帳）
-
+                               // 合併 GAS 抓取到的最新交易（自動處理 expense/expenses 與覆蓋）
                 if (result && result.finance && Array.isArray(result.finance)) {
-                    const existingIds = new Set(financialData.map(f => f.id));
                     result.finance.forEach(remoteItem => {
-                        if (!existingIds.has(remoteItem.id)) {
+                        // 自動轉為單數，無論 sheet 傳來 income/incomes/expense/expenses
+                        let cleanType = (remoteItem.type || '').trim().toLowerCase();
+                        if (cleanType.startsWith('exp')) cleanType = 'expense';
+                        else if (cleanType.startsWith('inc')) cleanType = 'income';
+                        else cleanType = 'expense';
+                        
+                        remoteItem.type = cleanType;
+
+                        const localIndex = financialData.findIndex(f => f.id === remoteItem.id);
+                        if (localIndex > -1) {
+                            financialData[localIndex] = { ...financialData[localIndex], ...remoteItem };
+                        } else {
                             financialData.unshift(remoteItem);
-                            existingIds.add(remoteItem.id);
                         }
                     });
                     saveStateToStorage();
                     renderAll();
                 }
+
                 
                 statusEl.className = 'text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-600 font-medium';
                 iconEl.className = 'fa-solid fa-circle-check mr-1';
