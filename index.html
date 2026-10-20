@@ -645,6 +645,7 @@
             initTheme();
             setupSortable();
             renderAll();
+            pullWalletInbox();
         }
 
         function loadLocalStorage() {
@@ -1921,6 +1922,57 @@
             const date = String(d.getDate()).padStart(2, '0');
             return `${y}-${m}-${date}`;
         }
+        // ==================== 15. Apple Wallet 自動記帳 ====================
+        let walletPulling = false;
+        async function pullWalletInbox() {
+            if (!appConfig.scriptUrl || walletPulling) return 0;
+            walletPulling = true;
+            try {
+                const sep = appConfig.scriptUrl.includes('?') ? '&' : '?';
+                const res = await fetch(`${appConfig.scriptUrl}${sep}t=${Date.now()}`);
+                const json = await res.json();
+                const items = Array.isArray(json) ? json.filter(it => String(it.source) === 'Wallet') : [];
+
+                const seen = new Set(JSON.parse(localStorage.getItem('mylife_wallet_seen') || '[]'));
+                let added = 0;
+
+                items.forEach(it => {
+                    const id = String(it.id || '');
+                    if (!id || seen.has(id)) return;
+                    seen.add(id);
+                    if (financialData.some(f => f.id === id)) return;
+                    financialData.unshift({
+                        id: id,
+                        date: String(it.date || formatDateKey(new Date())).split('T')[0],
+                        type: 'expenses',
+                        amount: Number(it.amount) || 0,
+                        category: it.category || '日常開支',
+                        account: it.account || 'Apple Pay',
+                        title: it.title || 'Apple Pay',
+                        source: 'Wallet'
+                    });
+                    added++;
+                });
+
+                localStorage.setItem('mylife_wallet_seen', JSON.stringify([...seen]));
+                if (added > 0) {
+                    saveStateToStorage();
+                    renderAll();
+                    const textEl = document.getElementById('cloudSyncText');
+                    if (textEl) textEl.textContent = `Wallet +${added}`;
+                }
+                return added;
+            } catch (err) {
+                console.error('Wallet 匯入錯誤:', err);
+                return 0;
+            } finally {
+                walletPulling = false;
+            }
+        }
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') pullWalletInbox();
+        });
 
         function toggleTheme() {
             const isDark = document.documentElement.classList.toggle('dark');
@@ -1964,23 +2016,7 @@
 
 // 1. 完整 84 筆流日數據庫
 const STRATEGY_DATA = [
-    // 2026年 9月 (丁酉月)
-    { date: "2026-09-12", gz: "己卯", type: "🔴 極致防禦", yi: "靜默、按兵不動、記錄細節、戴金飾穩定氣場", ji: "簽約、正面爭吵、衝動做決定、向外透露底牌" },
-    { date: "2026-09-16", gz: "癸未", type: "🟠 謹言避雷", yi: "暗中觀察、被動應對、獨處沉澱、以柔克剛", ji: "為人出頭、主動挑起爭辯、參與八卦站隊" },
-    { date: "2026-09-17", gz: "甲申", type: "🟢 主動進攻", yi: "推進核心企劃、向上匯報成果、落實執行、爭取資源", ji: "猶豫不決、過度退縮、因小事拖延進度" },
-    { date: "2026-09-20", gz: "丁亥", type: "🟠 謹言避雷", yi: "三緘其口、專注個人份內事、保持情緒間隔", ji: "情緒化發言、公開抱怨體制、輕信口頭承諾" },
-    { date: "2026-09-22", gz: "己丑", type: "🟡 暗度陳倉", yi: "默默整合後台資料、借力使力、私下打通關節", ji: "高調炫耀進度、過早公開方案、硬碰硬反駁" },
-    { date: "2026-09-24", gz: "辛卯", type: "🔴 極致防禦", yi: "防守優先、覆核合約文字、備份重要數據、早睡休養", ji: "重要面試或談判、大額非必要開銷、盲目投資" },
-    { date: "2026-09-28", gz: "乙未", type: "🟠 謹言避雷", yi: "文字溝通留底、嚴格把控交付質量、謹言慎行", ji: "口頭承諾重大責任、急於反駁長輩或主管" },
-    { date: "2026-09-29", gz: "丙申", type: "🟢 主動進攻", yi: "主動出擊、展現專業權威、主導會議節奏、面試談薪", ji: "隨波逐流、自我懷疑、放任他人主導局面" },
-
     // 2026年 10月 (戊戌月)
-    { date: "2026-10-01", gz: "戊戌", type: "🔴 極致防禦", yi: "厚重防守、維持常態節奏、喝溫水健脾胃、保持低調", ji: "硬碰硬抗衡、重大職涯轉變、挑起權力鬥爭" },
-    { date: "2026-10-06", gz: "癸卯", type: "🔴 極致防禦", yi: "避開是非圈子、專注個人技能提升、嚴守財務底線", ji: "借貸給他人、感情衝動攤牌、簽署長約" },
-    { date: "2026-10-10", gz: "丁未", type: "🟠 謹言避雷", yi: "退居二線、觀察局勢演變、多聽少說", ji: "情緒內耗、承擔非本職責任、參與利益分配爭議" },
-    { date: "2026-10-11", gz: "戊申", type: "🟢 主動進攻", yi: "主動承接關鍵項目、建立權威形象、落實架構規劃", ji: "被動等待、推卸責任、讓出主導權" },
-    { date: "2026-10-13", gz: "庚戌", type: "🔴 極致防禦", yi: "步步為營、謹慎驗收各項成果、注意腸胃健康", ji: "意氣用事、與保守勢力正面衝突、激進行為" },
-    { date: "2026-10-18", gz: "乙卯", type: "🔴 極致防禦", yi: "深藏不露、整理工作標準作業流程、專心做好交付", ji: "鋒芒太露、打聽敏感人事消息、投機取巧" },
     { date: "2026-10-22", gz: "己未", type: "🟠 謹言避雷", yi: "專注眼前小步迭代、築高心理防線、遠離消極抱怨者", ji: "主動捲入派系紛爭、意圖討好所有人" },
     { date: "2026-10-23", gz: "庚申", type: "🟢 王牌進攻", yi: "全面推動重大突破、主動爭取升遷調薪、確立主導地位", ji: "畏首畏尾、錯失關鍵窗口期、因謙虛而退讓" },
     { date: "2026-10-25", gz: "壬戌", type: "🔴 極致防禦", yi: "加強風險控管、盤點個人財務資產、維持平靜作息", ji: "輕信小道消息、大額盲目跟風開銷、過激言論" },
